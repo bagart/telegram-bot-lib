@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InputChecklistTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -28,9 +30,9 @@ class EditMessageChecklistMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier for the target message')]
         public int $messageId,
         #[Description('An object for the new checklist')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputChecklistTypeDTO $checklist,
+        public InputChecklistTypeDTO $checklist,
         #[Description('An object for the new [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) for the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

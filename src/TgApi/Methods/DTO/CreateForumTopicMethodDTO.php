@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\ForumTopicTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\IconColorEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ForumTopicTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -26,7 +27,7 @@ class CreateForumTopicMethodDTO implements TgApiMethodDTOContract
         #[Description('Topic name, 1-128 characters')]
         public string $name,
         #[Description('Color of the topic icon in RGB format. Currently, must be one of 7322096 (0x6FB9F0), 16766590 (0xFFD67E), 13338331 (0xCB86DB), 9367192 (0x8EEE98), 16749490 (0xFF93B2), or 16478047 (0xFB6F5F)')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\IconColorEnum $iconColor = null,
+        public ?IconColorEnum $iconColor = null,
         #[Description('Unique identifier of the custom emoji shown as the topic icon. Use [getForumTopicIconStickers](https://core.telegram.org/bots/api#getforumtopiciconstickers) to get all allowed custom emoji identifiers.')]
         public ?string $iconCustomEmojiId = null,
     ) {

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\FileTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\StickerFormatEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\FileTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -26,7 +27,7 @@ class UploadStickerFileMethodDTO implements TgApiMethodDTOContract
         #[Description('A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See [](https://core.telegram.org/stickers)[https://core.telegram.org/stickers](https://core.telegram.org/stickers) for technical requirements. [More information on Sending Files »](https://core.telegram.org/bots/api#sending-files)')]
         public string $sticker,
         #[Description('Format of the sticker, must be one of “static”, “animated”, “video”')]
-        public \BAGArt\TelegramBot\TgApi\Methods\Enum\StickerFormatEnum $stickerFormat,
+        public StickerFormatEnum $stickerFormat,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

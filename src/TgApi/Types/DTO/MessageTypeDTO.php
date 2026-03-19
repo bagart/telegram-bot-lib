@@ -25,41 +25,41 @@ class MessageTypeDTO implements TgApiTypeDTOContract
         #[Description('Date the message was sent in Unix time. It is always a positive number, representing a valid date.')]
         public int $date,
         #[Description('Chat the message belongs to')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
+        public ChatTypeDTO $chat,
         #[Description('Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only')]
         public ?int $messageThreadId = null,
         #[Description('Information about the direct messages chat topic that contains the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\DirectMessagesTopicTypeDTO $directMessagesTopic = null,
+        public ?DirectMessagesTopicTypeDTO $directMessagesTopic = null,
         #[Description('Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $from = null,
+        public ?UserTypeDTO $from = null,
         #[Description('Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel"s discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field _from_ contains a fake sender user in non-channel chats.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $senderChat = null,
+        public ?ChatTypeDTO $senderChat = null,
         #[Description('If the sender of the message boosted the chat, the number of boosts added by the user')]
         public ?int $senderBoostCount = null,
         #[Description('The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $senderBusinessBot = null,
+        public ?UserTypeDTO $senderBusinessBot = null,
         #[Description('Tag or custom title of the sender of the message; for supergroups only')]
         public ?string $senderTag = null,
         #[Description('Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.')]
         public ?string $businessConnectionId = null,
         #[Description('Information about the original message for forwarded messages')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MessageOriginTypeDTO $forwardOrigin = null,
+        public ?MessageOriginTypeDTO $forwardOrigin = null,
         #[Description('_True_, if the message is sent to a topic in a forum supergroup or a private chat with the bot')]
         public ?bool $isTopicMessage = true,
         #[Description('_True_, if the message is a channel post that was automatically forwarded to the connected discussion group')]
         public ?bool $isAutomaticForward = true,
         #[Description('For replies in the same chat and message thread, the original message. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain further _reply\_to\_message_ fields even if it itself is a reply.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO $replyToMessage = null,
+        public ?MessageTypeDTO $replyToMessage = null,
         #[Description('Information about the message that is being replied to, which may come from another chat or forum topic')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ExternalReplyInfoTypeDTO $externalReply = null,
+        public ?ExternalReplyInfoTypeDTO $externalReply = null,
         #[Description('For replies that quote part of the original message, the quoted part of the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\TextQuoteTypeDTO $quote = null,
+        public ?TextQuoteTypeDTO $quote = null,
         #[Description('For replies to a story, the original story')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\StoryTypeDTO $replyToStory = null,
+        public ?StoryTypeDTO $replyToStory = null,
         #[Description('Identifier of the specific checklist task that is being replied to')]
         public ?int $replyToChecklistTaskId = null,
         #[Description('Bot through which the message was sent')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $viaBot = null,
+        public ?UserTypeDTO $viaBot = null,
         #[Description('Date the message was last edited in Unix time')]
         public ?int $editDate = null,
         #[Description('_True_, if the message can"t be forwarded')]
@@ -79,31 +79,31 @@ class MessageTypeDTO implements TgApiTypeDTOContract
         #[Description('For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text')]
         public ?array $entities = null,
         #[Description('Options used for link preview generation for the message, if it is a text message and link preview options were changed')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\LinkPreviewOptionsTypeDTO $linkPreviewOptions = null,
+        public ?LinkPreviewOptionsTypeDTO $linkPreviewOptions = null,
         #[Description('Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can"t be edited.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostInfoTypeDTO $suggestedPostInfo = null,
+        public ?SuggestedPostInfoTypeDTO $suggestedPostInfo = null,
         #[Description('Unique identifier of the message effect added to the message')]
         public ?string $effectId = null,
         #[Description('Message is an animation, information about the animation. For backward compatibility, when this field is set, the _document_ field will also be set')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\AnimationTypeDTO $animation = null,
+        public ?AnimationTypeDTO $animation = null,
         #[Description('Message is an audio file, information about the file')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\AudioTypeDTO $audio = null,
+        public ?AudioTypeDTO $audio = null,
         #[Description('Message is a general file, information about the file')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\DocumentTypeDTO $document = null,
+        public ?DocumentTypeDTO $document = null,
         #[Description('Message contains paid media; information about the paid media')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PaidMediaInfoTypeDTO $paidMedia = null,
+        public ?PaidMediaInfoTypeDTO $paidMedia = null,
         #[Description('Message is a photo, available sizes of the photo')]
         public ?array $photo = null,
         #[Description('Message is a sticker, information about the sticker')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\StickerTypeDTO $sticker = null,
+        public ?StickerTypeDTO $sticker = null,
         #[Description('Message is a forwarded story')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\StoryTypeDTO $story = null,
+        public ?StoryTypeDTO $story = null,
         #[Description('Message is a video, information about the video')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\VideoTypeDTO $video = null,
+        public ?VideoTypeDTO $video = null,
         #[Description('Message is a [video note](https://telegram.org/blog/video-messages-and-telescope), information about the video message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\VideoNoteTypeDTO $videoNote = null,
+        public ?VideoNoteTypeDTO $videoNote = null,
         #[Description('Message is a voice message, information about the file')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\VoiceTypeDTO $voice = null,
+        public ?VoiceTypeDTO $voice = null,
         #[Description('Caption for the animation, audio, document, paid media, photo, video or voice')]
         public ?string $caption = null,
         #[Description('For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption')]
@@ -113,27 +113,27 @@ class MessageTypeDTO implements TgApiTypeDTOContract
         #[Description('_True_, if the message media is covered by a spoiler animation')]
         public ?bool $hasMediaSpoiler = true,
         #[Description('Message is a checklist')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChecklistTypeDTO $checklist = null,
+        public ?ChecklistTypeDTO $checklist = null,
         #[Description('Message is a shared contact, information about the contact')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ContactTypeDTO $contact = null,
+        public ?ContactTypeDTO $contact = null,
         #[Description('Message is a dice with random value')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\DiceTypeDTO $dice = null,
+        public ?DiceTypeDTO $dice = null,
         #[Description('Message is a game, information about the game. [More about games »](https://core.telegram.org/bots/api#games)')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GameTypeDTO $game = null,
+        public ?GameTypeDTO $game = null,
         #[Description('Message is a native poll, information about the poll')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PollTypeDTO $poll = null,
+        public ?PollTypeDTO $poll = null,
         #[Description('Message is a venue, information about the venue. For backward compatibility, when this field is set, the _location_ field will also be set')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\VenueTypeDTO $venue = null,
+        public ?VenueTypeDTO $venue = null,
         #[Description('Message is a shared location, information about the location')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\LocationTypeDTO $location = null,
+        public ?LocationTypeDTO $location = null,
         #[Description('New members that were added to the group or supergroup and information about them (the bot itself may be one of these members)')]
         public ?array $newChatMembers = null,
         #[Description('A member was removed from the group, information about them (this member may be the bot itself)')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $leftChatMember = null,
+        public ?UserTypeDTO $leftChatMember = null,
         #[Description('Service message: chat owner has left')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatOwnerLeftTypeDTO $chatOwnerLeft = null,
+        public ?ChatOwnerLeftTypeDTO $chatOwnerLeft = null,
         #[Description('Service message: chat owner has changed')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatOwnerChangedTypeDTO $chatOwnerChanged = null,
+        public ?ChatOwnerChangedTypeDTO $chatOwnerChanged = null,
         #[Description('A chat title was changed to this value')]
         public ?string $newChatTitle = null,
         #[Description('A chat photo was change to this value')]
@@ -147,91 +147,91 @@ class MessageTypeDTO implements TgApiTypeDTOContract
         #[Description('Service message: the channel has been created. This field can"t be received in a message coming through updates, because bot can"t be a member of a channel when it is created. It can only be found in reply\_to\_message if someone replies to a very first message in a channel.')]
         public ?bool $channelChatCreated = true,
         #[Description('Service message: auto-delete timer settings changed in the chat')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MessageAutoDeleteTimerChangedTypeDTO $messageAutoDeleteTimerChanged = null,
+        public ?MessageAutoDeleteTimerChangedTypeDTO $messageAutoDeleteTimerChanged = null,
         #[Description('The group has been migrated to a supergroup with the specified identifier.')]
         public ?string $migrateToChatId = null,
         #[Description('The supergroup has been migrated from a group with the specified identifier.')]
         public ?string $migrateFromChatId = null,
         #[Description('Specified message was pinned. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain further _reply\_to\_message_ fields even if it itself is a reply.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MaybeInaccessibleMessageTypeDTO $pinnedMessage = null,
+        public ?MaybeInaccessibleMessageTypeDTO $pinnedMessage = null,
         #[Description('Message is an invoice for a [payment](https://core.telegram.org/bots/api#payments), information about the invoice. [More about payments »](https://core.telegram.org/bots/api#payments)')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InvoiceTypeDTO $invoice = null,
+        public ?InvoiceTypeDTO $invoice = null,
         #[Description('Message is a service message about a successful payment, information about the payment. [More about payments »](https://core.telegram.org/bots/api#payments)')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuccessfulPaymentTypeDTO $successfulPayment = null,
+        public ?SuccessfulPaymentTypeDTO $successfulPayment = null,
         #[Description('Message is a service message about a refunded payment, information about the payment. [More about payments »](https://core.telegram.org/bots/api#payments)')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\RefundedPaymentTypeDTO $refundedPayment = null,
+        public ?RefundedPaymentTypeDTO $refundedPayment = null,
         #[Description('Service message: users were shared with the bot')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UsersSharedTypeDTO $usersShared = null,
+        public ?UsersSharedTypeDTO $usersShared = null,
         #[Description('Service message: a chat was shared with the bot')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatSharedTypeDTO $chatShared = null,
+        public ?ChatSharedTypeDTO $chatShared = null,
         #[Description('Service message: a regular gift was sent or received')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GiftInfoTypeDTO $gift = null,
+        public ?GiftInfoTypeDTO $gift = null,
         #[Description('Service message: a unique gift was sent or received')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UniqueGiftInfoTypeDTO $uniqueGift = null,
+        public ?UniqueGiftInfoTypeDTO $uniqueGift = null,
         #[Description('Service message: upgrade of a gift was purchased after the gift was sent')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GiftInfoTypeDTO $giftUpgradeSent = null,
+        public ?GiftInfoTypeDTO $giftUpgradeSent = null,
         #[Description('The domain name of the website on which the user has logged in. [More about Telegram Login »](https://core.telegram.org/widgets/login)')]
         public ?string $connectedWebsite = null,
         #[Description('Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method [requestWriteAccess](https://core.telegram.org/bots/webapps#initializing-mini-apps)')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\WriteAccessAllowedTypeDTO $writeAccessAllowed = null,
+        public ?WriteAccessAllowedTypeDTO $writeAccessAllowed = null,
         #[Description('Telegram Passport data')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PassportDataTypeDTO $passportData = null,
+        public ?PassportDataTypeDTO $passportData = null,
         #[Description('Service message. A user in the chat triggered another user"s proximity alert while sharing Live Location.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ProximityAlertTriggeredTypeDTO $proximityAlertTriggered = null,
+        public ?ProximityAlertTriggeredTypeDTO $proximityAlertTriggered = null,
         #[Description('Service message: user boosted the chat')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatBoostAddedTypeDTO $boostAdded = null,
+        public ?ChatBoostAddedTypeDTO $boostAdded = null,
         #[Description('Service message: chat background set')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatBackgroundTypeDTO $chatBackgroundSet = null,
+        public ?ChatBackgroundTypeDTO $chatBackgroundSet = null,
         #[Description('Service message: some tasks in a checklist were marked as done or not done')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChecklistTasksDoneTypeDTO $checklistTasksDone = null,
+        public ?ChecklistTasksDoneTypeDTO $checklistTasksDone = null,
         #[Description('Service message: tasks were added to a checklist')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChecklistTasksAddedTypeDTO $checklistTasksAdded = null,
+        public ?ChecklistTasksAddedTypeDTO $checklistTasksAdded = null,
         #[Description('Service message: the price for paid messages in the corresponding direct messages chat of a channel has changed')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\DirectMessagePriceChangedTypeDTO $directMessagePriceChanged = null,
+        public ?DirectMessagePriceChangedTypeDTO $directMessagePriceChanged = null,
         #[Description('Service message: forum topic created')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ForumTopicCreatedTypeDTO $forumTopicCreated = null,
+        public ?ForumTopicCreatedTypeDTO $forumTopicCreated = null,
         #[Description('Service message: forum topic edited')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ForumTopicEditedTypeDTO $forumTopicEdited = null,
+        public ?ForumTopicEditedTypeDTO $forumTopicEdited = null,
         #[Description('Service message: forum topic closed')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ForumTopicClosedTypeDTO $forumTopicClosed = null,
+        public ?ForumTopicClosedTypeDTO $forumTopicClosed = null,
         #[Description('Service message: forum topic reopened')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ForumTopicReopenedTypeDTO $forumTopicReopened = null,
+        public ?ForumTopicReopenedTypeDTO $forumTopicReopened = null,
         #[Description('Service message: the "General" forum topic hidden')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GeneralForumTopicHiddenTypeDTO $generalForumTopicHidden = null,
+        public ?GeneralForumTopicHiddenTypeDTO $generalForumTopicHidden = null,
         #[Description('Service message: the "General" forum topic unhidden')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GeneralForumTopicUnhiddenTypeDTO $generalForumTopicUnhidden = null,
+        public ?GeneralForumTopicUnhiddenTypeDTO $generalForumTopicUnhidden = null,
         #[Description('Service message: a scheduled giveaway was created')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GiveawayCreatedTypeDTO $giveawayCreated = null,
+        public ?GiveawayCreatedTypeDTO $giveawayCreated = null,
         #[Description('The message is a scheduled giveaway message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GiveawayTypeDTO $giveaway = null,
+        public ?GiveawayTypeDTO $giveaway = null,
         #[Description('A giveaway with public winners was completed')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GiveawayWinnersTypeDTO $giveawayWinners = null,
+        public ?GiveawayWinnersTypeDTO $giveawayWinners = null,
         #[Description('Service message: a giveaway without public winners was completed')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GiveawayCompletedTypeDTO $giveawayCompleted = null,
+        public ?GiveawayCompletedTypeDTO $giveawayCompleted = null,
         #[Description('Service message: the price for paid messages has changed in the chat')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PaidMessagePriceChangedTypeDTO $paidMessagePriceChanged = null,
+        public ?PaidMessagePriceChangedTypeDTO $paidMessagePriceChanged = null,
         #[Description('Service message: a suggested post was approved')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostApprovedTypeDTO $suggestedPostApproved = null,
+        public ?SuggestedPostApprovedTypeDTO $suggestedPostApproved = null,
         #[Description('Service message: approval of a suggested post has failed')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostApprovalFailedTypeDTO $suggestedPostApprovalFailed = null,
+        public ?SuggestedPostApprovalFailedTypeDTO $suggestedPostApprovalFailed = null,
         #[Description('Service message: a suggested post was declined')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostDeclinedTypeDTO $suggestedPostDeclined = null,
+        public ?SuggestedPostDeclinedTypeDTO $suggestedPostDeclined = null,
         #[Description('Service message: payment for a suggested post was received')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostPaidTypeDTO $suggestedPostPaid = null,
+        public ?SuggestedPostPaidTypeDTO $suggestedPostPaid = null,
         #[Description('Service message: payment for a suggested post was refunded')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostRefundedTypeDTO $suggestedPostRefunded = null,
+        public ?SuggestedPostRefundedTypeDTO $suggestedPostRefunded = null,
         #[Description('Service message: video chat scheduled')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\VideoChatScheduledTypeDTO $videoChatScheduled = null,
+        public ?VideoChatScheduledTypeDTO $videoChatScheduled = null,
         #[Description('Service message: video chat started')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\VideoChatStartedTypeDTO $videoChatStarted = null,
+        public ?VideoChatStartedTypeDTO $videoChatStarted = null,
         #[Description('Service message: video chat ended')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\VideoChatEndedTypeDTO $videoChatEnded = null,
+        public ?VideoChatEndedTypeDTO $videoChatEnded = null,
         #[Description('Service message: new participants invited to a video chat')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\VideoChatParticipantsInvitedTypeDTO $videoChatParticipantsInvited = null,
+        public ?VideoChatParticipantsInvitedTypeDTO $videoChatParticipantsInvited = null,
         #[Description('Service message: data sent by a Web App')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\WebAppDataTypeDTO $webAppData = null,
+        public ?WebAppDataTypeDTO $webAppData = null,
         #[Description('[Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message. `login_url` buttons are represented as ordinary `url` buttons.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

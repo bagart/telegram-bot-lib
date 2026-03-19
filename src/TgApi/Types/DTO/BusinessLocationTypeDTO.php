@@ -23,7 +23,7 @@ class BusinessLocationTypeDTO implements TgApiTypeDTOContract
         #[Description('Address of the business')]
         public string $address,
         #[Description('Location of the business')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\LocationTypeDTO $location = null,
+        public ?LocationTypeDTO $location = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

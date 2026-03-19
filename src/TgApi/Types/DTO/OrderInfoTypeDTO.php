@@ -27,7 +27,7 @@ class OrderInfoTypeDTO implements TgApiTypeDTOContract
         #[Description('User email')]
         public ?string $email = null,
         #[Description('User shipping address')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ShippingAddressTypeDTO $shippingAddress = null,
+        public ?ShippingAddressTypeDTO $shippingAddress = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

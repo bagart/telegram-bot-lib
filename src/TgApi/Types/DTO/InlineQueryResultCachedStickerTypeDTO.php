@@ -27,9 +27,9 @@ class InlineQueryResultCachedStickerTypeDTO implements TgApiTypeDTOContract
         #[Description('Type of the result, must be _sticker_')]
         public string $type = 'sticker',
         #[Description('[Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
         #[Description('Content of the message to be sent instead of the sticker')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InputMessageContentTypeDTO $inputMessageContent = null,
+        public ?InputMessageContentTypeDTO $inputMessageContent = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

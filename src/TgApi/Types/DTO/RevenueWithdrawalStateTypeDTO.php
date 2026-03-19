@@ -8,7 +8,7 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 
-#[Todo('Is contract but not implemented yet.')]
+#[Todo('Is oneOf contract. Not implemented yet.')]
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('This object describes the state of a revenue withdrawal operation. Currently, it can be one of; ; -   [RevenueWithdrawalStatePending](https://core.telegram.org/bots/api#revenuewithdrawalstatepending); -   [RevenueWithdrawalStateSucceeded](https://core.telegram.org/bots/api#revenuewithdrawalstatesucceeded); -   [RevenueWithdrawalStateFailed](https://core.telegram.org/bots/api#revenuewithdrawalstatefailed)')]
 #[See('https://core.telegram.org/bots/api#revenuewithdrawalstate')]

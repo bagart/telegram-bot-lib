@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InputProfilePhotoTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -23,7 +24,7 @@ class SetBusinessAccountProfilePhotoMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the business connection')]
         public string $businessConnectionId,
         #[Description('The new profile photo to set')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputProfilePhotoTypeDTO $photo,
+        public InputProfilePhotoTypeDTO $photo,
         #[Description('Pass _True_ to set the public photo, which will be visible even if the main photo is hidden by the business account"s privacy settings. An account can have only one public photo.')]
         public ?bool $isPublic = null,
     ) {

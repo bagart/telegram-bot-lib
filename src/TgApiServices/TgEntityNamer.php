@@ -11,20 +11,29 @@ class TgEntityNamer
 {
     public function name(ChatTypeDTO|UserTypeDTO $entity): string
     {
-        if (strlen($entity->username)) {
+        if (isset($entity->username) && strlen($entity->username) > 0) {
             return '@'.$entity->username;
         }
 
-        if (isset($entity->title)) {
+        if (isset($entity->title) && strlen($entity->title) > 0) {
             return $entity->title;
         }
 
-        $bot = $entity->isBot ? '🤖' : null;
-        $name = trim($entity->firstName.' '.$entity->lastName);
-        if (strlen($name)) {
+        $isBot = ($entity instanceof UserTypeDTO && $entity->isBot);
+        $bot = $isBot ? '🤖' : null;
+
+        $firstName = $entity->firstName ?? '';
+        $lastName = $entity->lastName ?? '';
+        $name = trim($firstName.' '.$lastName);
+
+        if (strlen($name) > 0) {
             return "$bot$name";
         }
 
-        return "[$bot{$entity->id}]";
+        if ($bot !== null) {
+            return "[$bot{$entity->id}]";
+        }
+
+        return "[{$entity->id}]";
     }
 }

@@ -21,9 +21,9 @@ class ProximityAlertTriggeredTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('User that triggered the alert')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $traveler,
+        public UserTypeDTO $traveler,
         #[Description('User that set the alert')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $watcher,
+        public UserTypeDTO $watcher,
         #[Description('The distance between the users')]
         public int $distance,
     ) {

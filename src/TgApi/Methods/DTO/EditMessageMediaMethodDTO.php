@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InputMediaTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -22,7 +24,7 @@ class EditMessageMediaMethodDTO implements TgApiMethodDTOContract
 
     public function __construct(
         #[Description('An object for a new media content of the message')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputMediaTypeDTO $media,
+        public InputMediaTypeDTO $media,
         #[Description('Unique identifier of the business connection on behalf of which the message to be edited was sent')]
         public ?string $businessConnectionId = null,
         #[Description('Required if _inline\_message\_id_ is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)')]
@@ -32,7 +34,7 @@ class EditMessageMediaMethodDTO implements TgApiMethodDTOContract
         #[Description('Required if _chat\_id_ and _message\_id_ are not specified. Identifier of the inline message')]
         public ?string $inlineMessageId = null,
         #[Description('An object for a new [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards).')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

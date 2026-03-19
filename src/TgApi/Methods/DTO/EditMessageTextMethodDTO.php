@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\LinkPreviewOptionsTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -32,13 +35,13 @@ class EditMessageTextMethodDTO implements TgApiMethodDTOContract
         #[Description('Required if _chat\_id_ and _message\_id_ are not specified. Identifier of the inline message')]
         public ?string $inlineMessageId = null,
         #[Description('Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum $parseMode = null,
+        public ?ParseModeEnum $parseMode = null,
         #[Description('An array of special entities that appear in message text, which can be specified instead of _parse\_mode_')]
         public ?array $entities = null,
         #[Description('Link preview generation options for the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\LinkPreviewOptionsTypeDTO $linkPreviewOptions = null,
+        public ?LinkPreviewOptionsTypeDTO $linkPreviewOptions = null,
         #[Description('An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards).')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

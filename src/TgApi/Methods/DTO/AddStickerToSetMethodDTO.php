@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InputStickerTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -25,7 +26,7 @@ class AddStickerToSetMethodDTO implements TgApiMethodDTOContract
         #[Description('Sticker set name')]
         public string $name,
         #[Description('An object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn"t changed.')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputStickerTypeDTO $sticker,
+        public InputStickerTypeDTO $sticker,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

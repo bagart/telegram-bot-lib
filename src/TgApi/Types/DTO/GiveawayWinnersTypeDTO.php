@@ -21,7 +21,7 @@ class GiveawayWinnersTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The chat that created the giveaway')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
+        public ChatTypeDTO $chat,
         #[Description('Identifier of the message with the giveaway in the chat')]
         public int $giveawayMessageId,
         #[Description('Point in time (Unix timestamp) when winners of the giveaway were selected')]

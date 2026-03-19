@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\ActionEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -23,7 +24,7 @@ class SendChatActionMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel chats and channel direct messages chats aren"t supported.')]
         public string $chatId,
         #[Description('Type of action to broadcast. Choose one, depending on what the user is about to receive: _typing_ for [text messages](https://core.telegram.org/bots/api#sendmessage), _upload\_photo_ for [photos](https://core.telegram.org/bots/api#sendphoto), _record\_video_ or _upload\_video_ for [videos](https://core.telegram.org/bots/api#sendvideo), _record\_voice_ or _upload\_voice_ for [voice notes](https://core.telegram.org/bots/api#sendvoice), _upload\_document_ for [general files](https://core.telegram.org/bots/api#senddocument), _choose\_sticker_ for [stickers](https://core.telegram.org/bots/api#sendsticker), _find\_location_ for [location data](https://core.telegram.org/bots/api#sendlocation), _record\_video\_note_ or _upload\_video\_note_ for [video notes](https://core.telegram.org/bots/api#sendvideonote).')]
-        public \BAGArt\TelegramBot\TgApi\Methods\Enum\ActionEnum $action,
+        public ActionEnum $action,
         #[Description('Unique identifier of the business connection on behalf of which the action will be sent')]
         public ?string $businessConnectionId = null,
         #[Description('Unique identifier for the target message thread or topic of a forum; for supergroups and private chats of bots with forum topic mode enabled only')]

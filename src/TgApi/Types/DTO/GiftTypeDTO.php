@@ -23,7 +23,7 @@ class GiftTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier of the gift')]
         public string $id,
         #[Description('The sticker that represents the gift')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\StickerTypeDTO $sticker,
+        public StickerTypeDTO $sticker,
         #[Description('The number of Telegram Stars that must be paid to send the sticker')]
         public int $starCount,
         #[Description('The number of Telegram Stars that must be paid to upgrade the gift to a unique one')]
@@ -41,11 +41,11 @@ class GiftTypeDTO implements TgApiTypeDTOContract
         #[Description('The number of remaining gifts of this type that can be sent by the bot; for limited gifts only')]
         public ?int $personalRemainingCount = null,
         #[Description('Background of the gift')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GiftBackgroundTypeDTO $background = null,
+        public ?GiftBackgroundTypeDTO $background = null,
         #[Description('The total number of different unique gifts that can be obtained by upgrading the gift')]
         public ?int $uniqueGiftVariantCount = null,
         #[Description('Information about the chat that published the gift')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $publisherChat = null,
+        public ?ChatTypeDTO $publisherChat = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

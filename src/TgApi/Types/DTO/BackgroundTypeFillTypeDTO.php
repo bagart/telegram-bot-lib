@@ -21,7 +21,7 @@ class BackgroundTypeFillTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The background fill')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundFillTypeDTO $fill,
+        public BackgroundFillTypeDTO $fill,
         #[Description('Dimming of the background in dark themes, as a percentage; 0-100')]
         public int $darkThemeDimming,
         #[Description('Type of the background, always “fill”')]

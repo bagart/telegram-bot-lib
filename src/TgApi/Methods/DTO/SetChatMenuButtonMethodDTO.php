@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MenuButtonTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -23,7 +24,7 @@ class SetChatMenuButtonMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier for the target private chat. If not specified, default bot"s menu button will be changed')]
         public ?int $chatId = null,
         #[Description('An object for the bot"s new menu button. Defaults to [MenuButtonDefault](https://core.telegram.org/bots/api#menubuttondefault)')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MenuButtonTypeDTO $menuButton = null,
+        public ?MenuButtonTypeDTO $menuButton = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

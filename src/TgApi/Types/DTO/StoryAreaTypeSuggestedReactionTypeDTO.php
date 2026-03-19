@@ -21,7 +21,7 @@ class StoryAreaTypeSuggestedReactionTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Type of the reaction')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ReactionTypeTypeDTO $reactionType,
+        public ReactionTypeTypeDTO $reactionType,
         #[Description('Type of the area, always “suggested\_reaction”')]
         public string $type = 'suggested_reaction',
         #[Description('Pass _True_ if the reaction area has a dark background')]

@@ -21,7 +21,7 @@ class PaidMediaPurchasedTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('User who purchased the media')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $from,
+        public UserTypeDTO $from,
         #[Description('Bot-specified paid media payload')]
         public string $paidMediaPayload,
     ) {

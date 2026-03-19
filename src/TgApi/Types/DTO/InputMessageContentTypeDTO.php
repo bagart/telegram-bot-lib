@@ -8,7 +8,7 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 
-#[Todo('Is contract but not implemented yet.')]
+#[Todo('Is oneOf contract. Not implemented yet.')]
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:; ; -   [InputTextMessageContent](https://core.telegram.org/bots/api#inputtextmessagecontent); -   [InputLocationMessageContent](https://core.telegram.org/bots/api#inputlocationmessagecontent); -   [InputVenueMessageContent](https://core.telegram.org/bots/api#inputvenuemessagecontent); -   [InputContactMessageContent](https://core.telegram.org/bots/api#inputcontactmessagecontent); -   [InputInvoiceMessageContent](https://core.telegram.org/bots/api#inputinvoicemessagecontent)')]
 #[See('https://core.telegram.org/bots/api#inputmessagecontent')]

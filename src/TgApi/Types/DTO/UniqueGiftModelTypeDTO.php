@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\RarityEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -23,11 +24,11 @@ class UniqueGiftModelTypeDTO implements TgApiTypeDTOContract
         #[Description('Name of the model')]
         public string $name,
         #[Description('The sticker that represents the unique gift')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\StickerTypeDTO $sticker,
+        public StickerTypeDTO $sticker,
         #[Description('The number of unique gifts that receive this model for every 1000 gift upgrades. Always 0 for crafted gifts.')]
         public int $rarityPerMille,
         #[Description('Rarity of the model if it is a crafted model. Currently, can be “uncommon”, “rare”, “epic”, or “legendary”.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\Enum\RarityEnum $rarity = null,
+        public ?RarityEnum $rarity = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

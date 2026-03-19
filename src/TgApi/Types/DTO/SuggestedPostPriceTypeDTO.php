@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\CurrencyEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -21,7 +22,7 @@ class SuggestedPostPriceTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\CurrencyEnum $currency,
+        public CurrencyEnum $currency,
         #[Description('The amount of the currency that will be paid for the post in the _smallest units_ of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price in Telegram Stars must be between 5 and 100000, and price in nanotoncoins must be between 10000000 and 10000000000000.')]
         public int $amount,
     ) {

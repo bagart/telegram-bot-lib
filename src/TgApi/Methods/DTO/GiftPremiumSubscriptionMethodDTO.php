@@ -6,8 +6,11 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\MonthCountEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\StarCountEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\TextParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -23,13 +26,13 @@ class GiftPremiumSubscriptionMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the target user who will receive a Telegram Premium subscription')]
         public int $userId,
         #[Description('Number of months the Telegram Premium subscription will be active for the user; must be one of 3, 6, or 12')]
-        public \BAGArt\TelegramBot\TgApi\Methods\Enum\MonthCountEnum $monthCount,
+        public MonthCountEnum $monthCount,
         #[Description('Number of Telegram Stars to pay for the Telegram Premium subscription; must be 1000 for 3 months, 1500 for 6 months, and 2500 for 12 months')]
-        public \BAGArt\TelegramBot\TgApi\Methods\Enum\StarCountEnum $starCount,
+        public StarCountEnum $starCount,
         #[Description('Text that will be shown along with the service message about the subscription; 0-128 characters')]
         public ?string $text = null,
         #[Description('Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored.')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\TextParseModeEnum $textParseMode = null,
+        public ?TextParseModeEnum $textParseMode = null,
         #[Description('An array of special entities that appear in the gift text. It can be specified instead of _text\_parse\_mode_. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored.')]
         public ?array $textEntities = null,
     ) {

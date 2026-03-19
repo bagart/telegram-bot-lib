@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApiServices;
 
+use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityScopeEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
 use BAGArt\TelegramBot\Exceptions\TgUnregisteredEntityNameException;
-use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 
 class TgEntityToDTORegistry implements TgApiDTORegistryContract
 {
@@ -19,8 +22,35 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
     private array $entityToDTORegistry = [];
 
     public function __construct(
-        private TgBotLogWrapper $logger,
+        private ?ASKLogWrapper $logger = null,
     ) {
+    }
+
+    /**
+     * @param  TgApiEntityScopeEnum|TgApiEntityScopeEnumContract|class-string<TgApiEntityScopeEnumContract>  $tgApiEntityScopeEnum
+     */
+    public static function build(
+        TgApiEntityScopeEnumContract|string $tgApiEntityScopeEnum = TgApiEntityScopeEnum::class,
+        ?ASKLogWrapper $logger = null,
+    ): TgEntityToDTORegistry {
+        $tgEntityNameToDTORegistry = new self(
+            logger: $logger, // ?? ASKLogWrapper::build(),
+        );
+        assert(is_a($tgApiEntityScopeEnum, TgApiEntityScopeEnumContract::class, true));
+
+        /** @var TgApiTypesEnum|TgApiMethodsEnum $entityScopeEnum */
+        foreach ($tgApiEntityScopeEnum::cases() as $dtoScopeEnum) {
+            /** @var TgApiEntityEnumContract $entityDTOEnum */
+            foreach ($dtoScopeEnum->value::cases() as $entityDTOEnum) {
+                $tgEntityNameToDTORegistry->register(
+                    $entityDTOEnum->value,
+                    $entityDTOEnum,
+                    $dtoScopeEnum,
+                );
+            }
+        }
+
+        return $tgEntityNameToDTORegistry;
     }
 
     public function register(
@@ -29,15 +59,15 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
         ?TgApiEntityEnumContract $entityName = null,
         ?TgApiEntityScopeEnumContract $entityScope = null,
         bool $overwrite = true,
-    ): void {
+    ): self {
         $entityNameStr = $entityName ? $entityName->name : $dtoClassName::tgApiEntity()->name;
         $entityScopeStr = $entityScope ? $entityScope->name : $dtoClassName::tgEntityScope()->name;
         if (
-            !$overwrite
+            ! $overwrite
             && isset($this->entityToDTORegistry[$entityScopeStr][$entityNameStr])
         ) {
-            $this->logger->warning(
-                "TgEntityNameToDTORegistry: try to overwrite already registered $entityScope: $entityName"
+            $this->logger?->warning(
+                static::class.": try to overwrite already registered $entityScope: $entityName"
             );
         }
 
@@ -45,6 +75,8 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
             $dtoClassName = $dtoClassName::class;
         }
         $this->entityToDTORegistry[$entityScopeStr][$entityNameStr] = $dtoClassName;
+
+        return $this;
     }
 
     /** @return TgApiDTOContract|string */
@@ -57,7 +89,7 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
         }
 
         if ($tgEntityScope !== null) {
-            if (!isset($this->entityToDTORegistry[$tgEntityScope->name][$tgEntityName])) {
+            if (! isset($this->entityToDTORegistry[$tgEntityScope->name][$tgEntityName])) {
                 throw new TgUnregisteredEntityNameException($tgEntityName, $tgEntityScope->name);
             }
 

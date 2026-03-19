@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\PreparedInlineMessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineQueryResultTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\PreparedInlineMessageTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -24,7 +25,7 @@ class SavePreparedInlineMessageMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the target user that can use the prepared message')]
         public int $userId,
         #[Description('An object describing the message to be sent')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\InlineQueryResultTypeDTO $result,
+        public InlineQueryResultTypeDTO $result,
         #[Description('Pass _True_ if the message can be sent to private chats with users')]
         public ?bool $allowUserChats = null,
         #[Description('Pass _True_ if the message can be sent to private chats with bots')]

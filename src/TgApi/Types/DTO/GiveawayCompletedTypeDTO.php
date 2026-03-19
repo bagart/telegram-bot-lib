@@ -25,7 +25,7 @@ class GiveawayCompletedTypeDTO implements TgApiTypeDTOContract
         #[Description('Number of undistributed prizes')]
         public ?int $unclaimedPrizeCount = null,
         #[Description('Message with the giveaway that was completed, if it wasn"t deleted')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO $giveawayMessage = null,
+        public ?MessageTypeDTO $giveawayMessage = null,
         #[Description('_True_, if the giveaway is a Telegram Star giveaway. Otherwise, currently, the giveaway is a Telegram Premium giveaway.')]
         public ?bool $isStarGiveaway = true,
     ) {

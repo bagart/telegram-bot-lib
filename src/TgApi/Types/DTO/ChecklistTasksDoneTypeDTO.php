@@ -21,7 +21,7 @@ class ChecklistTasksDoneTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Message containing the checklist whose tasks were marked as done or not done. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain the _reply\_to\_message_ field even if it itself is a reply.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO $checklistMessage = null,
+        public ?MessageTypeDTO $checklistMessage = null,
         #[Description('Identifiers of the tasks that were marked as done')]
         public ?array $markedAsDoneTaskIds = null,
         #[Description('Identifiers of the tasks that were marked as not done')]

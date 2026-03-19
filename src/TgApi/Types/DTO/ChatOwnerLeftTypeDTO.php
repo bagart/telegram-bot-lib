@@ -21,7 +21,7 @@ class ChatOwnerLeftTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The user which will be the new owner of the chat if the previous owner does not return to the chat')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $newOwner = null,
+        public ?UserTypeDTO $newOwner = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

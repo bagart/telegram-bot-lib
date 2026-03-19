@@ -8,7 +8,7 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 
-#[Todo('Is contract but not implemented yet.')]
+#[Todo('Is oneOf contract. Not implemented yet.')]
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('This object describes the type of a background. Currently, it can be one of; ; -   [BackgroundTypeFill](https://core.telegram.org/bots/api#backgroundtypefill); -   [BackgroundTypeWallpaper](https://core.telegram.org/bots/api#backgroundtypewallpaper); -   [BackgroundTypePattern](https://core.telegram.org/bots/api#backgroundtypepattern); -   [BackgroundTypeChatTheme](https://core.telegram.org/bots/api#backgroundtypechattheme)')]
 #[See('https://core.telegram.org/bots/api#backgroundtype')]

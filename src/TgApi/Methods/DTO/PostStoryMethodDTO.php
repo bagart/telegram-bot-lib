@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\StoryTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\ActivePeriodEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InputStoryContentTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\StoryTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -24,13 +27,13 @@ class PostStoryMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the business connection')]
         public string $businessConnectionId,
         #[Description('Content of the story')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputStoryContentTypeDTO $content,
+        public InputStoryContentTypeDTO $content,
         #[Description('Period after which the story is moved to the archive, in seconds; must be one of `6 * 3600`, `12 * 3600`, `86400`, or `2 * 86400`')]
-        public \BAGArt\TelegramBot\TgApi\Methods\Enum\ActivePeriodEnum $activePeriod,
+        public ActivePeriodEnum $activePeriod,
         #[Description('Caption of the story, 0-2048 characters after entities parsing')]
         public ?string $caption = null,
         #[Description('Mode for parsing entities in the story caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum $parseMode = null,
+        public ?ParseModeEnum $parseMode = null,
         #[Description('An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_')]
         public ?array $captionEntities = null,
         #[Description('An array of clickable areas to be shown on the story')]

@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\QuoteParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -29,7 +30,7 @@ class ReplyParametersTypeDTO implements TgApiTypeDTOContract
         #[Description('Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, and _custom\_emoji_ entities. The message will fail to send if the quote isn"t found in the original message.')]
         public ?string $quote = null,
         #[Description('Mode for parsing entities in the quote. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\Enum\QuoteParseModeEnum $quoteParseMode = null,
+        public ?QuoteParseModeEnum $quoteParseMode = null,
         #[Description('An array of special entities that appear in the quote. It can be specified instead of _quote\_parse\_mode_.')]
         public ?array $quoteEntities = null,
         #[Description('Position of the quote in the original message in UTF-16 code units')]

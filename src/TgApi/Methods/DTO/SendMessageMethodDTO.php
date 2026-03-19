@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\LinkPreviewOptionsTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -32,11 +40,11 @@ class SendMessageMethodDTO implements TgApiMethodDTOContract
         #[Description('Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat')]
         public ?int $directMessagesTopicId = null,
         #[Description('Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum $parseMode = null,
+        public ?ParseModeEnum $parseMode = null,
         #[Description('An array of special entities that appear in message text, which can be specified instead of _parse\_mode_')]
         public ?array $entities = null,
         #[Description('Link preview generation options for the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\LinkPreviewOptionsTypeDTO $linkPreviewOptions = null,
+        public ?LinkPreviewOptionsTypeDTO $linkPreviewOptions = null,
         #[Description('Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound.')]
         public ?bool $disableNotification = null,
         #[Description('Protects the contents of the sent message from forwarding and saving')]
@@ -46,11 +54,11 @@ class SendMessageMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the message effect to be added to the message; for private chats only')]
         public ?string $messageEffectId = null,
         #[Description('An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
+        public ?SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
         #[Description('Description of the message to reply to')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO $replyParameters = null,
+        public ?ReplyParametersTypeDTO $replyParameters = null,
         #[Description('Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
+        public ForceReplyTypeDTO|InlineKeyboardMarkupTypeDTO|ReplyKeyboardMarkupTypeDTO|ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

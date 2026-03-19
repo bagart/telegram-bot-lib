@@ -8,7 +8,7 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 
-#[Todo('Is contract but not implemented yet.')]
+#[Todo('Is oneOf contract. Not implemented yet.')]
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes the type of a clickable area on a story. Currently, it can be one of; ; -   [StoryAreaTypeLocation](https://core.telegram.org/bots/api#storyareatypelocation); -   [StoryAreaTypeSuggestedReaction](https://core.telegram.org/bots/api#storyareatypesuggestedreaction); -   [StoryAreaTypeLink](https://core.telegram.org/bots/api#storyareatypelink); -   [StoryAreaTypeWeather](https://core.telegram.org/bots/api#storyareatypeweather); -   [StoryAreaTypeUniqueGift](https://core.telegram.org/bots/api#storyareatypeuniquegift)')]
 #[See('https://core.telegram.org/bots/api#storyareatype')]

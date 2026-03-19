@@ -21,7 +21,7 @@ class StoryTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Chat that posted the story')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
+        public ChatTypeDTO $chat,
         #[Description('Unique identifier for the story in the chat')]
         public int $id,
     ) {

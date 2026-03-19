@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\EncryptedPassportElementPropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -21,7 +22,7 @@ class EncryptedPassportElementTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Element type. One of “personal\_details”, “passport”, “driver\_license”, “identity\_card”, “internal\_passport”, “address”, “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration”, “temporary\_registration”, “phone\_number”, “email”.')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\EncryptedPassportElementPropTypeEnum $type,
+        public EncryptedPassportElementPropTypeEnum $type,
         #[Description('Base64-encoded element hash for using in [PassportElementErrorUnspecified](https://core.telegram.org/bots/api#passportelementerrorunspecified)')]
         public string $hash,
         #[Description('Base64-encoded encrypted Telegram Passport element data provided by the user; available only for “personal\_details”, “passport”, “driver\_license”, “identity\_card”, “internal\_passport” and “address” types. Can be decrypted and verified using the accompanying [EncryptedCredentials](https://core.telegram.org/bots/api#encryptedcredentials).')]
@@ -33,11 +34,11 @@ class EncryptedPassportElementTypeDTO implements TgApiTypeDTOContract
         #[Description('Array of encrypted files with documents provided by the user; available only for “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration” and “temporary\_registration” types. Files can be decrypted and verified using the accompanying [EncryptedCredentials](https://core.telegram.org/bots/api#encryptedcredentials).')]
         public ?array $files = null,
         #[Description('Encrypted file with the front side of the document, provided by the user; available only for “passport”, “driver\_license”, “identity\_card” and “internal\_passport”. The file can be decrypted and verified using the accompanying [EncryptedCredentials](https://core.telegram.org/bots/api#encryptedcredentials).')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PassportFileTypeDTO $frontSide = null,
+        public ?PassportFileTypeDTO $frontSide = null,
         #[Description('Encrypted file with the reverse side of the document, provided by the user; available only for “driver\_license” and “identity\_card”. The file can be decrypted and verified using the accompanying [EncryptedCredentials](https://core.telegram.org/bots/api#encryptedcredentials).')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PassportFileTypeDTO $reverseSide = null,
+        public ?PassportFileTypeDTO $reverseSide = null,
         #[Description('Encrypted file with the selfie of the user holding a document, provided by the user; available if requested for “passport”, “driver\_license”, “identity\_card” and “internal\_passport”. The file can be decrypted and verified using the accompanying [EncryptedCredentials](https://core.telegram.org/bots/api#encryptedcredentials).')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PassportFileTypeDTO $selfie = null,
+        public ?PassportFileTypeDTO $selfie = null,
         #[Description('Array of encrypted files with translated versions of documents provided by the user; available if requested for “passport”, “driver\_license”, “identity\_card”, “internal\_passport”, “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration” and “temporary\_registration” types. Files can be decrypted and verified using the accompanying [EncryptedCredentials](https://core.telegram.org/bots/api#encryptedcredentials).')]
         public ?array $translation = null,
     ) {

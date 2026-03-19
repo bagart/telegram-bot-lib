@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\StickerTypeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -29,7 +30,7 @@ class CreateNewStickerSetMethodDTO implements TgApiMethodDTOContract
         #[Description('An array of 1-50 initial stickers to be added to the sticker set')]
         public array $stickers,
         #[Description('Type of stickers in the set, pass “regular”, “mask”, or “custom\_emoji”. By default, a regular sticker set is created.')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\StickerTypeEnum $stickerType = null,
+        public ?StickerTypeEnum $stickerType = null,
         #[Description('Pass _True_ if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only')]
         public ?bool $needsRepainting = null,
     ) {

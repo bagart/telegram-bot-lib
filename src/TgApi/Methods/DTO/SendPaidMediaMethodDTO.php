@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -38,7 +45,7 @@ class SendPaidMediaMethodDTO implements TgApiMethodDTOContract
         #[Description('Media caption, 0-1024 characters after entities parsing')]
         public ?string $caption = null,
         #[Description('Mode for parsing entities in the media caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum $parseMode = null,
+        public ?ParseModeEnum $parseMode = null,
         #[Description('An array of special entities that appear in the caption, which can be specified instead of _parse\_mode_')]
         public ?array $captionEntities = null,
         #[Description('Pass _True_, if the caption must be shown above the message media')]
@@ -50,11 +57,11 @@ class SendPaidMediaMethodDTO implements TgApiMethodDTOContract
         #[Description('Pass _True_ to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot"s balance')]
         public ?bool $allowPaidBroadcast = null,
         #[Description('An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
+        public ?SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
         #[Description('Description of the message to reply to')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO $replyParameters = null,
+        public ?ReplyParametersTypeDTO $replyParameters = null,
         #[Description('Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
+        public ForceReplyTypeDTO|InlineKeyboardMarkupTypeDTO|ReplyKeyboardMarkupTypeDTO|ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

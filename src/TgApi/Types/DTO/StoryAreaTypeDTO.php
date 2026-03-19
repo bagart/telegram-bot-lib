@@ -21,9 +21,9 @@ class StoryAreaTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Position of the area')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\StoryAreaPositionTypeDTO $position,
+        public StoryAreaPositionTypeDTO $position,
         #[Description('Type of the area')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\StoryAreaTypeTypeDTO $type,
+        public StoryAreaTypeTypeDTO $type,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

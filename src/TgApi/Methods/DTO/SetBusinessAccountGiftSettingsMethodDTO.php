@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\AcceptedGiftTypesTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -25,7 +26,7 @@ class SetBusinessAccountGiftSettingsMethodDTO implements TgApiMethodDTOContract
         #[Description('Pass _True_, if a button for sending a gift to the user or by the business account must always be shown in the input field')]
         public bool $showGiftButton,
         #[Description('Types of gifts accepted by the business account')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\AcceptedGiftTypesTypeDTO $acceptedGiftTypes,
+        public AcceptedGiftTypesTypeDTO $acceptedGiftTypes,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineQueryResultsButtonTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -31,7 +32,7 @@ class AnswerInlineQueryMethodDTO implements TgApiMethodDTOContract
         #[Description('Pass the offset that a client should send in the next query with the same text to receive more results. Pass an empty string if there are no more results or if you don"t support pagination. Offset length can"t exceed 64 bytes.')]
         public ?string $nextOffset = null,
         #[Description('An object describing a button to be shown above inline query results')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineQueryResultsButtonTypeDTO $button = null,
+        public ?InlineQueryResultsButtonTypeDTO $button = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

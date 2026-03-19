@@ -25,11 +25,11 @@ class InlineQueryResultArticleTypeDTO implements TgApiTypeDTOContract
         #[Description('Title of the result')]
         public string $title,
         #[Description('Content of the message to be sent')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputMessageContentTypeDTO $inputMessageContent,
+        public InputMessageContentTypeDTO $inputMessageContent,
         #[Description('Type of the result, must be _article_')]
         public string $type = 'article',
         #[Description('[Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
         #[Description('URL of the result')]
         public ?string $url = null,
         #[Description('Short description of the result')]

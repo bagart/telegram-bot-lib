@@ -23,7 +23,7 @@ class MessageOriginChannelTypeDTO implements TgApiTypeDTOContract
         #[Description('Date the message was sent originally in Unix time')]
         public int $date,
         #[Description('Channel chat to which the message was originally sent')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
+        public ChatTypeDTO $chat,
         #[Description('Unique message identifier inside the chat')]
         public int $messageId,
         #[Description('Type of the message origin, always “channel”')]

@@ -21,7 +21,7 @@ class InaccessibleMessageTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Chat the message belonged to')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
+        public ChatTypeDTO $chat,
         #[Description('Unique message identifier inside the chat')]
         public int $messageId,
         #[Description('Always 0. The field can be used to differentiate regular and inaccessible messages.')]

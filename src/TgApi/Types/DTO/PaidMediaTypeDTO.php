@@ -8,7 +8,7 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 
-#[Todo('Is contract but not implemented yet.')]
+#[Todo('Is oneOf contract. Not implemented yet.')]
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('This object describes paid media. Currently, it can be one of; ; -   [PaidMediaPreview](https://core.telegram.org/bots/api#paidmediapreview); -   [PaidMediaPhoto](https://core.telegram.org/bots/api#paidmediaphoto); -   [PaidMediaVideo](https://core.telegram.org/bots/api#paidmediavideo)')]
 #[See('https://core.telegram.org/bots/api#paidmedia')]

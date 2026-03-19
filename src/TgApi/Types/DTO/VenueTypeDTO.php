@@ -21,7 +21,7 @@ class VenueTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Venue location. Can"t be a live location')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\LocationTypeDTO $location,
+        public LocationTypeDTO $location,
         #[Description('Name of the venue')]
         public string $title,
         #[Description('Address of the venue')]

@@ -7,6 +7,8 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\ParseModeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\ThumbnailMimeTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -35,21 +37,21 @@ class InlineQueryResultMpeg4GifTypeDTO implements TgApiTypeDTOContract
         #[Description('Video duration in seconds')]
         public ?int $mpeg4Duration = null,
         #[Description('MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\Enum\ThumbnailMimeTypeEnum $thumbnailMimeType = null,
+        public ?ThumbnailMimeTypeEnum $thumbnailMimeType = null,
         #[Description('Title for the result')]
         public ?string $title = null,
         #[Description('Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing')]
         public ?string $caption = null,
         #[Description('Mode for parsing entities in the caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\Enum\ParseModeEnum $parseMode = null,
+        public ?ParseModeEnum $parseMode = null,
         #[Description('List of special entities that appear in the caption, which can be specified instead of _parse\_mode_')]
         public ?array $captionEntities = null,
         #[Description('Pass _True_, if the caption must be shown above the message media')]
         public ?bool $showCaptionAboveMedia = null,
         #[Description('[Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
         #[Description('Content of the message to be sent instead of the video animation')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InputMessageContentTypeDTO $inputMessageContent = null,
+        public ?InputMessageContentTypeDTO $inputMessageContent = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

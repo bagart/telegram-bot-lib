@@ -21,7 +21,7 @@ class ChatMemberLeftTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the user')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user,
+        public UserTypeDTO $user,
         #[Description('The member"s status in the chat, always “left”')]
         public string $status = 'left',
     ) {

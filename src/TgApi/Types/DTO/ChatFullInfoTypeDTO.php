@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\ChatFullInfoPropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -23,13 +24,13 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier for this chat.')]
         public string $id,
         #[Description('Type of the chat, can be either “private”, “group”, “supergroup” or “channel”')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\ChatFullInfoPropTypeEnum $type,
+        public ChatFullInfoPropTypeEnum $type,
         #[Description('Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details.')]
         public int $accentColorId,
         #[Description('The maximum number of reactions that can be set on a message in the chat')]
         public int $maxReactionCount,
         #[Description('Information about types of gifts that are accepted by the chat or by the corresponding user for private chats')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\AcceptedGiftTypesTypeDTO $acceptedGiftTypes,
+        public AcceptedGiftTypesTypeDTO $acceptedGiftTypes,
         #[Description('Title, for supergroups, channels and group chats')]
         public ?string $title = null,
         #[Description('Username, for private chats, supergroups and channels if available')]
@@ -43,21 +44,21 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         #[Description('_True_, if the chat is the direct messages chat of a channel')]
         public ?bool $isDirectMessages = true,
         #[Description('Chat photo')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatPhotoTypeDTO $photo = null,
+        public ?ChatPhotoTypeDTO $photo = null,
         #[Description('If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames); for private chats, supergroups and channels')]
         public ?array $activeUsernames = null,
         #[Description('For private chats, the date of birth of the user')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\BirthdateTypeDTO $birthdate = null,
+        public ?BirthdateTypeDTO $birthdate = null,
         #[Description('For private chats with business accounts, the intro of the business')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\BusinessIntroTypeDTO $businessIntro = null,
+        public ?BusinessIntroTypeDTO $businessIntro = null,
         #[Description('For private chats with business accounts, the location of the business')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\BusinessLocationTypeDTO $businessLocation = null,
+        public ?BusinessLocationTypeDTO $businessLocation = null,
         #[Description('For private chats with business accounts, the opening hours of the business')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\BusinessOpeningHoursTypeDTO $businessOpeningHours = null,
+        public ?BusinessOpeningHoursTypeDTO $businessOpeningHours = null,
         #[Description('For private chats, the personal channel of the user')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $personalChat = null,
+        public ?ChatTypeDTO $personalChat = null,
         #[Description('Information about the corresponding channel chat; for direct messages chats only')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $parentChat = null,
+        public ?ChatTypeDTO $parentChat = null,
         #[Description('List of available reactions allowed in the chat. If omitted, then all [emoji reactions](https://core.telegram.org/bots/api#reactiontypeemoji) are allowed.')]
         public ?array $availableReactions = null,
         #[Description('Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background')]
@@ -85,9 +86,9 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         #[Description('Primary invite link, for groups, supergroups and channel chats')]
         public ?string $inviteLink = null,
         #[Description('The most recent pinned message (by sending date)')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO $pinnedMessage = null,
+        public ?MessageTypeDTO $pinnedMessage = null,
         #[Description('Default chat member permissions, for groups and supergroups')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatPermissionsTypeDTO $permissions = null,
+        public ?ChatPermissionsTypeDTO $permissions = null,
         #[Description('_True_, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats.')]
         public ?bool $canSendPaidMedia = true,
         #[Description('For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds')]
@@ -113,13 +114,13 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats.')]
         public ?string $linkedChatId = null,
         #[Description('For supergroups, the location to which the supergroup is connected')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatLocationTypeDTO $location = null,
+        public ?ChatLocationTypeDTO $location = null,
         #[Description('For private chats, the rating of the user if any')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserRatingTypeDTO $rating = null,
+        public ?UserRatingTypeDTO $rating = null,
         #[Description('For private chats, the first audio added to the profile of the user')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\AudioTypeDTO $firstProfileAudio = null,
+        public ?AudioTypeDTO $firstProfileAudio = null,
         #[Description('The color scheme based on a unique gift that must be used for the chat"s name, message replies and link previews')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UniqueGiftColorsTypeDTO $uniqueGiftColors = null,
+        public ?UniqueGiftColorsTypeDTO $uniqueGiftColors = null,
         #[Description('The number of Telegram Stars a general user have to pay to send a message to the chat')]
         public ?int $paidMessageStarCount = null,
     ) {

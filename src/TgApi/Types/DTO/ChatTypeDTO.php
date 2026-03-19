@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\ChatPropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -23,7 +24,7 @@ class ChatTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier for this chat.')]
         public string $id,
         #[Description('Type of the chat, can be either “private”, “group”, “supergroup” or “channel”')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\ChatPropTypeEnum $type,
+        public ChatPropTypeEnum $type,
         #[Description('Title, for supergroups, channels and group chats')]
         public ?string $title = null,
         #[Description('Username, for private chats, supergroups and channels if available')]

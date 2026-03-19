@@ -39,9 +39,9 @@ class InlineQueryResultLocationTypeDTO implements TgApiTypeDTOContract
         #[Description('For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.')]
         public ?int $proximityAlertRadius = null,
         #[Description('[Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
         #[Description('Content of the message to be sent instead of the location')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InputMessageContentTypeDTO $inputMessageContent = null,
+        public ?InputMessageContentTypeDTO $inputMessageContent = null,
         #[Description('Url of the thumbnail for the result')]
         public ?string $thumbnailUrl = null,
         #[Description('Thumbnail width')]

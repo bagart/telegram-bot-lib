@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApiServices;
 
+use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
-use BAGArt\TelegramBot\Exceptions\TgUnexpectedApiReturnException;
-use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
+use BAGArt\TelegramBot\Exceptions\TgUnexpectedDataFormatException;
 
 readonly class TgApiDTOMapper implements TgApiDTOMapperContract
 {
     public function __construct(
-        private TgBotLogWrapper $logger,
         private TgApiDTORegistryContract $tgApiDTORegistry,
+        private ?ASKLogWrapper $logger = null,
     ) {
     }
 
@@ -39,6 +39,9 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
         return $data;
     }
 
+    /**
+     * @throws TgUnexpectedDataFormatException
+     */
     public function fromArray(
         string|TgApiDTOContract|TgApiEntityEnumContract $entity,
         array $data,
@@ -67,15 +70,15 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
                 && isset($propMetas['thumbnail'])
                 && isset($data['thumbnail'])
             ) {
-                $this->logger->debug('SKIP API double: thumbnail|thumb');
+                $this->logger?->debug('SKIP API double: thumbnail|thumb');
             } else {
                 $unexpectedArg[$key] = $propValue;
             }
         }
 
         if ($unexpectedArg !== []) {
-            $this->logger->warning(
-                '[WARN] Unexpected '
+            $this->logger?->warning(
+                'Unexpected '
                 .$class.'::tgPropertyMetas keys: '
                 .implode(', ', array_keys($unexpectedArg))
                 .";\ndata=".json_encode($data)
@@ -92,7 +95,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
     ): mixed {
         if ($phpTypes === [] || $propValue === null) {
             if ($propValue !== null) {
-                throw new TgUnexpectedApiReturnException(
+                throw new TgUnexpectedDataFormatException(
                     $entity,
                     $phpTypes,
                     $propValue,
@@ -106,7 +109,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
 
         foreach ($phpTypes as $phpType) {
             if (is_array($phpType)) {
-                if (!is_array($propValue)) {
+                if (! is_array($propValue)) {
                     continue;
                 }
 
@@ -114,7 +117,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
                 foreach ($propValue as $key => $subValue) {
                     try {
                         $result[$key] = $this->prepareFormat($entity, $phpType, $subValue);
-                    } catch (TgUnexpectedApiReturnException $e) {
+                    } catch (TgUnexpectedDataFormatException $e) {
                         continue;
                     }
                 }
@@ -126,22 +129,22 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
             if (str_ends_with($phpType, 'DTO')) {
                 try {
                     return $this->fromArray($phpType, $propValue);
-                } catch (TgUnexpectedApiReturnException $e) {
+                } catch (TgUnexpectedDataFormatException $e) {
                     continue;
                 }
             }
             if (str_ends_with($phpType, 'Enum')) {
                 /** @var TgApiEnumContract $phpType */
                 return $phpType::tryFrom($propValue)
-                    ?? throw new TgUnexpectedApiReturnException(
+                    ?? throw new TgUnexpectedDataFormatException(
                         $entity,
                         $phpType,
                         $propValue,
                     );
             }
-            if ($phpType === 'string' && !is_string($propValue) && is_numeric($propValue)) {
-                //int52|float
-                $propValue = (string)$propValue;
+            if ($phpType === 'string' && ! is_string($propValue) && is_numeric($propValue)) {
+                // int52|float
+                $propValue = (string) $propValue;
             }
 
             if ($this->matchPrimitiveType($phpType, $propValue)) {
@@ -149,7 +152,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
             }
         }
 
-        throw new TgUnexpectedApiReturnException(
+        throw new TgUnexpectedDataFormatException(
             $entity,
             $phpTypes,
             $propValue,

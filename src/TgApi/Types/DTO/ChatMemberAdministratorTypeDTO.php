@@ -21,7 +21,7 @@ class ChatMemberAdministratorTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the user')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user,
+        public UserTypeDTO $user,
         #[Description('_True_, if the bot is allowed to edit administrator privileges of that user')]
         public bool $canBeEdited,
         #[Description('_True_, if the user"s presence in the chat is hidden')]

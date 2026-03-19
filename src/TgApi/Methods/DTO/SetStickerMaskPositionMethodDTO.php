@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MaskPositionTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -23,7 +24,7 @@ class SetStickerMaskPositionMethodDTO implements TgApiMethodDTOContract
         #[Description('File identifier of the sticker')]
         public string $sticker,
         #[Description('An object with the position where the mask should be placed on faces. Omit the parameter to remove the mask position.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MaskPositionTypeDTO $maskPosition = null,
+        public ?MaskPositionTypeDTO $maskPosition = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

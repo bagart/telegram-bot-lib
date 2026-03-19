@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\PointEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -21,7 +22,7 @@ class MaskPositionTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The part of the face relative to which the mask should be placed. One of “forehead”, “eyes”, “mouth”, or “chin”.')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\PointEnum $point,
+        public PointEnum $point,
         #[Description('Shift by X-axis measured in widths of the mask scaled to the face size, from left to right. For example, choosing -1.0 will place mask just to the left of the default mask position.')]
         public string $xShift,
         #[Description('Shift by Y-axis measured in heights of the mask scaled to the face size, from top to bottom. For example, 1.0 will place the mask just below the default mask position.')]

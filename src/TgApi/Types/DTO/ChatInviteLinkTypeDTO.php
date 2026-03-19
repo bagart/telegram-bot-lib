@@ -23,7 +23,7 @@ class ChatInviteLinkTypeDTO implements TgApiTypeDTOContract
         #[Description('The invite link. If the link was created by another chat administrator, then the second part of the link will be replaced with “…”.')]
         public string $inviteLink,
         #[Description('Creator of the link')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $creator,
+        public UserTypeDTO $creator,
         #[Description('_True_, if users joining the chat via the link need to be approved by chat administrators')]
         public bool $createsJoinRequest,
         #[Description('_True_, if the link is primary')]

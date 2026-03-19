@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\ExplanationParseModeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\QuestionParseModeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\SendPollPropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -32,13 +40,13 @@ class SendPollMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only')]
         public ?int $messageThreadId = null,
         #[Description('Mode for parsing entities in the question. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Currently, only custom emoji entities are allowed')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\QuestionParseModeEnum $questionParseMode = null,
+        public ?QuestionParseModeEnum $questionParseMode = null,
         #[Description('An array of special entities that appear in the poll question. It can be specified instead of _question\_parse\_mode_')]
         public ?array $questionEntities = null,
         #[Description('_True_, if the poll needs to be anonymous, defaults to _True_')]
         public ?bool $isAnonymous = null,
         #[Description('Poll type, “quiz” or “regular”, defaults to “regular”')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\SendPollPropTypeEnum $type = null,
+        public ?SendPollPropTypeEnum $type = null,
         #[Description('_True_, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to _False_')]
         public ?bool $allowsMultipleAnswers = null,
         #[Description('0-based identifier of the correct answer option, required for polls in quiz mode')]
@@ -46,7 +54,7 @@ class SendPollMethodDTO implements TgApiMethodDTOContract
         #[Description('Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing')]
         public ?string $explanation = null,
         #[Description('Mode for parsing entities in the explanation. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\ExplanationParseModeEnum $explanationParseMode = null,
+        public ?ExplanationParseModeEnum $explanationParseMode = null,
         #[Description('An array of special entities that appear in the poll explanation. It can be specified instead of _explanation\_parse\_mode_')]
         public ?array $explanationEntities = null,
         #[Description('Amount of time in seconds the poll will be active after creation, 5-600. Can"t be used together with _close\_date_.')]
@@ -64,9 +72,9 @@ class SendPollMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the message effect to be added to the message; for private chats only')]
         public ?string $messageEffectId = null,
         #[Description('Description of the message to reply to')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO $replyParameters = null,
+        public ?ReplyParametersTypeDTO $replyParameters = null,
         #[Description('Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
+        public ForceReplyTypeDTO|InlineKeyboardMarkupTypeDTO|ReplyKeyboardMarkupTypeDTO|ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

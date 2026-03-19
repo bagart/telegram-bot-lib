@@ -27,7 +27,7 @@ class StoryAreaTypeLocationTypeDTO implements TgApiTypeDTOContract
         #[Description('Type of the area, always “location”')]
         public string $type = 'location',
         #[Description('Address of the location')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\LocationAddressTypeDTO $address = null,
+        public ?LocationAddressTypeDTO $address = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

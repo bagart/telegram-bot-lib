@@ -31,7 +31,7 @@ class GameTypeDTO implements TgApiTypeDTOContract
         #[Description('Special entities that appear in _text_, such as usernames, URLs, bot commands, etc.')]
         public ?array $textEntities = null,
         #[Description('Animation that will be displayed in the game message in chats. Upload via [BotFather](https://t.me/botfather)')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\AnimationTypeDTO $animation = null,
+        public ?AnimationTypeDTO $animation = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

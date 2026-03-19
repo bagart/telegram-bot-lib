@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ChatAdministratorRightsTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -21,7 +22,7 @@ class SetMyDefaultAdministratorRightsMethodDTO implements TgApiMethodDTOContract
 
     public function __construct(
         #[Description('An object describing new default administrator rights. If not specified, the default administrator rights will be cleared.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatAdministratorRightsTypeDTO $rights = null,
+        public ?ChatAdministratorRightsTypeDTO $rights = null,
         #[Description('Pass _True_ to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed.')]
         public ?bool $forChannels = null,
     ) {

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\StoryTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\ActivePeriodEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\StoryTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -28,7 +29,7 @@ class RepostStoryMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the story that should be reposted')]
         public int $fromStoryId,
         #[Description('Period after which the story is moved to the archive, in seconds; must be one of `6 * 3600`, `12 * 3600`, `86400`, or `2 * 86400`')]
-        public \BAGArt\TelegramBot\TgApi\Methods\Enum\ActivePeriodEnum $activePeriod,
+        public ActivePeriodEnum $activePeriod,
         #[Description('Pass _True_ to keep the story accessible after it expires')]
         public ?bool $postToChatPage = null,
         #[Description('Pass _True_ if the content of the story must be protected from forwarding and screenshotting')]

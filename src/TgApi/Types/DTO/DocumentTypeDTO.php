@@ -25,7 +25,7 @@ class DocumentTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier for this file, which is supposed to be the same over time and for different bots. Can"t be used to download or reuse the file.')]
         public string $fileUniqueId,
         #[Description('Document thumbnail as defined by the sender')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PhotoSizeTypeDTO $thumbnail = null,
+        public ?PhotoSizeTypeDTO $thumbnail = null,
         #[Description('Original filename as defined by the sender')]
         public ?string $fileName = null,
         #[Description('MIME type of the file as defined by the sender')]

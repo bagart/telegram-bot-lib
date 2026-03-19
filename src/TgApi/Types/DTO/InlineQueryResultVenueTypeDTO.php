@@ -41,9 +41,9 @@ class InlineQueryResultVenueTypeDTO implements TgApiTypeDTOContract
         #[Description('Google Places type of the venue. (See [supported types](https://developers.google.com/places/web-service/supported_types).)')]
         public ?string $googlePlaceType = null,
         #[Description('[Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
         #[Description('Content of the message to be sent instead of the venue')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InputMessageContentTypeDTO $inputMessageContent = null,
+        public ?InputMessageContentTypeDTO $inputMessageContent = null,
         #[Description('Url of the thumbnail for the result')]
         public ?string $thumbnailUrl = null,
         #[Description('Thumbnail width')]

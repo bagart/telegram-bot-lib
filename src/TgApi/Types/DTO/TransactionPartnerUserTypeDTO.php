@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\TransactionTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -21,13 +22,13 @@ class TransactionPartnerUserTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Type of the transaction, currently one of “invoice\_payment” for payments via invoices, “paid\_media\_payment” for payments for paid media, “gift\_purchase” for gifts sent by the bot, “premium\_purchase” for Telegram Premium subscriptions gifted by the bot, “business\_account\_transfer” for direct transfers from managed business accounts')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\TransactionTypeEnum $transactionType,
+        public TransactionTypeEnum $transactionType,
         #[Description('Information about the user')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user,
+        public UserTypeDTO $user,
         #[Description('Type of the transaction partner, always “user”')]
         public string $type = 'user',
         #[Description('Information about the affiliate that received a commission via this transaction. Can be available only for “invoice\_payment” and “paid\_media\_payment” transactions.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\AffiliateInfoTypeDTO $affiliate = null,
+        public ?AffiliateInfoTypeDTO $affiliate = null,
         #[Description('Bot-specified invoice payload. Can be available only for “invoice\_payment” transactions.')]
         public ?string $invoicePayload = null,
         #[Description('The duration of the paid subscription. Can be available only for “invoice\_payment” transactions.')]
@@ -37,7 +38,7 @@ class TransactionPartnerUserTypeDTO implements TgApiTypeDTOContract
         #[Description('Bot-specified paid media payload. Can be available only for “paid\_media\_payment” transactions.')]
         public ?string $paidMediaPayload = null,
         #[Description('The gift sent to the user by the bot; for “gift\_purchase” transactions only')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\GiftTypeDTO $gift = null,
+        public ?GiftTypeDTO $gift = null,
         #[Description('Number of months the gifted Telegram Premium subscription will be active for; for “premium\_purchase” transactions only')]
         public ?int $premiumSubscriptionDuration = null,
     ) {

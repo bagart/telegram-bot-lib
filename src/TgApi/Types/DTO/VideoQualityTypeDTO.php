@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\CodecEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -29,7 +30,7 @@ class VideoQualityTypeDTO implements TgApiTypeDTOContract
         #[Description('Video height')]
         public int $height,
         #[Description('Codec that was used to encode the video, for example, “h264”, “h265”, or “av01”')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\CodecEnum $codec,
+        public CodecEnum $codec,
         #[Description('File size in bytes.')]
         public ?string $fileSize = null,
     ) {

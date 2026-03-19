@@ -25,7 +25,7 @@ class ChatBoostSourceGiveawayTypeDTO implements TgApiTypeDTOContract
         #[Description('Source of the boost, always “giveaway”')]
         public string $source = 'giveaway',
         #[Description('User that won the prize in the giveaway if any; for Telegram Premium giveaways only')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user = null,
+        public ?UserTypeDTO $user = null,
         #[Description('The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only')]
         public ?int $prizeStarCount = null,
         #[Description('_True_, if the giveaway was completed, but there was no user to win the prize')]

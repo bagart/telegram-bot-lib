@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\StateEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -21,9 +22,9 @@ class SuggestedPostInfoTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('State of the suggested post. Currently, it can be one of “pending”, “approved”, “declined”.')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\StateEnum $state,
+        public StateEnum $state,
         #[Description('Proposed price of the post. If the field is omitted, then the post is unpaid.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostPriceTypeDTO $price = null,
+        public ?SuggestedPostPriceTypeDTO $price = null,
         #[Description('Proposed send date of the post. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user or administrator who approves it.')]
         public ?int $sendDate = null,
     ) {

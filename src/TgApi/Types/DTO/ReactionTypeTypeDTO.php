@@ -8,7 +8,7 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 
-#[Todo('Is contract but not implemented yet.')]
+#[Todo('Is oneOf contract. Not implemented yet.')]
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('This object describes the type of a reaction. Currently, it can be one of; ; -   [ReactionTypeEmoji](https://core.telegram.org/bots/api#reactiontypeemoji); -   [ReactionTypeCustomEmoji](https://core.telegram.org/bots/api#reactiontypecustomemoji); -   [ReactionTypePaid](https://core.telegram.org/bots/api#reactiontypepaid)')]
 #[See('https://core.telegram.org/bots/api#reactiontype')]

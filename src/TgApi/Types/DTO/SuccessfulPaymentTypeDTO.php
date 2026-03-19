@@ -39,7 +39,7 @@ class SuccessfulPaymentTypeDTO implements TgApiTypeDTOContract
         #[Description('Identifier of the shipping option chosen by the user')]
         public ?string $shippingOptionId = null,
         #[Description('Order information provided by the user')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\OrderInfoTypeDTO $orderInfo = null,
+        public ?OrderInfoTypeDTO $orderInfo = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

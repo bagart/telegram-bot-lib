@@ -23,7 +23,7 @@ class ChecklistTasksAddedTypeDTO implements TgApiTypeDTOContract
         #[Description('List of tasks added to the checklist')]
         public array $tasks,
         #[Description('Message containing the checklist to which the tasks were added. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain the _reply\_to\_message_ field even if it itself is a reply.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO $checklistMessage = null,
+        public ?MessageTypeDTO $checklistMessage = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

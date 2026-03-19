@@ -6,8 +6,9 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -23,7 +24,7 @@ class SetMyCommandsMethodDTO implements TgApiMethodDTOContract
         #[Description('An array of bot commands to be set as the list of the bot"s commands. At most 100 commands can be specified.')]
         public array $commands,
         #[Description('An object, describing scope of users for which the commands are relevant. Defaults to [BotCommandScopeDefault](https://core.telegram.org/bots/api#botcommandscopedefault).')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeTypeDTO $scope = null,
+        public ?BotCommandScopeTypeDTO $scope = null,
         #[Description('A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands')]
         public ?string $languageCode = null,
     ) {

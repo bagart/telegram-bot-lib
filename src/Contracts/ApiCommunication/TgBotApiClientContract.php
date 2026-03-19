@@ -4,15 +4,24 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Contracts\ApiCommunication;
 
-use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
-use GuzzleHttp\Promise\PromiseInterface;
+use BAGArt\ASKClient\Contracts\ASKFutureContract;
+use BAGArt\TelegramBot\Configs\TgBotConfig;
 
 interface TgBotApiClientContract
 {
+    /**
+     * @return array{ok: bool, result?: mixed, error_code?: int, description?: string}
+     */
+    public function request(
+        TgBotConfig $config,
+        string $method,
+        array $params = [],
+    ): array;
+
     public function requestAsync(
-        string $token,
-        TgApiEntityEnumContract|string $method,
-        array $params,
-        int $attempt = 1,
-    ): PromiseInterface;
+        TgBotConfig $config,
+        string $method,
+        array $params = [],
+        ?int $timeout = null,
+    ): ASKFutureContract;
 }

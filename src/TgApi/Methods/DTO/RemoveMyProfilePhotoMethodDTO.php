@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Removes the profile photo of the bot. Requires no parameters. Returns _True_ on success.')]

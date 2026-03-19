@@ -23,7 +23,7 @@ class MessageOriginChatTypeDTO implements TgApiTypeDTOContract
         #[Description('Date the message was sent originally in Unix time')]
         public int $date,
         #[Description('Chat that sent the message originally')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $senderChat,
+        public ChatTypeDTO $senderChat,
         #[Description('Type of the message origin, always “chat”')]
         public string $type = 'chat',
         #[Description('For messages originally sent by an anonymous chat administrator, original message author signature')]

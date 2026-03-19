@@ -4,22 +4,35 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Contracts\ApiCommunication;
 
+use BAGArt\ASKClient\Contracts\ASKFutureContract;
+use BAGArt\AsyncKernel\Contracts\Daemons\WithASKTickableContract;
+use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApiServices\TgApiResponse;
-use GuzzleHttp\Promise\PromiseInterface;
+use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
 
-interface TgBotApiDTOClientContract
+/**
+ * Typed Telegram Bot API client — accepts DTOs, returns parsed responses.
+ *
+ * Extends {@see WithASKTickableContract} so that the underlying HTTP transport
+ * (when tickable) is driven by the async kernel through the daemon chain.
+ */
+interface TgBotApiDTOClientContract extends WithASKTickableContract
 {
-    /** @see https://core.telegram.org/bots/api */
+    /**
+     * Send a typed DTO request synchronously.
+     */
     public function request(
-        string $token,
+        TgBotConfig $botConfig,
         TgApiMethodDTOContract $dto,
+        ?int $timeout = null,
     ): TgApiResponse;
 
-    /** @see https://core.telegram.org/bots/api */
+    /**
+     * Send a typed DTO request asynchronously.
+     */
     public function requestAsync(
-        string $token,
+        TgBotConfig $botConfig,
         TgApiMethodDTOContract $dto,
-        int $attempt = 1,
-    ): PromiseInterface;
+        ?int $timeout = null,
+    ): ASKFutureContract;
 }

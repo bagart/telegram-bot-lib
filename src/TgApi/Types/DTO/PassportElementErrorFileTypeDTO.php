@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorFilePropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -21,7 +22,7 @@ class PassportElementErrorFileTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The section of the user"s Telegram Passport which has the issue, one of “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration”, “temporary\_registration”')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorFilePropTypeEnum $type,
+        public PassportElementErrorFilePropTypeEnum $type,
         #[Description('Base64-encoded file hash')]
         public string $fileHash,
         #[Description('Error message')]

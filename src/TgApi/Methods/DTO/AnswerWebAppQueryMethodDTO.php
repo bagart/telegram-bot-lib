@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\SentWebAppMessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineQueryResultTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\SentWebAppMessageTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -24,7 +25,7 @@ class AnswerWebAppQueryMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier for the query to be answered')]
         public string $webAppQueryId,
         #[Description('An object describing the message to be sent')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\InlineQueryResultTypeDTO $result,
+        public InlineQueryResultTypeDTO $result,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

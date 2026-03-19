@@ -7,6 +7,8 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\InlineQueryResultDocumentPropMimeTypeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\ParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -27,21 +29,21 @@ class InlineQueryResultDocumentTypeDTO implements TgApiTypeDTOContract
         #[Description('A valid URL for the file')]
         public string $documentUrl,
         #[Description('MIME type of the content of the file, either “application/pdf” or “application/zip”')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\InlineQueryResultDocumentPropMimeTypeEnum $mimeType,
+        public InlineQueryResultDocumentPropMimeTypeEnum $mimeType,
         #[Description('Type of the result, must be _document_')]
         public string $type = 'document',
         #[Description('Caption of the document to be sent, 0-1024 characters after entities parsing')]
         public ?string $caption = null,
         #[Description('Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\Enum\ParseModeEnum $parseMode = null,
+        public ?ParseModeEnum $parseMode = null,
         #[Description('List of special entities that appear in the caption, which can be specified instead of _parse\_mode_')]
         public ?array $captionEntities = null,
         #[Description('Short description of the result')]
         public ?string $description = null,
         #[Description('[Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
         #[Description('Content of the message to be sent instead of the file')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InputMessageContentTypeDTO $inputMessageContent = null,
+        public ?InputMessageContentTypeDTO $inputMessageContent = null,
         #[Description('URL of the thumbnail (JPEG only) for the file')]
         public ?string $thumbnailUrl = null,
         #[Description('Thumbnail width')]

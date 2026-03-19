@@ -1,22 +1,59 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "bagart/telegram-bot-lib",
-    "type": "library",
     "description": "Telegram Bot core library",
-    "keywords": ["telegram", "bot", "api"],
+    "type": "library",
     "license": "MIT",
+    "keywords": [
+        "telegram",
+        "tg-bot",
+        "tg-api",
+        "telegram-bot",
+        "telegram-api",
+        "bot-platform",
+        "ASK",
+        "async",
+        "pipeline",
+        "client",
+        "execution-engine",
+        "fiber",
+        "transport",
+        "runtime",
+        "future"
+    ],
     "authors": [
         {
-            "name": "BAGArt",
-            "email": "baltaev.artur+lib@gmail.com"
+            "name": "BAGArt (Artur Baltaev)",
+            "email": "baltaev.artur+ask@gmail.com"
         }
     ],
     "require": {
-        "php": "^8.5"
+        "php": "^8.5",
+        "psr/container": "^2.0",
+        "bagart/async-kernel": "*",
+        "bagart/ask-client": "*",
+        "bagart/daemon-runner": "*"
     },
     "autoload": {
         "psr-4": {
             "BAGArt\\TelegramBot\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BAGArt\\TelegramBot\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:fullcycle",
+            "@test:integration",
+            "@test:offline",
+            "@test:pest"
+        ],
+        "test:fullcycle": "php tests/Integration/FullCycleTest.php",
+        "test:integration": "php tests/Integration/integration-test.php",
+        "test:offline": "php tests/Integration/commands-offline-test.php",
+        "test:pest": "@php ../../../vendor/bin/pest tests --colors=always"
     }
 }

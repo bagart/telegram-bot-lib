@@ -21,7 +21,7 @@ class OwnedGiftUniqueTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the unique gift')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UniqueGiftTypeDTO $gift,
+        public UniqueGiftTypeDTO $gift,
         #[Description('Date the gift was sent in Unix time')]
         public int $sendDate,
         #[Description('Type of the gift, always “unique”')]
@@ -29,7 +29,7 @@ class OwnedGiftUniqueTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier of the received gift for the bot; for gifts received on behalf of business accounts only')]
         public ?string $ownedGiftId = null,
         #[Description('Sender of the gift if it is a known user')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $senderUser = null,
+        public ?UserTypeDTO $senderUser = null,
         #[Description('_True_, if the gift is displayed on the account"s profile page; for gifts received on behalf of business accounts only')]
         public ?bool $isSaved = true,
         #[Description('_True_, if the gift can be transferred to another owner; for gifts received on behalf of business accounts only')]

@@ -21,7 +21,7 @@ class ChatMemberBannedTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the user')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user,
+        public UserTypeDTO $user,
         #[Description('Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever')]
         public int $untilDate,
         #[Description('The member"s status in the chat, always “kicked”')]

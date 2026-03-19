@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -22,7 +23,7 @@ class GetMyCommandsMethodDTO implements TgApiMethodDTOContract
 
     public function __construct(
         #[Description('An object, describing scope of users. Defaults to [BotCommandScopeDefault](https://core.telegram.org/bots/api#botcommandscopedefault).')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeTypeDTO $scope = null,
+        public ?BotCommandScopeTypeDTO $scope = null,
         #[Description('A two-letter ISO 639-1 language code or an empty string')]
         public ?string $languageCode = null,
     ) {

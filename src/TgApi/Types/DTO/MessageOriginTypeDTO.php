@@ -8,7 +8,7 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 
-#[Todo('Is contract but not implemented yet.')]
+#[Todo('Is oneOf contract. Not implemented yet.')]
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('This object describes the origin of a message. It can be one of; ; -   [MessageOriginUser](https://core.telegram.org/bots/api#messageoriginuser); -   [MessageOriginHiddenUser](https://core.telegram.org/bots/api#messageoriginhiddenuser); -   [MessageOriginChat](https://core.telegram.org/bots/api#messageoriginchat); -   [MessageOriginChannel](https://core.telegram.org/bots/api#messageoriginchannel)')]
 #[See('https://core.telegram.org/bots/api#messageorigin')]

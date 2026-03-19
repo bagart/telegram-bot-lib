@@ -8,7 +8,7 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 
-#[Todo('Is contract but not implemented yet.')]
+#[Todo('Is oneOf contract. Not implemented yet.')]
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('This object describes the source of a chat boost. It can be one of; ; -   [ChatBoostSourcePremium](https://core.telegram.org/bots/api#chatboostsourcepremium); -   [ChatBoostSourceGiftCode](https://core.telegram.org/bots/api#chatboostsourcegiftcode); -   [ChatBoostSourceGiveaway](https://core.telegram.org/bots/api#chatboostsourcegiveaway)')]
 #[See('https://core.telegram.org/bots/api#chatboostsource')]

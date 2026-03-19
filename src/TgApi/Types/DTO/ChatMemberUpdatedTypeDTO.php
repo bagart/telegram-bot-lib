@@ -21,17 +21,17 @@ class ChatMemberUpdatedTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Chat the user belongs to')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
+        public ChatTypeDTO $chat,
         #[Description('Performer of the action, which resulted in the change')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $from,
+        public UserTypeDTO $from,
         #[Description('Date the change was done in Unix time')]
         public int $date,
         #[Description('Previous information about the chat member')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberTypeDTO $oldChatMember,
+        public ChatMemberTypeDTO $oldChatMember,
         #[Description('New information about the chat member')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberTypeDTO $newChatMember,
+        public ChatMemberTypeDTO $newChatMember,
         #[Description('Chat invite link, which was used by the user to join the chat; for joining by invite link events only.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatInviteLinkTypeDTO $inviteLink = null,
+        public ?ChatInviteLinkTypeDTO $inviteLink = null,
         #[Description('_True_, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator')]
         public ?bool $viaJoinRequest = null,
         #[Description('_True_, if the user joined the chat via a chat folder invite link')]

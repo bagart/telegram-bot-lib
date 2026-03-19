@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\CurrencyEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -21,13 +22,13 @@ class SuggestedPostPaidTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\CurrencyEnum $currency,
+        public CurrencyEnum $currency,
         #[Description('Message containing the suggested post. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain the _reply\_to\_message_ field even if it itself is a reply.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO $suggestedPostMessage = null,
+        public ?MessageTypeDTO $suggestedPostMessage = null,
         #[Description('The amount of the currency that was received by the channel in nanotoncoins; for payments in toncoins only')]
         public ?int $amount = null,
         #[Description('The amount of Telegram Stars that was received by the channel; for payments in Telegram Stars only')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\StarAmountTypeDTO $starAmount = null,
+        public ?StarAmountTypeDTO $starAmount = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

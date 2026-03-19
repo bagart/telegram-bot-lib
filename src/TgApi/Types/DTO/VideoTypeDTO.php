@@ -31,7 +31,7 @@ class VideoTypeDTO implements TgApiTypeDTOContract
         #[Description('Duration of the video in seconds as defined by the sender')]
         public int $duration,
         #[Description('Video thumbnail')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PhotoSizeTypeDTO $thumbnail = null,
+        public ?PhotoSizeTypeDTO $thumbnail = null,
         #[Description('Available sizes of the cover of the video in the message')]
         public ?array $cover = null,
         #[Description('Timestamp in seconds from which the video will play in the message')]

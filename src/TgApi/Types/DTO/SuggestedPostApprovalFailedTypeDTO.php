@@ -21,9 +21,9 @@ class SuggestedPostApprovalFailedTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Expected price of the post')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostPriceTypeDTO $price,
+        public SuggestedPostPriceTypeDTO $price,
         #[Description('Message containing the suggested post whose approval has failed. Note that the [Message](https://core.telegram.org/bots/api#message) object in this field will not contain the _reply\_to\_message_ field even if it itself is a reply.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO $suggestedPostMessage = null,
+        public ?MessageTypeDTO $suggestedPostMessage = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

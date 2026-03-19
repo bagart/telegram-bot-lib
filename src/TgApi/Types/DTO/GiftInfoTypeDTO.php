@@ -21,7 +21,7 @@ class GiftInfoTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the gift')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\GiftTypeDTO $gift,
+        public GiftTypeDTO $gift,
         #[Description('Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts')]
         public ?string $ownedGiftId = null,
         #[Description('Number of Telegram Stars that can be claimed by the receiver by converting the gift; omitted if conversion to Telegram Stars is impossible')]

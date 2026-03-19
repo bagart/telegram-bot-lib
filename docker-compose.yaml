@@ -1,0 +1,56 @@
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - tg-bot-network
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    command: php /app/commands/all-in-one-daemon.php --token=${TELEGRAM_BOT_TOKEN} --log-level=info
+    environment:
+      TG_LIB_REDIS_HOST: redis
+      TG_LIB_REDIS_PORT: "6379"
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TG_OUTBOUND_TRANSPORT: ${TG_OUTBOUND_TRANSPORT:-ask-socket}
+      TG_OUTBOUND_SOCKET_POOL: ${TG_OUTBOUND_SOCKET_POOL:-1}
+      TG_OUTBOUND_MAX_IDLE_PER_HOST: ${TG_OUTBOUND_MAX_IDLE_PER_HOST:-8}
+      TG_OUTBOUND_MAX_IDLE_TOTAL: ${TG_OUTBOUND_MAX_IDLE_TOTAL:-32}
+      TG_OUTBOUND_IDLE_TIMEOUT: ${TG_OUTBOUND_IDLE_TIMEOUT:-60.0}
+      TG_OUTBOUND_WARM_CONNECTIONS: ${TG_OUTBOUND_WARM_CONNECTIONS:-4}
+      TG_OUTBOUND_WARM_HOST: ${TG_OUTBOUND_WARM_HOST:-api.telegram.org}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - tg-bot-network
+
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    command: php -S 0.0.0.0:8080 -t /app/public
+    ports:
+      - "8080:8080"
+    environment:
+      TG_LIB_REDIS_HOST: redis
+      TG_LIB_REDIS_PORT: "6379"
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - tg-bot-network
+
+networks:
+  tg-bot-network:

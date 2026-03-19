@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorDataFieldPropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -21,7 +22,7 @@ class PassportElementErrorDataFieldTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The section of the user"s Telegram Passport which has the error, one of “personal\_details”, “passport”, “driver\_license”, “identity\_card”, “internal\_passport”, “address”')]
-        public \BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorDataFieldPropTypeEnum $type,
+        public PassportElementErrorDataFieldPropTypeEnum $type,
         #[Description('Name of the data field which has the error')]
         public string $fieldName,
         #[Description('Base64-encoded data hash')]

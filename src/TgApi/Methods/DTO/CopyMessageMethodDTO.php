@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageIdTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageIdTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -36,7 +43,7 @@ class CopyMessageMethodDTO implements TgApiMethodDTOContract
         #[Description('New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept')]
         public ?string $caption = null,
         #[Description('Mode for parsing entities in the new caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum $parseMode = null,
+        public ?ParseModeEnum $parseMode = null,
         #[Description('An array of special entities that appear in the new caption, which can be specified instead of _parse\_mode_')]
         public ?array $captionEntities = null,
         #[Description('Pass _True_, if the caption must be shown above the message media. Ignored if a new caption isn"t specified.')]
@@ -50,11 +57,11 @@ class CopyMessageMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the message effect to be added to the message; only available when copying to private chats')]
         public ?string $messageEffectId = null,
         #[Description('An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
+        public ?SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
         #[Description('Description of the message to reply to')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO $replyParameters = null,
+        public ?ReplyParametersTypeDTO $replyParameters = null,
         #[Description('Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
+        public ForceReplyTypeDTO|InlineKeyboardMarkupTypeDTO|ReplyKeyboardMarkupTypeDTO|ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

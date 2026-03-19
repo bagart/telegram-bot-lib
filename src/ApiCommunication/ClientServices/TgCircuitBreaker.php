@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\ClientServices;
 
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgCircuitBreakerContract;
-use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
+use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgCircuitBreakerContract;
+use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiNetworkException;
+use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiRateLimitException;
 
 class TgCircuitBreaker implements TgCircuitBreakerContract
 {
@@ -13,12 +15,17 @@ class TgCircuitBreaker implements TgCircuitBreakerContract
 
     private const RECOVERY_TIMEOUT = 30;
 
-    public function __construct(private TgBotCacheWrapper $cache)
-    {
+    public function __construct(
+        private ASKCacheWrapper $cache,
+    ) {
     }
 
     public function canExecute(string $method): bool
     {
+        if (in_array($method, ['getUpdates', 'getMe'], true)) {
+            return true;
+        }
+
         $failureCount = (int)$this->cache->get("tg_circuit_{$method}_failures", 0);
 
         if ($failureCount >= self::FAILURE_THRESHOLD) {
@@ -39,12 +46,17 @@ class TgCircuitBreaker implements TgCircuitBreakerContract
         $this->cache->forget("tg_circuit_{$method}_opened_at");
     }
 
-    public function recordFailure(string $method): void
+    public function recordFailure(string $method, \Throwable $exception): void
     {
-        $failureCount = (int)$this->cache->get("tg_circuit_{$method}_failures", 0);
-        $failureCount++;
+        if (
+            $exception instanceof TgApiRateLimitException
+            || $exception instanceof TgApiNetworkException
+        ) {
+            return;
+        }
 
-        $this->cache->put("tg_circuit_{$method}_failures", $failureCount, self::RECOVERY_TIMEOUT);
+        $this->cache->increment("tg_circuit_{$method}_failures");
+        $this->cache->touch("tg_circuit_{$method}_failures", self::RECOVERY_TIMEOUT);
         $this->cache->put("tg_circuit_{$method}_opened_at", time(), self::RECOVERY_TIMEOUT);
     }
 

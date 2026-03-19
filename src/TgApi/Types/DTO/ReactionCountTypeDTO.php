@@ -21,7 +21,7 @@ class ReactionCountTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Type of the reaction')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ReactionTypeTypeDTO $type,
+        public ReactionTypeTypeDTO $type,
         #[Description('Number of times the reaction was added')]
         public int $totalCount,
     ) {

@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\Enum\ChatTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -23,15 +24,15 @@ class InlineQueryTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier for this query')]
         public string $id,
         #[Description('Sender')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $from,
+        public UserTypeDTO $from,
         #[Description('Text of the query (up to 256 characters)')]
         public string $query,
         #[Description('Offset of the results to be returned, can be controlled by the bot')]
         public string $offset,
         #[Description('Type of the chat from which the inline query was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\Enum\ChatTypeEnum $chatType = null,
+        public ?ChatTypeEnum $chatType = null,
         #[Description('Sender location, only for bots that request user location')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\LocationTypeDTO $location = null,
+        public ?LocationTypeDTO $location = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

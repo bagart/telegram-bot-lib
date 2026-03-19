@@ -21,9 +21,9 @@ class ChatJoinRequestTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Chat to which the request was sent')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
+        public ChatTypeDTO $chat,
         #[Description('User that sent the join request')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $from,
+        public UserTypeDTO $from,
         #[Description('Identifier of a private chat with the user who sent the join request.  The bot can use this identifier for 5 minutes to send messages until the join request is processed, assuming no other administrator contacted the user.')]
         public string $userChatId,
         #[Description('Date the request was sent in Unix time')]
@@ -31,7 +31,7 @@ class ChatJoinRequestTypeDTO implements TgApiTypeDTOContract
         #[Description('Bio of the user.')]
         public ?string $bio = null,
         #[Description('Chat invite link that was used by the user to send the join request')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ChatInviteLinkTypeDTO $inviteLink = null,
+        public ?ChatInviteLinkTypeDTO $inviteLink = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();
