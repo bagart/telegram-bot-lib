@@ -29,7 +29,7 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
         ?TgApiEntityEnumContract $entityName = null,
         ?TgApiEntityScopeEnumContract $entityScope = null,
         bool $overwrite = true,
-    ): void {
+    ): self {
         $entityNameStr = $entityName ? $entityName->name : $dtoClassName::tgApiEntity()->name;
         $entityScopeStr = $entityScope ? $entityScope->name : $dtoClassName::tgEntityScope()->name;
         if (
@@ -45,6 +45,8 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
             $dtoClassName = $dtoClassName::class;
         }
         $this->entityToDTORegistry[$entityScopeStr][$entityNameStr] = $dtoClassName;
+
+        return $this;
     }
 
     /** @return TgApiDTOContract|string */

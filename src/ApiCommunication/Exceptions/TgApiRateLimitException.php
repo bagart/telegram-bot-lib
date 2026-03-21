@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\Exceptions;
 
-class TgApiRateLimitException extends TgApiNetworkException
+class TgApiRateLimitException extends TgApiCommunicationException
 {
     public function __construct(
         public string $tgEntityName,

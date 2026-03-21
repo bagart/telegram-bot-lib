@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\ClientServices;
 
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgRateLimiterContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRateLimiterContract;
 use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 
 class TgRateLimiter implements TgRateLimiterContract

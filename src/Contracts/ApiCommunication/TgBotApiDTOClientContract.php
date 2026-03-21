@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\Contracts\ApiCommunication;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApiServices\TgApiResponse;
+use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
 use GuzzleHttp\Promise\PromiseInterface;
 
 interface TgBotApiDTOClientContract

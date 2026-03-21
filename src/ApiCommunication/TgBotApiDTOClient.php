@@ -8,7 +8,8 @@ use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
-use BAGArt\TelegramBot\TgApiServices\TgApiResponse;
+use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
+use BAGArt\TelegramBot\Http\Pure\TgResponseParser;
 use GuzzleHttp\Promise\PromiseInterface;
 
 class TgBotApiDTOClient implements TgBotApiDTOClientContract
@@ -16,7 +17,7 @@ class TgBotApiDTOClient implements TgBotApiDTOClientContract
     public function __construct(
         private readonly TgBotApiClientContract $tgClient,
         private readonly TgApiDTOMapperContract $tgApiDTOMapper,
-        private readonly TgBotApiReturnParser $returnParser,
+        private readonly TgResponseParser $returnParser,
     ) {
     }
 
@@ -42,9 +43,9 @@ class TgBotApiDTOClient implements TgBotApiDTOClientContract
                 params: $this->tgApiDTOMapper->toArray($dto),
                 attempt: $attempt,
             )
-            ->then(fn (array $return) => $this->returnParser->build(
-                $dto,
-                $return
+            ->then(fn (array $return) => $this->returnParser->parse(
+                dto: $dto,
+                response: $return
             ));
     }
 }

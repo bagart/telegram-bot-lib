@@ -7,11 +7,11 @@ namespace BAGArt\TelegramBot\ApiCommunication;
 use BAGArt\TelegramBot\ApiCommunication\Exceptions\TgApiNetworkException;
 use BAGArt\TelegramBot\ApiCommunication\Exceptions\TgApiRateLimitException;
 use BAGArt\TelegramBot\ApiCommunication\Exceptions\TgApiReturnException;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgCircuitBreakerContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRateLimiterContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRetryPolicyContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiClientContract;
 use BAGArt\TelegramBot\Contracts\Exceptions\TelegramBotException;
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgCircuitBreakerContract;
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgRateLimiterContract;
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgRetryPolicyContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Exceptions\TgBotTechnicalException;
 use GuzzleHttp\Client;
@@ -41,7 +41,7 @@ class TgBotApiClient implements TgBotApiClientContract
     public function requestAsync(
         string $token,
         TgApiEntityEnumContract|string $method,
-        array $params,
+        array $params = [],
         int $attempt = 1,
     ): PromiseInterface {
         $origMethod = $method instanceof TgApiEntityEnumContract

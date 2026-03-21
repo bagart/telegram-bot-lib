@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\ClientServices;
 
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgRetryPolicyContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRetryPolicyContract;
 use Throwable;
 
 class TgRetryPolicy implements TgRetryPolicyContract

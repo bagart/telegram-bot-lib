@@ -154,4 +154,17 @@ final class TgBotCacheWrapper implements CacheInterface, Store
     {
         return $this->cache->getPrefix();
     }
+
+    public function touch($key, $seconds): bool
+    {
+        if (method_exists($this->cache, 'touch')) {
+            return $this->cache->touch($key, $seconds);
+        }
+
+        return $this->cache->set(
+            $key,
+            $this->cache->get($key, $seconds) ?? null,
+            $seconds
+        );
+    }
 }

@@ -18,5 +18,10 @@
         "psr-4": {
             "BAGArt\\TelegramBot\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BAGArt\\TelegramBot\\Tests\\": "tests/"
+        }
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\ClientServices;
 
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgCircuitBreakerContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgCircuitBreakerContract;
 use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 
 class TgCircuitBreaker implements TgCircuitBreakerContract

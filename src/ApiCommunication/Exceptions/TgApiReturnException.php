@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\Exceptions;
 
-use BAGArt\TelegramBot\TgApiServices\TgApiResponse;
+use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
 
 class TgApiReturnException extends TgApiCommunicationException
 {

@@ -14,7 +14,7 @@ interface TgApiDTORegistryContract
         string|TgApiDTOContract $dtoClassName,
         ?TgApiEntityEnumContract $entityName = null,
         ?TgApiEntityScopeEnumContract $entityScope = null,
-    ): void;
+    ): self;
 
     /** @return TgApiDTOContract|string */
     public function getDTO(

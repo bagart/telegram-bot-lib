@@ -12,7 +12,7 @@ interface TgBotApiClientContract
     public function requestAsync(
         string $token,
         TgApiEntityEnumContract|string $method,
-        array $params,
+        array $params = [],
         int $attempt = 1,
     ): PromiseInterface;
 }

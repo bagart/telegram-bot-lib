@@ -9,7 +9,7 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
-use BAGArt\TelegramBot\Exceptions\TgUnexpectedApiReturnException;
+use BAGArt\TelegramBot\Exceptions\TgUnexpectedDataFormatException;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 
 readonly class TgApiDTOMapper implements TgApiDTOMapperContract
@@ -39,6 +39,9 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
         return $data;
     }
 
+    /**
+     * @throws TgUnexpectedDataFormatException
+     */
     public function fromArray(
         string|TgApiDTOContract|TgApiEntityEnumContract $entity,
         array $data,
@@ -75,7 +78,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
 
         if ($unexpectedArg !== []) {
             $this->logger->warning(
-                '[WARN] Unexpected '
+                'Unexpected '
                 .$class.'::tgPropertyMetas keys: '
                 .implode(', ', array_keys($unexpectedArg))
                 .";\ndata=".json_encode($data)
@@ -92,7 +95,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
     ): mixed {
         if ($phpTypes === [] || $propValue === null) {
             if ($propValue !== null) {
-                throw new TgUnexpectedApiReturnException(
+                throw new TgUnexpectedDataFormatException(
                     $entity,
                     $phpTypes,
                     $propValue,
@@ -114,7 +117,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
                 foreach ($propValue as $key => $subValue) {
                     try {
                         $result[$key] = $this->prepareFormat($entity, $phpType, $subValue);
-                    } catch (TgUnexpectedApiReturnException $e) {
+                    } catch (TgUnexpectedDataFormatException $e) {
                         continue;
                     }
                 }
@@ -126,14 +129,14 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
             if (str_ends_with($phpType, 'DTO')) {
                 try {
                     return $this->fromArray($phpType, $propValue);
-                } catch (TgUnexpectedApiReturnException $e) {
+                } catch (TgUnexpectedDataFormatException $e) {
                     continue;
                 }
             }
             if (str_ends_with($phpType, 'Enum')) {
                 /** @var TgApiEnumContract $phpType */
                 return $phpType::tryFrom($propValue)
-                    ?? throw new TgUnexpectedApiReturnException(
+                    ?? throw new TgUnexpectedDataFormatException(
                         $entity,
                         $phpType,
                         $propValue,
@@ -149,7 +152,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
             }
         }
 
-        throw new TgUnexpectedApiReturnException(
+        throw new TgUnexpectedDataFormatException(
             $entity,
             $phpTypes,
             $propValue,

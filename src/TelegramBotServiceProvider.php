@@ -9,11 +9,11 @@ use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRateLimiter;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRetryPolicy;
 use BAGArt\TelegramBot\ApiCommunication\TgBotApiClient;
 use BAGArt\TelegramBot\ApiCommunication\TgBotApiDTOClient;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgCircuitBreakerContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRateLimiterContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRetryPolicyContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgCircuitBreakerContract;
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgRateLimiterContract;
-use BAGArt\TelegramBot\Contracts\Infrastructure\TgRetryPolicyContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
 use BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper;
@@ -33,11 +33,6 @@ class TelegramBotServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-
-        $this->app->singleton(
-            TgBotLogWrapper::class,
-            fn () => new TgBotLogWrapper($this->app->make(Logger::class)),
-        );
 
         $this->app->singleton(
             TgBotLogWrapper::class,
