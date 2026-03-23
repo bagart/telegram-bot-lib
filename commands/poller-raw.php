@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\ApiCommunication\Exceptions\TgApiReturnException;
+use BAGArt\TelegramBot\ApiCommunication\TgBotApiClient;
 use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
+use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiReturnException;
 
 require_once __DIR__.'/../../../../vendor/autoload.php';
 
@@ -27,7 +28,7 @@ if (!$token) {
     TgPureFactory::logger()->error('Token not set. Use --token=xxx:xxx or "export TELEGRAM_BOT_TOKEN=xxx:xxx"');
     exit(1);
 }
-$rawClient = TgPureFactory::rawClient();
+$rawClient = TgBotApiClient::build(TgPureFactory::cache());
 $show = array_key_exists('show', $options);
 $echo = array_key_exists('echo', $options);
 

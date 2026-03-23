@@ -33,15 +33,14 @@ class TelegramBotServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-
         $this->app->singleton(
             TgBotLogWrapper::class,
             function ($app): TgBotLogWrapper {
                 /** @var Logger $logger */
                 $logger = $app->make(Logger::class);
-                TgBotLogWrapper::init($logger);
+                TgBotLogWrapper::init($logger, false);
 
-                return new TgBotLogWrapper();
+                return TgBotLogWrapper::build();
             }
         );
         $this->app->singleton(
@@ -52,7 +51,7 @@ class TelegramBotServiceProvider extends ServiceProvider
                 $cache = $cacheManager->store();
                 TgBotCacheWrapper::init($cache);
 
-                return new TgBotCacheWrapper();
+                return TgBotCacheWrapper::build();
             }
         );
         $this->app->singleton(

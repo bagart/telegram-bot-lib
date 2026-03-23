@@ -15,21 +15,18 @@ final class TgBotCacheWrapper implements CacheInterface, Store
 {
     public static CacheInterface|Store|null $initCache = null;
 
-    private readonly CacheInterface|Store $cache;
+    public static function build(): self
+    {
+        if (self::$initCache === null) {
+            throw new RuntimeException('TgBotCacheWrapper::build() called without initCache. Call TgBotCacheWrapper::init() first.');
+        }
+        return new self(self::$initCache);
+    }
 
     public function __construct(
-        CacheInterface|Store|null $cache = null,
+        private readonly CacheInterface|Store $cache,
     ) {
-        if ($cache !== null) {
-            $this->cache = $cache;
-            if (self::$initCache === null) {
-                self::$initCache = $cache;
-            }
-        } elseif (self::$initCache !== null) {
-            $this->cache = self::$initCache;
-        } else {
-            throw new RuntimeException('TgBotLogWrapper: CACHE not injected. Provide Logger first.');
-        }
+        self::$initCache ??= $cache;
     }
 
     public static function init(CacheInterface|Store $cache): void

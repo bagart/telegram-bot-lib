@@ -10,6 +10,10 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
 use BAGArt\TelegramBot\Http\Pure\TgResponseParser;
+use BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper;
+use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistryFactory;
+use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
+use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 use GuzzleHttp\Promise\PromiseInterface;
 
 class TgBotApiDTOClient implements TgBotApiDTOClientContract
@@ -21,11 +25,37 @@ class TgBotApiDTOClient implements TgBotApiDTOClientContract
     ) {
     }
 
+    public static function build(
+        ?TgBotCacheWrapper $cache = null,
+        ?TgBotLogWrapper $logger = null,
+    ): self {
+        $logger = $logger ?? TgBotLogWrapper::build();
+        $cache = $cache ?? TgBotCacheWrapper::build();
+        $tgApiDTOMapper = new TgApiDTOMapper(
+            tgApiDTORegistry: new TgEntityToDTORegistryFactory($logger)->build(),
+            logger: $logger,
+        );
+
+        return new static(
+            tgClient: TgBotApiClient::build($cache),
+            tgApiDTOMapper: $tgApiDTOMapper,
+            returnParser: new TgResponseParser(
+                tgApiDTOMapper: $tgApiDTOMapper,
+                logger: $logger,
+            ),
+        );
+    }
+
     public function request(
         string $token,
         TgApiMethodDTOContract $dto,
     ): TgApiResponse {
-        return $this->requestAsync($token, $dto)->wait();
+        $promise = $this->requestAsync($token, $dto);
+        while ($promise->getState() === PromiseInterface::PENDING) {
+            $this->tgClient->tick();
+        }
+
+        return $promise->wait();
     }
 
     /**

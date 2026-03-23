@@ -15,8 +15,8 @@ use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 readonly class TgApiDTOMapper implements TgApiDTOMapperContract
 {
     public function __construct(
-        private TgBotLogWrapper $logger,
         private TgApiDTORegistryContract $tgApiDTORegistry,
+        private TgBotLogWrapper $logger,
     ) {
     }
 

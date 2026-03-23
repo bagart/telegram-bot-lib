@@ -2,143 +2,83 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\ApiCommunication\Exceptions\TgApiReturnException;
-use BAGArt\TelegramBot\BotServices\BotSecretDTO;
+use BAGArt\TelegramBot\ApiCommunication\Pollers\ConfigPoller;
+use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
 use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
-use BAGArt\TelegramBot\TgApi;
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
-use BAGArt\TelegramBot\TgApiServices\TgEntityNamer;
-use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageEchoProcessor;
-use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessagePdoStoreProcessor;
-use BAGArt\TelegramBot\TypeDTOProcessor\Processors\TgUpdateProcessor;
-use BAGArt\TelegramBot\TypeDTOProcessor\Processors\UpdateLoggerProcessor;
-use BAGArt\TelegramBot\TypeDTOProcessor\TypeDTOProcessorRegistry;
+use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 
 require_once __DIR__.'/../../../../vendor/autoload.php';
+require_once __DIR__.'/includes/validate-options.php';
+require_once __DIR__.'/includes/resolve-token.php';
+require_once __DIR__.'/includes/verify-bot.php';
+require_once __DIR__.'/includes/init-config.php';
 
-$options = getopt('', ['token::', 'echo', 'show', 'store', 'log', 'help']);
+// --- Parse options ---
+$options = parseCommandOptions([
+    'sync',
+    'async',
+    'queue',
+    'token::',
+    'echo',
+    'show',
+    'store',
+    'log',
+    'no-ack',
+    'dbg',
+    'help',
+    'poller::',
+    'dispatcher::',
+]);
 
 if (isset($options['help'])) {
     echo "Usage:
 export TELEGRAM_BOT_TOKEN=xxx:xxx           # Default Telegram Token
 
-php commands/poller.php                     # receive updates
+php commands/poller.php                     # async fiber-based polling (default)
+php commands/poller.php --sync              # sync long-poll
+php commands/poller.php --async             # async fiber-based polling
+php commands/poller.php --queue             # queue-based dispatcher
 php commands/poller.php --help              # show help
-php commands/poller.php                     # receive updates with DTOProcessor
+
+Options:
+  --sync                                    # sync long-poll mode
+  --async                                   # async fiber-based polling mode
+  --queue                                   # use LaravelQueueDtoPipelineDispatcher
   --echo                                    # echo reply to messages
   --store                                   # store messages to database
   --log                                     # log messages to stderr
   --show                                    # dump update objects
+  --dbg                                     # dump raw Telegram response (debug)
   --token=xxx:xxx                           # use custom token
+  --no-ack                                  # read without acknowledging updates
+  --poller::                                # poller selection (sync|async|custom)
+  --dispatcher::                            # dispatcher selection (sync|async|queue|custom)
 ";
     exit(0);
 }
 
-$token = $options['token'] ?? $_ENV['TELEGRAM_BOT_TOKEN'] ?? getenv('TELEGRAM_BOT_TOKEN');
-if (!$token) {
-    TgPureFactory::logger()->error('Token not set. Use --token=xxx:xxx or "export TELEGRAM_BOT_TOKEN=xxx:xxx"');
-    exit(1);
-}
+$token = getCommandToken($options);
 
-$tgDTOClient = TgPureFactory::dtoClient();
-$show = array_key_exists('show', $options);
-$echo = array_key_exists('echo', $options);
-$store = array_key_exists('store', $options);
-$log = array_key_exists('log', $options);
+$config = new TgUpdateExampleConfig(token: $token);
+initPollerConfig(
+    $options,
+    $config,
+);
+TgBotLogWrapper::$debugEnabled = $config->dbg;
 
-$registry = new TypeDTOProcessorRegistry();
-$processor = new TgUpdateProcessor($registry);
+$poller = new ConfigPoller(
+    processorRegistry: TgPureFactory::processorRegistry(
+        processors: [
+            'echo' => $config->echo,
+            'log' => $config->log,
+            'store' => $config->store,
+            'show' => $config->show,
+        ],
+        config: $config,
+    ),
+    logger: TgPureFactory::logger(),
+);
 
-if ($echo) {
-    $registry->register(
-        MessageTypeDTO::class,
-        new MessageEchoProcessor(
-            dtoClient: $tgDTOClient,
-            logger: TgPureFactory::logger(),
-            token: $token,
-        )
-    );
-}
+verifyBot(TgPureFactory::dtoClient($config), $token);
 
-if ($log) {
-    $registry->register(
-        MessageTypeDTO::class,
-        new UpdateLoggerProcessor(
-            logger: TgPureFactory::logger(),
-            namer: new TgEntityNamer(),
-        )
-    );
-}
-
-if ($store) {
-    $registry->register(
-        MessageTypeDTO::class,
-        new MessagePdoStoreProcessor(
-            pdo: TgPureFactory::pdo(),
-        )
-    );
-}
-
-$botDTO = new BotSecretDTO(token: $token);
-$botId = $botDTO->botId();
-
-try {
-    $response = $tgDTOClient->request($token, new TgApi\Methods\DTO\GetMeMethodDTO());
-    $user = $response->result;
-    assert($user instanceof TgApi\Types\DTO\UserTypeDTO);
-
-    echo "✅ Bot verified: @{$user->username} (".trim($user->firstName.' '.$user->lastName).");\n";
-} catch (Throwable $e) {
-    echo '❌ Failed to connect to Telegram: '.$e::class."{$e->getMessage()};\n";
-    exit(1);
-}
-
-echo "=== Long Poller Mode (with DTO) ===\n";
-echo "Starting long poller. Press Ctrl+C to stop.\n";
-echo "echo=$echo store=$store show=$show\n\n";
-
-$offset = 0;
-while (true) {
-    try {
-        $response = $tgDTOClient->request(
-            $token,
-            new TgApi\Methods\DTO\GetUpdatesMethodDTO(
-                offset: $offset,
-                limit: 100,
-                timeout: 60,
-                allowedUpdates: ['message', 'callback_query'],
-            ),
-        );
-
-        if ($response->ok) {
-            foreach ($response->result as $updateDTO) {
-                assert($updateDTO instanceof TgApi\Types\DTO\UpdateTypeDTO);
-                $offset = max($offset, $updateDTO->updateId + 1);
-
-                if ($show) {
-                    if (isset($updateDTO->message?->text)) {
-                        echo "\n{$updateDTO->message->from?->firstName}: {$updateDTO->message->text}";
-                    } else {
-                        var_dump($updateDTO);
-                    }
-                } else {
-                    echo '+';
-                }
-                $processor->process($updateDTO, $botId);
-            }
-            if ($show && $response->result) {
-                echo "\n";
-            }
-        } else {
-            TgPureFactory::logger()->error(
-                "tg api getUpdates response not ok: ".json_encode($response, JSON_PRETTY_PRINT)
-            );
-            echo '?';
-        }
-    } catch (TgApiReturnException $e) {
-        TgPureFactory::logger()->error(
-            "tg api getUpdates response ".$e::class.": ".$e->getMessage()
-        );
-        echo '*';
-    }
-}
+$poller->run($config);

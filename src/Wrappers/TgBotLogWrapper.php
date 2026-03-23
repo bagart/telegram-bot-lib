@@ -11,27 +11,28 @@ use Stringable;
 final class TgBotLogWrapper implements LoggerInterface
 {
     public static ?LoggerInterface $initLogger = null;
+    public static bool $initDebugEnabled = false;
 
-    private readonly LoggerInterface $logger;
-
-    public function __construct(
-        ?LoggerInterface $logger = null,
-    ) {
-        if ($logger !== null) {
-            $this->logger = $logger;
-            if (self::$initLogger === null) {
-                self::$initLogger = $logger;
-            }
-        } elseif (self::$initLogger !== null) {
-            $this->logger = self::$initLogger;
-        } else {
-            throw new RuntimeException('TgBotLogWrapper: CACHE not injected. Provide Logger first.');
+    public static function build(): self
+    {
+        if (self::$initLogger === null) {
+            throw new RuntimeException('TgBotLogWrapper::build() called without initLogger. Call TgBotLogWrapper::init() first.');
         }
+
+        return new self(static::$initLogger, static::$initDebugEnabled);
     }
 
-    public static function init(LoggerInterface $logger): void
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        public bool $debugEnabled = false,
+    ) {
+        self::$initLogger ??= $logger;
+    }
+
+    public static function init(LoggerInterface $logger, bool $debugEnabled = false): void
     {
         self::$initLogger = $logger;
+        static::$initDebugEnabled = $debugEnabled;
     }
 
     public function log($level, string|Stringable $message, array $context = []): void
@@ -76,6 +77,8 @@ final class TgBotLogWrapper implements LoggerInterface
 
     public function debug(string|Stringable $message, array $context = []): void
     {
-        $this->logger->debug('[DBG] '.$message, $context);
+        if ($this->debugEnabled) {
+            $this->logger->debug('[DBG] '.$message, $context);
+        }
     }
 }

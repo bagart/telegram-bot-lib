@@ -11,10 +11,14 @@ class TgRateLimiter implements TgRateLimiterContract
 {
     private const WINDOW_SECONDS = 60;
 
-    private const MAX_REQUESTS = 50;
+    private const MAX_REQUESTS = 300;
 
-    public function __construct(private TgBotCacheWrapper $cache)
-    {
+    private readonly ?TgBotCacheWrapper $cache;
+
+    public function __construct(
+        ?TgBotCacheWrapper $cache = null,
+    ) {
+        $this->cache = $cache ?? TgBotCacheWrapper::build();
     }
 
     public function acquire(string $key, int $tokens = 1): bool

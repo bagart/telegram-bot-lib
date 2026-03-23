@@ -23,5 +23,17 @@
         "psr-4": {
             "BAGArt\\TelegramBot\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": [
+            "@test:fullcycle",
+            "@test:integration",
+            "@test:offline",
+            "@test:pest"
+        ],
+        "test:fullcycle": "php tests/Integration/FullCycleTest.php",
+        "test:integration": "php tests/Integration/integration-test.php",
+        "test:offline": "php tests/Integration/commands-offline-test.php",
+        "test:pest": "@php ../../../vendor/bin/pest tests --colors=always"
     }
 }

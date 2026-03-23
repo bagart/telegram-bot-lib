@@ -19,9 +19,9 @@ class TgEntityToDTORegistryFactory
     }
 
     /**
-     * @param TgApiEntityScopeEnum|TgApiEntityScopeEnumContract|string $tgApiEntityScopeEnum
+     * @param  TgApiEntityScopeEnum|TgApiEntityScopeEnumContract|string  $tgApiEntityScopeEnum
      */
-    public function default(
+    public function build(
         TgApiEntityScopeEnumContract|string $tgApiEntityScopeEnum = TgApiEntityScopeEnum::class,
     ): TgEntityToDTORegistry {
         $tgEntityNameToDTORegistry = new TgEntityToDTORegistry(

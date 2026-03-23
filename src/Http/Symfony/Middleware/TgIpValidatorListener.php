@@ -16,6 +16,13 @@ class TgIpValidatorListener
     ) {
     }
 
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::REQUEST => ['onKernelRequest', 256],
+        ];
+    }
+
     public function onKernelRequest(RequestEvent $event): void
     {
         $ip = $event->getRequest()->getClientIp();
@@ -23,12 +30,5 @@ class TgIpValidatorListener
         if ($ip !== null && !$this->validator->validate($ip)) {
             $event->setResponse(new Response('Forbidden: invalid IP', 403));
         }
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::REQUEST => ['onKernelRequest', 256],
-        ];
     }
 }

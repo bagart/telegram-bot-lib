@@ -88,7 +88,7 @@ class DTOGenerator
             $expected[] = "{$this->dtoDir}/TgApi/Methods/Enum/{$class}MethodEnum.php";
         }
 
-        return array_map(fn($f) => str_replace('\\', '/', $f), $expected);
+        return array_map(fn ($f) => str_replace('\\', '/', $f), $expected);
     }
 
     private function scanExisting(): array
@@ -776,7 +776,7 @@ if (php_sapi_name() === 'cli') {
         jsonPath: $jsonPath,
         full: $full,
     );
-    $result = array_map(fn($types) => array_map(fn($files) => count($files), $types), $generator->generate());
+    $result = array_map(fn ($types) => array_map(fn ($files) => count($files), $types), $generator->generate());
     echo "\n".json_encode($result, JSON_PRETTY_PRINT)."\n";
     echo "Done\n";
 }

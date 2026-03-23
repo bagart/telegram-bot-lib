@@ -8,6 +8,9 @@ use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiReturnParserContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
+use BAGArt\TelegramBot\Exceptions\TgApi\TgApiException;
+use BAGArt\TelegramBot\Exceptions\TgApi\TgBadRequestException;
+use BAGArt\TelegramBot\Exceptions\TgApi\TgFloodWaitException;
 use BAGArt\TelegramBot\Exceptions\TgBotTechnicalException;
 use BAGArt\TelegramBot\Exceptions\TgUnexpectedDataFormatException;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
@@ -25,6 +28,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
         array $response,
     ): TgApiResponse {
         assert(is_a($dto, TgApiMethodDTOContract::class));
+        $this->checkResponse($dto, $response);
         $returnTypes = $dto::getReturnTypes();
 
         foreach ($returnTypes as $returnType) {
@@ -60,6 +64,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
                 //try to check next
             }
         }
+
         if (!$isOk && isset($buildException)) {
             throw $buildException;
         }
@@ -73,10 +78,41 @@ class TgResponseParser implements TgBotApiReturnParserContract
         );
     }
 
-    /**
-     * @param  array  $returnLevel
-     * @return TgApiTypeDTOContract|TgApiTypeDTOContract[]|bool|string|int
-     */
+    private function checkResponse(
+        TgApiMethodDTOContract|string $dto,
+        array $response,
+    ): void {
+        if (($response['ok'] ?? false) === true) {
+            return;
+        }
+        $description = $response['description'] ?? 'Unknown error';
+        $errorCode = $response['error_code'] ?? null;
+
+        $retryAfter = 0;
+        if ($errorCode === 429) {
+            if (isset($response['parameters']['retry_after'])) {
+                if (is_numeric($response['parameters']['retry_after'])) {
+                    $retryAfter = $response['parameters']['retry_after'];
+                } else {
+                    $this->logger->warning(
+                        "TgResponseParser: Unexpected retry_after = "
+                        .json_encode($response['parameters']['retry_after'])
+                    );
+                }
+            } elseif (preg_match('/retry after (\d+)/i', $description, $matches)) {
+                $retryAfter = (int)$matches[1];
+            }
+
+            throw new TgFloodWaitException((int)$retryAfter, $description, $errorCode);
+        }
+
+        if ($errorCode === 400) {
+            throw new TgBadRequestException($description, $errorCode);
+        }
+
+        throw new TgApiException($description, $errorCode);
+    }
+
     public function buildInternal(
         string|TgApiMethodDTOContract $dto,
         array|string $expectType,
@@ -100,11 +136,13 @@ class TgResponseParser implements TgBotApiReturnParserContract
                     .json_encode($expectType),
                 );
             }
+            $expectType = array_first($expectType);
+
             $result = [];
             foreach ($returnLevel as $key => $value) {
                 $result[$key] = $this->buildInternal(
                     dto: $dto,
-                    expectType: array_first($expectType),
+                    expectType: $expectType,
                     returnLevel: $value,
                 );
             }
@@ -177,7 +215,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
     private function checkReturnResult(string $entityName, mixed $result): bool
     {
         $unexpected = [];
-        if (array($result)) {
+        if (is_array($result)) {
             foreach ($result as $item) {
                 if (!$item instanceof TgApiTypeDTOContract) {
                     $unexpected[] = (is_object($result) ? $result::class : gettype($result)).'[]';

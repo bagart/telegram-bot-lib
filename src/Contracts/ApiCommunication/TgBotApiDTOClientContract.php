@@ -6,10 +6,17 @@ namespace BAGArt\TelegramBot\Contracts\ApiCommunication;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
+use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
+use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 use GuzzleHttp\Promise\PromiseInterface;
 
 interface TgBotApiDTOClientContract
 {
+    public static function build(
+        TgBotCacheWrapper $cache,
+        ?TgBotLogWrapper $logger = null,
+    ): self;
+
     /** @see https://core.telegram.org/bots/api */
     public function request(
         string $token,

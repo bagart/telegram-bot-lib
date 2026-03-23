@@ -4,99 +4,124 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ExampleServices;
 
-use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgCircuitBreaker;
-use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRateLimiter;
-use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRetryPolicy;
+use BAGArt\TelegramBot\ApiCommunication\Async\Dispatchers\SyncDtoPipelineDispatcher;
 use BAGArt\TelegramBot\ApiCommunication\TgBotApiClient;
 use BAGArt\TelegramBot\ApiCommunication\TgBotApiDTOClient;
+use BAGArt\TelegramBot\ApiCommunication\Transport\GuzzleTransport;
+use BAGArt\TelegramBot\ApiCommunication\Transport\TgCurlMultiTransport;
 use BAGArt\TelegramBot\BotServices\AutoSecretByTokenService;
 use BAGArt\TelegramBot\BotServices\BotSecretRegistry;
-use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
-use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
 use BAGArt\TelegramBot\Http\Pure\TgResponseParser;
+use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper;
 use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistryFactory;
+use BAGArt\TelegramBot\TgUpdateConfig;
+use BAGArt\TelegramBot\TypeDTOProcessor\Processors\AnyDTOToLoggerProcessor;
+use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOEchoToUserProcessor;
+use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOShowToConsoleProcessor;
 use BAGArt\TelegramBot\TypeDTOProcessor\TypeDTOProcessorRegistry;
 use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
+use PDO;
 
 final class TgPureFactory
 {
-    private static TgBotLogWrapper $logger;
-    private static TgBotCacheWrapper $cache;
-    private static ?\PDO $pdo = null;
+    private static ?TgBotLogWrapper $logger = null;
+    private static ?TgBotCacheWrapper $cache = null;
+    private static ?PDO $pdo = null;
 
-    public static function logger(): TgBotLogWrapper
+    public static function logger(?TgUpdateConfig $config = null): TgBotLogWrapper
     {
-        return static::$logger ??= new TgBotLogWrapper(
-            logger: new Logger(
-                name: 'TelegramBot',
-                handlers: [
-                    new StreamHandler(
-                        stream: 'php://stderr',
-                        level: Level::Debug,
-                    ),
-                ],
-            ),
-        );
+        if (static::$logger === null) {
+            TgBotLogWrapper::init(
+                logger: new Logger(
+                    name: 'TelegramBot',
+                    handlers: [
+                        new StreamHandler(
+                            stream: 'php://stderr',
+                            level: Level::Debug,
+                        ),
+                    ],
+                ),
+                debugEnabled: $config ? $config->dbg : false,
+            );
+            static::$logger = TgBotLogWrapper::build();
+        }
+
+        return static::$logger;
     }
 
     public static function cache(): TgBotCacheWrapper
     {
-        return static::$cache ??= new TgBotCacheWrapper(
-            cache: new TinyFileCache($cacheDir ?? 'storage/lib/cache')
-        );
+        if (static::$cache === null) {
+            TgBotCacheWrapper::init(
+                new TinyFileCache('storage/lib/cache')
+            );
+            static::$cache = TgBotCacheWrapper::build();
+        }
+
+        return static::$cache;
     }
 
     public static function dtoMapper(): TgApiDTOMapper
     {
-        $logger = self::logger();
+        $logger = static::logger();
 
         return new TgApiDTOMapper(
+            tgApiDTORegistry: new TgEntityToDTORegistryFactory($logger)
+                ->build(TgApiEntityScopeEnum::class),
             logger: $logger,
-            tgApiDTORegistry: (new TgEntityToDTORegistryFactory($logger))
-                ->default(TgApiEntityScopeEnum::class),
         );
     }
 
-    public static function dtoClient(): TgBotApiDTOClientContract
+    public static function transportAsync(): TgBotApiTransportContract
     {
-        $dtoMapper = self::dtoMapper();
+        return new TgCurlMultiTransport(
+            logger: static::logger(),
+        );
+    }
 
+    public static function transport(): TgBotApiTransportContract
+    {
+        return new GuzzleTransport();
+    }
+
+    public static function dtoClient(
+        ?TgUpdateConfig $config = null,
+    ): TgBotApiDTOClientContract {
+        $dtoMapper = static::dtoMapper();
         return new TgBotApiDTOClient(
-            tgClient: self::rawClient(),
+            tgClient: TgBotApiClient::build(
+                cache: static::cache(),
+                transport: $config?->poller === 'async'
+                    ? TgPureFactory::transportAsync()
+                    : TgPureFactory::transport()
+            ),
             tgApiDTOMapper: $dtoMapper,
             returnParser: new TgResponseParser(
                 tgApiDTOMapper: $dtoMapper,
-                logger: self::logger(),
+                logger: static::logger(),
             ),
         );
     }
 
-    public static function rawClient(): TgBotApiClientContract
+    public static function pdo(string $dsn = 'sqlite:storage/lib/tg-bot.db'): PDO
     {
-        return new TgBotApiClient(
-            rateLimiter: new TgRateLimiter(self::cache()),
-            circuitBreaker: new TgCircuitBreaker(self::cache()),
-            retryPolicy: new TgRetryPolicy(),
-        );
-    }
-
-
-    public static function pdo(string $dsn = 'sqlite:storage/lib/tg-bot.db'): \PDO
-    {
-        $pdo = static::$pdo ??= new \PDO($dsn, options: [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-            \PDO::ATTR_EMULATE_PREPARES => true,
+        $pdo = static::$pdo ??= new PDO($dsn, options: [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => true,
         ]);
 
-        $pdo->exec('
+        $pdo->exec(
+            '
             CREATE TABLE IF NOT EXISTS tg_messages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 tg_bot_id TEXT NOT NULL,
@@ -109,9 +134,12 @@ final class TgPureFactory
                 reply_to_message_id BIGINT,
                 created_at TEXT NOT NULL
             )
-        ');
+        '
+        );
 
-        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_tg_messages_lookup ON tg_messages (tg_bot_id, chat_id, message_id, created_at)');
+        $pdo->exec(
+            'CREATE INDEX IF NOT EXISTS idx_tg_messages_lookup ON tg_messages (tg_bot_id, chat_id, message_id, created_at)'
+        );
 
         return $pdo;
     }
@@ -120,17 +148,72 @@ final class TgPureFactory
         TypeDTOProcessorRegistry $processorRegistry,
     ): TgWebhookRequestParser {
         return new TgWebhookRequestParser(
-            tgApiDTOMapper: self::dtoMapper(),
+            tgApiDTOMapper: static::dtoMapper(),
             processorRegistry: $processorRegistry,
             secretService: new AutoSecretByTokenService(),
-            logger: self::logger(),
+            logger: static::logger(),
         );
     }
 
     public static function botSecretRegistry(): BotSecretRegistry
     {
         return new BotSecretRegistry(
-            logger: self::logger(),
+            logger: static::logger(),
         );
+    }
+
+    public static function syncDispatcherType(): string
+    {
+        return SyncDtoPipelineDispatcher::TYPE;
+    }
+
+    /**
+     * Build a TypeDTOProcessorRegistry from CLI flags.
+     *
+     * Supported flags:
+     *   'echo'  => MessageDTOEchoToUserProcessor (requires dtoClient + token)
+     *   'log'   => AnyDTOToLoggerProcessor
+     *   'store' => MessageDTOPdoStoreProcessor
+     *   'show'  => MessageDTOShowToConsoleProcessor
+     *
+     * @param  array<string, bool>  $processors  e.g. ['echo' => true, 'log' => false]
+     * @param  TgUpdateConfig  $config  contains token, scheduler, and flags
+     * @return TypeDTOProcessorRegistry
+     */
+    public static function processorRegistry(
+        array $processors,
+        TgUpdateConfig $config,
+    ): TypeDTOProcessorRegistry {
+        $registry = new TypeDTOProcessorRegistry();
+
+        if (!empty($processors['echo'])) {
+            $registry->register(
+                MessageTypeDTO::class,
+                MessageDTOEchoToUserProcessor::class,
+            );
+        }
+
+        if (!empty($processors['log'])) {
+            $registry->register(
+                MessageTypeDTO::class,
+                AnyDTOToLoggerProcessor::class,
+            );
+        }
+
+        if (!empty($processors['store'])) {
+            $registry->register(
+                MessageTypeDTO::class,
+                MessageDTOPdoStoreProcessor::class,
+            );
+        }
+
+        if (!empty($processors['show'])) {
+            $registry->register(
+                MessageTypeDTO::class,
+                MessageDTOShowToConsoleProcessor::class,
+            );
+        }
+
+        return $registry;
     }
 }

@@ -35,6 +35,25 @@ php commands/poller.php                     # receive updates with DTOProcessor
   --token=xxx:xxx                           # use custom token
 ```
 
+### commands/poller-sync.php
+
+Long polling with DTO (typed objects).
+
+```bash
+export TELEGRAM_BOT_TOKEN=xxx:xxx           # Default Telegram Token
+
+php commands/poller-sync.php                     # receive updates
+php commands/poller-sync.php --help              # show help
+php commands/poller-sync.php                     # receive updates with DTOProcessor
+  --echo                                    # echo reply to messages
+  --store                                   # store messages to database
+  --log                                     # log messages to stderr
+  --show                                    # dump update objects
+  --dbg                                     # dump raw Telegram response (debug)
+  --token=xxx:xxx                           # use custom token
+  --no-ack                                  # read without acknowledging update
+```
+
 ### commands/poller-raw.php
 
 Long polling in raw mode: no DTOs, no Processors, no Registry
@@ -60,7 +79,8 @@ php commands/mapper.php
 
 ### commands/webhook.php
 
-You can configure your bot webhook via web interface: [bagart.github.io/tg-webhook](https://bagart.github.io/tg-webhook).
+You can configure your bot webhook via web
+interface: [bagart.github.io/tg-webhook](https://bagart.github.io/tg-webhook).
 Is more powerful and useful.
 
 Manage webhook — show current, set or delete.
@@ -69,13 +89,13 @@ Secret is auto-generated in format `{botId}:{sha256(tokenPart)}`.
 ```bash
 export TELEGRAM_BOT_TOKEN=xxx:xxx
 
-php commands/webhook.php --help
-php commands/webhook.php                                     # show current webhook + auto-secret
-php commands/webhook.php --token=xxx:xxx                     # use token. default: export TELEGRAM_BOT_TOKEN=xxx:xxx
-php commands/webhook.php --url=https://example.com/tg        # set webhook (secret auto-generated)
-php commands/webhook.php --url=... --secret=custom-secret    # set url with custom secret
-php commands/webhook.php --url=... --secret                  # set url with empty secret
-php commands/webhook.php --delete                            # delete webhook
+php commands/webhook-processing.php --help
+php commands/webhook-processing.php                                     # show current webhook + auto-secret
+php commands/webhook-processing.php --token=xxx:xxx                     # use token. default: export TELEGRAM_BOT_TOKEN=xxx:xxx
+php commands/webhook-processing.php --url=https://example.com/tg        # set webhook (secret auto-generated)
+php commands/webhook-processing.php --url=... --secret=custom-secret    # set url with custom secret
+php commands/webhook-processing.php --url=... --secret                  # set url with empty secret
+php commands/webhook-processing.php --delete                            # delete webhook
 
 ```
 
@@ -95,6 +115,7 @@ Framework-free Example of Webhook entry point for web server with DTOProcessors(
 Usage: point your web server to telegram-bot-lib/public/
 
 Allowed Security:
+
 - IP firewall: allows only Telegram IPs (149.154.160.0/20, 91.108.4.0/22)
 - Expect Secret as `{botId}:{sha256(tokenPart)}` format validation via `AutoSecretByTokenService`
 
@@ -111,6 +132,7 @@ Build-in DTOProcessors
 | `UpdateLoggerProcessor`    | Log messages to stderr            |
 
 Register processors:
+
 ```php
 $registry = new TgUpdateProcessorRegistry();
 $registry->register(MessageTypeDTO::class, MessageEchoProcessor::class);
@@ -121,6 +143,7 @@ $processor->process($update, $tgBotId);
 ```
 
 ## Components
+
 ``````
 commands - framework-free command for polling and set webhook
 public - Framework-free Example of Webhook entry point for web server with DTOProcessors
@@ -168,5 +191,3 @@ src/ - framework-free Telegram Bot lib
 │   ├── TgBotCacheWrapper  — Cache Wrapper
 │   └── TgBotLogWrapper — Logger Wrapper
 └── TelegramBotServiceProvider — Laravel ServiceProvider (optional)
-
-

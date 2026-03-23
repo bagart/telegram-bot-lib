@@ -30,7 +30,7 @@ class TgRetryPolicy implements TgRetryPolicyContract
         }
 
         if (str_contains($message, 'rate limit')) {
-            return false;
+            return true;
         }
 
         if (str_contains($message, '429')) {

@@ -16,7 +16,7 @@ class BotSecretRegistry implements TgBotRegistryContract
     private array $secrets = [];
 
     public function __construct(
-        private TgBotLogWrapper $logger,
+        private ?TgBotLogWrapper $logger = null,
     ) {
     }
 
@@ -24,7 +24,7 @@ class BotSecretRegistry implements TgBotRegistryContract
     {
         $botId = $bot->botId();
         if (isset($this->bots[$botId])) {
-            $this->logger->warning("BotRegistry: Overwrite Bot token: '{$bot->botId()}'");
+            $this->logger?->warning("BotRegistry: Overwrite Bot token: '{$bot->botId()}'");
             unset($this->secrets[$this->bots[$botId]->secret()][$botId]);
         }
         $this->bots[$botId] = $bot;

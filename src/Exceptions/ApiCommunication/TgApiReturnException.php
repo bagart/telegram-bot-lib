@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BAGArt\TelegramBot\ApiCommunication\Exceptions;
+namespace BAGArt\TelegramBot\Exceptions\ApiCommunication;
 
 use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
 

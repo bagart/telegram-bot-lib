@@ -19,7 +19,7 @@ interface TgBotRegistryContract
 
     /**
      * @return \Generator|string[]
- */
+     */
     public function getBotIdsBySecret(?string $secret): \Generator;
 
     public function getBotCount(): int;
