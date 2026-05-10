@@ -50,9 +50,9 @@ class TinyFileCache implements CacheInterface
         }
 
         $content = file_get_contents($file);
-        $data = unserialize($content);
+        $data = $content ? unserialize($content) : null;
 
-        if (time() > $data['expires']) {
+        if ($data === null || time() > $data['expires']) {
             $this->delete($key);
 
             return $default;

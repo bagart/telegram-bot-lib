@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Exceptions\ApiCommunication;
 
-use BAGArt\TelegramBot\Contracts\Exceptions\TelegramBotException;
-use RuntimeException;
+use BAGArt\TelegramBot\Exceptions\TgApi\TgApiException;
 use Throwable;
 
-class TgApiCommunicationException extends RuntimeException implements TelegramBotException
+class TgApiCommunicationException extends TgApiException
 {
     public function __construct(
         public string $tgEntityName,

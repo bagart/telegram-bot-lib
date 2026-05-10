@@ -12,12 +12,17 @@ require_once __DIR__.'/includes/verify-bot.php';
 $options = parseCommandOptions([
     'token::',
     'help',
+    'log-level::',
 ]);
 
 if (isset($options['help'])) {
     echo "Usage:
 php commands/get-me.php                   # show bot info
-php commands/get-me.php --token=xxx:xxx   # use custom token
+
+Options:
+  --help
+  --token=xxx:xxx                         # use custom token
+  --log-level=debug|info|warning|error    # minimum log level (default: info)
 ";
     exit(0);
 }

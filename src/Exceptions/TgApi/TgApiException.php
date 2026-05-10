@@ -14,14 +14,9 @@ class TgApiException extends Exception implements TelegramBotException
 {
     public function __construct(
         string $message = "",
-        private readonly ?int $errorCode = null,
-        \Throwable $previous = null
+        ?int $code = null,
+        \Throwable $previous = null,
     ) {
-        parent::__construct($message, $errorCode ?? 0, $previous);
-    }
-
-    public function getErrorCode(): ?int
-    {
-        return $this->errorCode;
+        parent::__construct($message, $code ?? 0, $previous);
     }
 }

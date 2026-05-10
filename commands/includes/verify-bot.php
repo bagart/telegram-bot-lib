@@ -24,7 +24,7 @@ function verifyBot(TgBotApiDTOClientContract $dtoClient, string $token): UserTyp
 
         return $user;
     } catch (\Throwable $e) {
-        echo 'Failed to connect to Telegram: '.$e::class."{$e->getMessage()};\n";
+        echo 'Failed to connect to Telegram: '.$e::class."{$e->getMessage()};\n{$e->getTraceAsString()}\n";
         exit(1);
     }
 }

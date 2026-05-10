@@ -19,16 +19,20 @@ $options = parseCommandOptions([
     'store',
     'log',
     'help',
+    'log-level::',
 ]);
 
 if (isset($options['help'])) {
     echo "Usage:
-
 php commands/offline/long-polling-processing.php   # receive updates with DTOProcessor
+
+Options:
+  --help
   --echo                                           # echo reply to messages
   --store                                          # store messages to database
   --log                                            # log messages to stderr
   --token=xxx:xxx                                  # use custom token
+  --log-level=debug|info|warning|error             # minimum log level (default: info)
 ";
     exit(0);
 }
@@ -47,12 +51,10 @@ $config = new TgUpdateExampleConfig(
     token: $token,
     dispatcher: TgPureFactory::syncDispatcherType(),
 );
+initUpdatePollerConfig($options, $config);
 
 $processor = new UpdateDTOInitProcessor(
-    processorRegistry: TgPureFactory::processorRegistry(
-        processors: ['echo' => $echo, 'log' => $log, 'store' => $store],
-        config: $config,
-    ),
+    processorRegistry: TgPureFactory::processorRegistry(config: $config),
     dispatcherRegistry: PipelineDispatcherRegistry::build(),
     logger: $logger,
 );

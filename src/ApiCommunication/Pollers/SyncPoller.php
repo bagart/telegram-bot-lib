@@ -6,14 +6,16 @@ namespace BAGArt\TelegramBot\ApiCommunication\Pollers;
 
 use BAGArt\TelegramBot\ApiCommunication\TgBotApiDTOClient;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\Pollers\PollerContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
+use BAGArt\TelegramBot\Contracts\TgUpdateProcessor\TgTypeDTOProcessorContract;
+use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiRateLimitException;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiReturnException;
 use BAGArt\TelegramBot\TgApi\Methods\DTO\GetUpdatesMethodDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
-use BAGArt\TelegramBot\TypeDTOProcessor\DtoProcessorConfig;
+use BAGArt\TelegramBot\TgUpdateConfig;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\UpdateDTOInitProcessor;
-use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
-use BAGArt\TelegramBot\Wrappers\TgOutputWrapper;
+use BAGArt\TelegramBot\Wrappers\TgBotOutputWrapper;
 
 class SyncPoller implements PollerContract
 {
@@ -21,24 +23,36 @@ class SyncPoller implements PollerContract
 
     public function __construct(
         private readonly UpdateDTOInitProcessor $updateProcessor,
+        private readonly TgBotApiDTOClientContract $dtoClient,
         private readonly TgBotLogWrapper $logger,
-        private readonly ?TgBotCacheWrapper $cache = null,
-        private readonly ?TgOutputWrapper $output = null,
-
+        private readonly ?TgBotOutputWrapper $output = null,
     ) {
     }
 
+    public static function build(
+        TgTypeDTOProcessorContract $updateProcessor,
+        ?TgBotApiDTOClientContract $dtoClient = null,
+        ?TgBotLogWrapper $logger = null,
+        ?TgBotOutputWrapper $output = null,
+    ): self {
+        return new self(
+            updateProcessor: $updateProcessor,
+            dtoClient: $dtoClient ?? TgBotApiDTOClient::build(),
+            logger: $logger ?? TgBotLogWrapper::build(),
+            output: $output ?? new TgBotOutputWrapper(),
+        );
+    }
+
     public function run(
-        DtoProcessorConfig $config,
+        TgUpdateConfig $config,
     ): void {
-        $this->logger->info('SYNC POLLER RUN START');
+        $this->logger->debug('SYNC POLLER RUN START');
         $lastId = 0;
-        $dtoClient = TgBotApiDTOClient::build($this->cache, $this->logger);
 
         while (true) {
             try {
-                $response = $dtoClient->request(
-                    token: $config->token,
+                $response = $this->dtoClient->request(
+                    token: $config->bot->token,
                     dto: new GetUpdatesMethodDTO(
                         offset: $config && $config->noAck ? 0 : $lastId,
                         limit: 100,
@@ -60,12 +74,12 @@ class SyncPoller implements PollerContract
                                 $lastId = max($lastId, $update->updateId + 1);
                                 $processed++;
 
-                                $botId = explode(':', $config->token)[0];
+                                $botId = explode(':', $config->bot->token)[0];
                                 $this->updateProcessor->process($update, $botId, $config);
                             }
                         }
 
-                        if ($processed > 0 && $this->output !== null) {
+                        if ($processed > 0 && $this->output?->hasProgressBar()) {
                             $bar = $this->output->createProgressBar($processed);
                             $bar->start();
                             $bar->setProgress($processed);
@@ -86,6 +100,12 @@ class SyncPoller implements PollerContract
                 $this->logger->error(
                     'tg api getUpdates response '.$e::class.': '.$e->getMessage()
                 );
+            } catch (TgApiRateLimitException $e) {
+                $delay = 5;
+                $this->logger->warning(
+                    'tg api getUpdates rate limited, retrying in '.$delay.' seconds: '.$e->getMessage()
+                );
+                sleep($delay);
             }
         }
     }

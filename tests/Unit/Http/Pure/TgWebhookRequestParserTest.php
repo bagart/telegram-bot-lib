@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use BAGArt\TelegramBot\BotServices\AutoSecretByTokenService;
 use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
+use BAGArt\TelegramBot\TgUpdateConfig;
 use BAGArt\TelegramBot\TypeDTOProcessor\TypeDTOProcessorRegistry;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 use Psr\Log\LoggerInterface;
@@ -11,16 +12,42 @@ use Psr\Log\LoggerInterface;
 function createTestLogger(): TgBotLogWrapper
 {
     return new TgBotLogWrapper(
-        logger: new class implements LoggerInterface {
-            public function log($level, string|\Stringable $message, array $context = []): void {}
-            public function emergency(string|\Stringable $message, array $context = []): void {}
-            public function alert(string|\Stringable $message, array $context = []): void {}
-            public function critical(string|\Stringable $message, array $context = []): void {}
-            public function error(string|\Stringable $message, array $context = []): void {}
-            public function warning(string|\Stringable $message, array $context = []): void {}
-            public function notice(string|\Stringable $message, array $context = []): void {}
-            public function info(string|\Stringable $message, array $context = []): void {}
-            public function debug(string|\Stringable $message, array $context = []): void {}
+        logger: new class () implements LoggerInterface {
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function emergency(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function alert(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function critical(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function error(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function warning(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function notice(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function info(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function debug(string|\Stringable $message, array $context = []): void
+            {
+            }
         }
     );
 }
@@ -34,7 +61,7 @@ describe('TgWebhookRequestParser', function () {
 
             $parser = new TgWebhookRequestParser(
                 tgApiDTOMapper: Mockery::mock(\BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper::class),
-                processorRegistry: new TypeDTOProcessorRegistry(),
+                processorRegistry: TypeDTOProcessorRegistry::build(),
                 secretService: $secretService,
                 logger: createTestLogger(),
             );
@@ -50,7 +77,7 @@ describe('TgWebhookRequestParser', function () {
                 ],
             ];
 
-            $result = $parser->parse($data, $secret);
+            $result = $parser->parse($data, $secret, new TgUpdateConfig('test'));
 
             expect($result)->toBeTrue();
         });
@@ -58,12 +85,12 @@ describe('TgWebhookRequestParser', function () {
         it('returns false for null secret', function () {
             $parser = new TgWebhookRequestParser(
                 tgApiDTOMapper: Mockery::mock(\BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper::class),
-                processorRegistry: new TypeDTOProcessorRegistry(),
+                processorRegistry: TypeDTOProcessorRegistry::build(),
                 secretService: new AutoSecretByTokenService(),
                 logger: createTestLogger(),
             );
 
-            $result = $parser->parse([], null);
+            $result = $parser->parse([], null, new TgUpdateConfig('test'));
 
             expect($result)->toBeFalse();
         });
@@ -71,12 +98,12 @@ describe('TgWebhookRequestParser', function () {
         it('returns false for invalid secret', function () {
             $parser = new TgWebhookRequestParser(
                 tgApiDTOMapper: Mockery::mock(\BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper::class),
-                processorRegistry: new TypeDTOProcessorRegistry(),
+                processorRegistry: TypeDTOProcessorRegistry::build(),
                 secretService: new AutoSecretByTokenService(),
                 logger: createTestLogger(),
             );
 
-            $result = $parser->parse([], 'invalid:secret');
+            $result = $parser->parse([], 'invalid:secret', new TgUpdateConfig('test'));
 
             expect($result)->toBeFalse();
         });
@@ -84,12 +111,12 @@ describe('TgWebhookRequestParser', function () {
         it('returns false for empty secret', function () {
             $parser = new TgWebhookRequestParser(
                 tgApiDTOMapper: Mockery::mock(\BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper::class),
-                processorRegistry: new TypeDTOProcessorRegistry(),
+                processorRegistry: TypeDTOProcessorRegistry::build(),
                 secretService: new AutoSecretByTokenService(),
                 logger: createTestLogger(),
             );
 
-            $result = $parser->parse([], '');
+            $result = $parser->parse([], '', new TgUpdateConfig('test'));
 
             expect($result)->toBeFalse();
         });

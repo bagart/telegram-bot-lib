@@ -16,12 +16,34 @@ class TypeDTOProcessorRegistry
     public bool $check = true;
 
     /** @var array<class-string<TgApiTypeDTOContract>, array<TgTypeDTOProcessorContract|string>> */
-    private array $processors = [
+    private array $processors = [];
+    private static array $default = [
         UpdateTypeDTO::class => [
             UpdateDTOInitProcessor::class,
         ],
     ];
 
+    public static function build(
+        array $processorsByDtoTypeList = [],
+        bool $injectDefault = true,
+    ): self {
+        $registry = new self();
+        if ($injectDefault) {
+            foreach (self::$default as $dtoClass => $processorClasses) {
+                foreach ($processorClasses as $processorClass) {
+                    $registry->register($dtoClass, $processorClass);
+                }
+            }
+        }
+
+        foreach ($processorsByDtoTypeList as $dtoClass => $processorClasses) {
+            foreach ($processorClasses as $processorClass) {
+                $registry->register($dtoClass, $processorClass);
+            }
+        }
+
+        return $registry;
+    }
 
     /**
      * @param  class-string<TgApiTypeDTOContract>  $dtoClass

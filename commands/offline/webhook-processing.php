@@ -20,16 +20,19 @@ $options = parseCommandOptions([
     'store',
     'log',
     'help',
+    'log-level::',
 ]);
 
 if (isset($options['help'])) {
     echo "Usage:
 
 php commands/offline/webhook-processing.php      # process webhook payloads with DTOProcessor
+  --help
   --echo                                         # echo reply to messages
   --store                                        # store messages to database
   --log                                          # log messages to stderr
   --token=xxx:xxx                                # use custom token
+  --log-level=debug|info|warning|error           # minimum log level (default: info)
 ";
     exit(0);
 }
@@ -49,10 +52,7 @@ $config = new TgUpdateExampleConfig(
 );
 
 $processor = new UpdateDTOInitProcessor(
-    processorRegistry: TgPureFactory::processorRegistry(
-        processors: ['echo' => $echo, 'log' => $log, 'store' => $store],
-        config: $config,
-    ),
+    processorRegistry: TgPureFactory::processorRegistry(config: $config),
     dispatcherRegistry: PipelineDispatcherRegistry::build(),
     logger: $logger,
 );

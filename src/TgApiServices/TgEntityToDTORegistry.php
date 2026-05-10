@@ -9,6 +9,9 @@ use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityScopeEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
 use BAGArt\TelegramBot\Exceptions\TgUnregisteredEntityNameException;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
+use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 
 class TgEntityToDTORegistry implements TgApiDTORegistryContract
@@ -21,6 +24,32 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
     public function __construct(
         private TgBotLogWrapper $logger,
     ) {
+    }
+
+    /**
+     * @param TgApiEntityScopeEnum|TgApiEntityScopeEnumContract|class-string<TgApiEntityScopeEnumContract> $tgApiEntityScopeEnum
+     */
+    public static function build(
+        TgApiEntityScopeEnumContract|string $tgApiEntityScopeEnum = TgApiEntityScopeEnum::class,
+        ?TgBotLogWrapper $logger = null,
+    ): TgEntityToDTORegistry {
+        $tgEntityNameToDTORegistry = new TgEntityToDTORegistry(
+            logger: $logger ?? TgBotLogWrapper::build(),
+        );
+
+        /** @var TgApiTypesEnum|TgApiMethodsEnum $entityScopeEnum */
+        foreach ($tgApiEntityScopeEnum::cases() as $dtoScopeEnum) {
+            /** @var TgApiEntityEnumContract $entityDTOEnum */
+            foreach ($dtoScopeEnum->value::cases() as $entityDTOEnum) {
+                $tgEntityNameToDTORegistry->register(
+                    $entityDTOEnum->value,
+                    $entityDTOEnum,
+                    $dtoScopeEnum,
+                );
+            }
+        }
+
+        return $tgEntityNameToDTORegistry;
     }
 
     public function register(
@@ -36,7 +65,7 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
             !$overwrite
             && isset($this->entityToDTORegistry[$entityScopeStr][$entityNameStr])
         ) {
-            $this->logger->warning(
+            $this->logger?->warning(
                 "TgEntityNameToDTORegistry: try to overwrite already registered $entityScope: $entityName"
             );
         }

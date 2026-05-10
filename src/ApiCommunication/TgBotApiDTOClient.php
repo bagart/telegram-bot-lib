@@ -6,12 +6,13 @@ namespace BAGArt\TelegramBot\ApiCommunication;
 
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
 use BAGArt\TelegramBot\Http\Pure\TgResponseParser;
 use BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper;
-use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistryFactory;
+use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistry;
 use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -28,16 +29,21 @@ class TgBotApiDTOClient implements TgBotApiDTOClientContract
     public static function build(
         ?TgBotCacheWrapper $cache = null,
         ?TgBotLogWrapper $logger = null,
+        ?TgBotApiTransportContract $transport = null,
     ): self {
         $logger = $logger ?? TgBotLogWrapper::build();
         $cache = $cache ?? TgBotCacheWrapper::build();
         $tgApiDTOMapper = new TgApiDTOMapper(
-            tgApiDTORegistry: new TgEntityToDTORegistryFactory($logger)->build(),
+            tgApiDTORegistry: TgEntityToDTORegistry::build(),
             logger: $logger,
         );
 
         return new static(
-            tgClient: TgBotApiClient::build($cache),
+            tgClient: TgBotApiClient::build(
+                cache: $cache,
+                logger: $logger,
+                transport: $transport,
+            ),
             tgApiDTOMapper: $tgApiDTOMapper,
             returnParser: new TgResponseParser(
                 tgApiDTOMapper: $tgApiDTOMapper,
@@ -50,12 +56,7 @@ class TgBotApiDTOClient implements TgBotApiDTOClientContract
         string $token,
         TgApiMethodDTOContract $dto,
     ): TgApiResponse {
-        $promise = $this->requestAsync($token, $dto);
-        while ($promise->getState() === PromiseInterface::PENDING) {
-            $this->tgClient->tick();
-        }
-
-        return $promise->wait();
+        return $this->requestAsync($token, $dto)->wait();
     }
 
     /**
@@ -69,7 +70,7 @@ class TgBotApiDTOClient implements TgBotApiDTOClientContract
         return $this->tgClient
             ->requestAsync(
                 token: $token,
-                method: $dto->tgApiEntity(),
+                tgMethod: $dto->tgApiEntity(),
                 params: $this->tgApiDTOMapper->toArray($dto),
                 attempt: $attempt,
             )

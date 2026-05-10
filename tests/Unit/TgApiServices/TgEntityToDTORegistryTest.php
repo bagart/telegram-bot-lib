@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use BAGArt\TelegramBot\Exceptions\TgUnregisteredEntityNameException;
-use BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistry;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 use Psr\Log\LoggerInterface;
@@ -12,16 +12,42 @@ use Psr\Log\LoggerInterface;
 function createRegistryLogger(): TgBotLogWrapper
 {
     return new TgBotLogWrapper(
-        logger: new class implements LoggerInterface {
-            public function log($level, string|\Stringable $message, array $context = []): void {}
-            public function emergency(string|\Stringable $message, array $context = []): void {}
-            public function alert(string|\Stringable $message, array $context = []): void {}
-            public function critical(string|\Stringable $message, array $context = []): void {}
-            public function error(string|\Stringable $message, array $context = []): void {}
-            public function warning(string|\Stringable $message, array $context = []): void {}
-            public function notice(string|\Stringable $message, array $context = []): void {}
-            public function info(string|\Stringable $message, array $context = []): void {}
-            public function debug(string|\Stringable $message, array $context = []): void {}
+        logger: new class () implements LoggerInterface {
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function emergency(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function alert(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function critical(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function error(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function warning(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function notice(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function info(string|\Stringable $message, array $context = []): void
+            {
+            }
+
+            public function debug(string|\Stringable $message, array $context = []): void
+            {
+            }
         }
     );
 }

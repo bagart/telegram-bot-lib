@@ -7,27 +7,25 @@ namespace BAGArt\TelegramBot\ApiCommunication;
 use BAGArt\TelegramBot\ApiCommunication\Pollers\AsyncPoller;
 use BAGArt\TelegramBot\ApiCommunication\Pollers\SyncPoller;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\Pollers\PollerContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\Registry\TgPollerNotRegistryException;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\UpdateDTOInitProcessor;
+use BAGArt\TelegramBot\Wrappers\TgBotOutputWrapper;
 
 final class PollerRegistry
 {
     /** @var array<string, class-string<PollerContract>|PollerContract> */
     private array $pollers = [];
 
+    private static array $default = [
+        SyncPoller::TYPE => SyncPoller::class,
+        AsyncPoller::TYPE => AsyncPoller::class,
+    ];
+
     public static function build(): self
     {
-        if (function_exists('app')) {
-            return app(static::class);
-        }
-
         $registry = new self();
-        foreach (
-            [
-                SyncPoller::TYPE => SyncPoller::class,
-                AsyncPoller::TYPE => AsyncPoller::class,
-            ] as $type => $class
-        ) {
+        foreach (static::$default as $type => $class) {
             $registry->register($class, $type);
         }
 
@@ -71,7 +69,8 @@ final class PollerRegistry
     public function make(
         string $type,
         UpdateDTOInitProcessor $updateProcessor,
-        ?TgBotApiDTOClient $dtoClient = null,
+        ?TgBotApiDTOClientContract $dtoClient = null,
+        ?TgBotOutputWrapper $output = null,
     ): PollerContract {
         if (!$this->has($type)) {
             throw new TgPollerNotRegistryException($type);
@@ -84,9 +83,10 @@ final class PollerRegistry
             return $pollerClass;
         }
 
-        return new $pollerClass(
-            dtoClient: $dtoClient ?? TgBotApiDTOClient::build(),
+        return $pollerClass::build(
             updateProcessor: $updateProcessor,
+            dtoClient: $dtoClient,
+            output: $output,
         );
     }
 

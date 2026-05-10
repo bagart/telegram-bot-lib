@@ -18,7 +18,7 @@ describe('TgBotCacheWrapper', function () {
             $innerCache = Mockery::mock(CacheInterface::class);
             TgBotCacheWrapper::init($innerCache);
 
-            $wrapper = new TgBotCacheWrapper();
+            $wrapper = TgBotCacheWrapper::build();
 
             expect($wrapper)->toBeInstanceOf(TgBotCacheWrapper::class);
         });
@@ -26,7 +26,7 @@ describe('TgBotCacheWrapper', function () {
         it('throws exception when no cache available', function () {
             TgBotCacheWrapper::$initCache = null;
 
-            expect(fn () => new TgBotCacheWrapper())
+            expect(fn () => TgBotCacheWrapper::build())
                 ->toThrow(\RuntimeException::class);
         });
     });

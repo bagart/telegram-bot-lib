@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\ApiCommunication\Pollers;
 
 use BAGArt\TelegramBot\ApiCommunication\Async\Scheduler\FiberScheduler;
-use BAGArt\TelegramBot\ApiCommunication\Async\Scheduler\PromiseFiberBridge;
+use BAGArt\TelegramBot\ApiCommunication\TgBotApiDTOClient;
+use BAGArt\TelegramBot\ApiCommunication\Transport\TgCurlMultiTransport;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\Async\SchedulerContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\Pollers\PollerContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
+use BAGArt\TelegramBot\Contracts\TgUpdateProcessor\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Exceptions\TgApi\TgFloodWaitException;
 use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
 use BAGArt\TelegramBot\TgApi\Methods\DTO\GetUpdatesMethodDTO;
+use BAGArt\TelegramBot\TgApi\Methods\DTO\SendMessageMethodDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
-use BAGArt\TelegramBot\TypeDTOProcessor\DtoProcessorConfig;
+use BAGArt\TelegramBot\TgUpdateConfig;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\UpdateDTOInitProcessor;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
+use BAGArt\TelegramBot\Wrappers\TgBotOutputWrapper;
 use Fiber;
 use Throwable;
 
@@ -23,91 +27,208 @@ class AsyncPoller implements PollerContract
 {
     public const string TYPE = 'async';
 
-    private readonly SchedulerContract $scheduler;
-
     public function __construct(
-        private readonly TgBotApiDTOClientContract $dtoClient,
         private readonly UpdateDTOInitProcessor $updateProcessor,
+        private readonly TgBotApiDTOClientContract $dtoClient,
+        private readonly SchedulerContract $scheduler,
         private readonly ?TgBotLogWrapper $logger = null,
-        ?SchedulerContract $scheduler = null,
     ) {
-        $this->scheduler = $scheduler ?? new FiberScheduler(
+    }
+
+    public static function build(
+        TgTypeDTOProcessorContract $updateProcessor,
+        ?TgBotApiDTOClientContract $dtoClient = null,
+        ?TgBotLogWrapper $logger = null,
+        ?TgBotOutputWrapper $output = null,
+    ): self {
+        $logger ??= TgBotLogWrapper::build();
+        $transport = new TgCurlMultiTransport(logger: $logger);
+
+        return new self(
+            updateProcessor: $updateProcessor,
+            dtoClient: $dtoClient ?? TgBotApiDTOClient::build(
+                transport: $transport,
+                logger: $logger,
+            ),
+            scheduler: new FiberScheduler(
+                transport: $transport,
+                logger: $logger,
+            ),
             logger: $logger,
         );
     }
 
-    public function run(
-        DtoProcessorConfig $config,
-    ): void {
-        $this->logger?->debug('ASYNC POLLER RUN START');
-        $pollingFiber = new Fiber(function () use ($config) {
-            $offset = 0;
+    public function run(TgUpdateConfig $config): void
+    {
+        $this->logger?->debug('ASYNC POLLER START');
 
-            while (true) {
-                try {
-                    $response = $this->fetchUpdatesAsync(
-                        $config->token,
-                        $offset
-                    );
+        $this->scheduler->enqueue(
+            new \Fiber(function () use ($config): void {
+                $offset = 0;
+                while (true) {
+                    try {
+                        /**
+                         * IMPORTANT:
+                         * Next long polling request MUST NOT start
+                         * until current batch processing is fully completed
+                         * (unless hope mode enabled).
+                         */
+                        $response = $this->fetchUpdatesAsync($config, $offset);
+                    } catch (Throwable $e) {
+                        $this->handlePollingException($e);
+                        continue;
+                    }
 
-                    if ($response->ok) {
-                        $updates = $response->result;
+                    $hasUpdates = false;
 
-                        if (is_array($updates) && count($updates) > 0) {
-                            foreach ($updates as $update) {
-                                // 2. For each update, spawn a new Fiber to handle it concurrently
-                                if ($update instanceof UpdateTypeDTO) {
-                                    $this->scheduler->enqueue(new Fiber(fn () => $this->handleUpdate($update, $config))
+                    foreach ($response->result ?? [] as $update) {
+                        $hasUpdates = true;
+
+                        $offset = $update->updateId + 1;
+
+                        $this->scheduler->enqueue(
+                            new Fiber(function () use ($update, $config): void {
+                                try {
+                                    $this->handleUpdate($update, $config);
+                                } catch (Throwable $e) {
+                                    $this->logger?->error(
+                                        'Update handling failed: '.$e->getMessage(),
+                                        [
+                                            'update_id' => $update->updateId,
+                                        ]
+                                    );
+
+                                    $this->noticeUserAboutProcessingError(
+                                        $update,
+                                        $config,
+                                        $e,
                                     );
                                 }
-
-                                if (
-                                    $update instanceof UpdateTypeDTO
-                                    && property_exists($update, 'update_id')
-                                ) {
-                                    $offset = $update->update_id + 1;
-                                }
-                            }
-                        }
+                            })
+                        );
                     }
-                } catch (Throwable $e) {
-                    echo "[Poller Error] {$e->getMessage()}".PHP_EOL;
-                    if ($e instanceof TgFloodWaitException) {
-                        usleep($e->getRetryAfter() * 1_000_000);
+
+                    /**
+                     * ACK safety:
+                     *
+                     * Without "hope" mode enabled,
+                     * we MUST fully drain scheduler here.
+                     *
+                     * This guarantees:
+                     * - all update processors finished
+                     * - all nested async tasks finished
+                     * - no premature Telegram ACK
+                     */
+                    if (
+                        $hasUpdates
+                    ) {
+                        $this->scheduler->drainUntilIdle();
                     } else {
-                        usleep(1_000_000);
+                        /**
+                         * We still tick scheduler
+                         * so execution continues progressively.
+                         */
+                        $this->scheduler->tick();
                     }
                 }
+            })
+        );
 
-                if (Fiber::getCurrent()) {
-                    Fiber::suspend();
-                }
-            }
-        });
-
-        $this->scheduler->registerSuspendedFiber($pollingFiber);
-        $this->scheduler->enqueue($pollingFiber);
-        $this->logger?->debug('ASYNC POLLER ENQUEUED');
-        $this->scheduler->run();
+        while (true) {
+            $this->scheduler->tick();
+        }
     }
 
-    private function fetchUpdatesAsync(string $token, int $offset): TgApiResponse
+    private function handlePollingException(Throwable $e): void
     {
-        $dto = new GetUpdatesMethodDTO(offset: $offset, timeout: 30);
-        $promise = $this->dtoClient->requestAsync($token, $dto);
+        $this->logger?->error(
+            'Polling failed: '.$e->getMessage(),
+        );
 
-        return PromiseFiberBridge::await($promise);
+        if ($e instanceof TgFloodWaitException) {
+            usleep(
+                $e->getRetryAfter() * 1_000_000
+            );
+
+            return;
+        }
+
+        usleep(1_000_000);
+    }
+
+    private function noticeUserAboutProcessingError(
+        UpdateTypeDTO $updateDTO,
+        TgUpdateConfig $config,
+        Throwable $e,
+    ): void {
+        $this->scheduler->enqueue(
+            new Fiber(function () use (
+                $updateDTO,
+                $config,
+            ): void {
+                try {
+                    $this->dtoClient->request(
+                        token: $config->bot->token,
+                        dto: new SendMessageMethodDTO(
+                            chatId: $updateDTO->message->chat->id,
+                            text: 'Processing message error',
+                        ),
+                    );
+                } catch (Throwable $e) {
+                    $this->logger?->error(
+                        'noticeUserAboutProcessingError failed: '
+                        .$e::class
+                        .': '
+                        .$e->getMessage(),
+                        [
+                            'update_id' => $updateDTO->updateId,
+                        ]
+                    );
+                }
+            })
+        );
+    }
+
+    private function fetchUpdatesAsync(
+        TgUpdateConfig $config,
+        int $offset,
+    ): TgApiResponse {
+        $this->logger?->debug(
+            'FETCH UPDATES START offset='.$offset
+        );
+
+        $dto = new GetUpdatesMethodDTO(
+            offset: $offset,
+            timeout: 30,
+        );
+
+        $promise = $this->dtoClient->requestAsync(
+            $config->bot->token,
+            $dto,
+        );
+
+        return $this->scheduler->await($promise);
     }
 
     public function handleUpdate(
         UpdateTypeDTO $update,
-        DtoProcessorConfig $config,
+        TgUpdateConfig $config,
     ): void {
-        $updateId = null;
-        if (is_object($update) && property_exists($update, 'update_id')) {
-            $updateId = $update->update_id;
-        }
-        $this->logger?->debug('HANDLE UPDATE type='.get_class($update).' id='.($updateId ?? 'n/a'));
-        $this->updateProcessor->process($update, 'bot_id_here', $config);
+        $this->logger?->debug(
+            'HANDLE UPDATE id='.$update->updateId
+        );
+
+        /**
+         * Actual strict ordering logic
+         * must be implemented inside processor layer,
+         * not inside poller.
+         */
+        $this->updateProcessor->process(
+            $update,
+            'bot_id_here',
+            $config,
+            null,
+            $this->scheduler,
+        );
     }
 }

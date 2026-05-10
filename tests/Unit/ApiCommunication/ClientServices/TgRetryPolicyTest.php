@@ -24,8 +24,8 @@ describe('TgRetryPolicy', function () {
             expect($policy->shouldRetry('sendMessage', 1, new \Exception('cURL error 28')))->toBeTrue();
         });
 
-        it('returns false for rate limit errors', function () use ($policy) {
-            expect($policy->shouldRetry('sendMessage', 1, new \Exception('rate limit exceeded')))->toBeFalse();
+        it('returns true for rate limit errors', function () use ($policy) {
+            expect($policy->shouldRetry('sendMessage', 1, new \Exception('rate limit exceeded')))->toBeTrue();
         });
 
         it('returns true for 429 status code', function () use ($policy) {

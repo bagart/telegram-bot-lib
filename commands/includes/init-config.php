@@ -5,8 +5,9 @@ declare(strict_types=1);
 use BAGArt\TelegramBot\ApiCommunication\Async\Dispatchers\LaravelQueueDtoPipelineDispatcher;
 use BAGArt\TelegramBot\ApiCommunication\Async\Dispatchers\SyncDtoPipelineDispatcher;
 use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
+use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 
-function initPollerConfig(array $options, TgUpdateExampleConfig $config): void
+function initUpdatePollerConfig(array $options, TgUpdateExampleConfig $config): void
 {
     if (isset($options['poller'])) {
         $config->poller = $options['poller'];
@@ -25,7 +26,7 @@ function initPollerConfig(array $options, TgUpdateExampleConfig $config): void
     $config->log = isset($options['log']);
     $config->store = isset($options['store']);
     $config->show = isset($options['show']);
-    $config->dbg = isset($options['dbg']);
+    $config->bot->logLevel = $options['log-level'] ?? TgBotLogWrapper::LEVEL_INFO;
     $config->noAck = isset($options['no-ack']);
 
     echo "=== Poller Mode: {$config->poller} => {$config->dispatcher} ===\n";
@@ -36,7 +37,7 @@ function initPollerConfig(array $options, TgUpdateExampleConfig $config): void
         $config->show ? '[SHOW]' : null,
         $config->store ? '[STORE]' : null,
         $config->log ? '[LOG]' : null,
-        $config->dbg ? '[DBG]' : null,
+        $config->bot->logLevel === TgBotLogWrapper::LEVEL_DEBUG ? '[DBG]' : null,
     ]));
 
     echo "Flags: {$flags}\n";

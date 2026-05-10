@@ -7,24 +7,34 @@ namespace BAGArt\TelegramBot\ApiCommunication;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgCircuitBreaker;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRateLimiter;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRetryPolicy;
+use BAGArt\TelegramBot\ApiCommunication\Queue\TgOutboundRequestDTO;
+use BAGArt\TelegramBot\ApiCommunication\Queue\TgRequestExecutionConfig;
+use BAGArt\TelegramBot\Exceptions\TgQueueException;
 use BAGArt\TelegramBot\ApiCommunication\Transport\GuzzleTransport;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgCircuitBreakerContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRateLimiterContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRequestCorrelationContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\QueueProducerContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRetryPolicyContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
 use BAGArt\TelegramBot\Contracts\Exceptions\TelegramBotException;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
+use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiNetworkException;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiRateLimitException;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiReturnException;
-use BAGArt\TelegramBot\Exceptions\TgBotTechnicalException;
+use BAGArt\TelegramBot\Exceptions\TgApi\TgApiException;
+use BAGArt\TelegramBot\Exceptions\TgBotTechnicalWithEntityException;
 use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
 use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
+use Throwable;
 
-class TgBotApiClient implements TgBotApiClientContract
+final class TgBotApiClient implements TgBotApiClientContract
 {
     public function __construct(
         private readonly TgRateLimiterContract $rateLimiter,
@@ -32,15 +42,17 @@ class TgBotApiClient implements TgBotApiClientContract
         private readonly TgRetryPolicyContract $retryPolicy,
         private readonly TgBotApiTransportContract $transport,
         private readonly ?TgBotLogWrapper $logger = null,
+        private readonly ?QueueProducerContract $queueProducer = null,
+        private readonly ?TgRequestCorrelationContract $correlation = null,
     ) {
     }
 
     public static function build(
         TgBotCacheWrapper $cache,
-        ?TgBotApiTransportContract $transport = null,
         ?TgBotLogWrapper $logger = null,
+        ?TgBotApiTransportContract $transport = null,
     ): self {
-        return new static(
+        return new self(
             rateLimiter: new TgRateLimiter($cache),
             circuitBreaker: new TgCircuitBreaker($cache),
             retryPolicy: new TgRetryPolicy(),
@@ -51,139 +63,264 @@ class TgBotApiClient implements TgBotApiClientContract
 
     public function request(
         string $token,
-        TgApiEntityEnumContract|string $method,
+        TgApiEntityEnumContract|string $tgMethod,
         array $params = [],
     ): array {
-        $promise = $this->requestAsync($token, $method, $params);
-        while ($promise->getState() === PromiseInterface::PENDING) {
-            $this->transport->tick();
-        }
-        $result = $promise->wait();
-        return $result;
+        return $this
+            ->requestAsync(
+                token: $token,
+                tgMethod: $tgMethod,
+                params: $params,
+            )
+            ->wait();
     }
 
     public function requestAsync(
         string $token,
-        TgApiEntityEnumContract|string $method,
+        TgApiEntityEnumContract|string $tgMethod,
         array $params = [],
         int $attempt = 1,
     ): PromiseInterface {
-        $this->logger?->debug('API requestAsync: '.(is_string($method) ? $method : $method->name));
-        $origMethod = $method instanceof TgApiEntityEnumContract
-            ? $method->name
-            : $method;
+        $tgMethodName = $tgMethod instanceof TgApiEntityEnumContract
+            ? $tgMethod->name
+            : $tgMethod;
 
-        $this->logger?->debug('SYNC: circuit breaker');
-        $this->circuitBreaker->canExecute($origMethod)
-            ?: throw new TgBotTechnicalException(
-            $origMethod,
-            "Circuit breaker open for {$origMethod}"
+        if ($tgMethodName === 'getUpdates') {
+            $params['timeout'] ??= 30;
+        }
+
+        $this->logger?->debug(
+            sprintf(
+                'API requestAsync method=%s attempt=%d',
+                $tgMethodName,
+                $attempt,
+            )
         );
 
-        return $this->buildChain($origMethod, $params, $token, $attempt);
+        /**
+         * Critical:
+         * Circuit breaker must fail fast before transport.
+         */
+        if (!$this->circuitBreaker->canExecute($tgMethodName)) {
+            return Create::rejectionFor(
+                new TgBotTechnicalWithEntityException(
+                    $tgMethodName,
+                    "Circuit breaker open for {$tgMethodName}",
+                )
+            );
+        }
+
+        return Create::promiseFor(null)
+            ->then(function () use (
+                $token,
+                $tgMethodName
+            ): void {
+                /**
+                 * Critical:
+                 * Never block scheduler here.
+                 * Just reject and let retry chain decide.
+                 */
+                $acquired = $this->rateLimiter->acquire(
+                    $this->getRateLimitKey(
+                        $token,
+                        $tgMethodName,
+                    )
+                );
+
+                if (!$acquired) {
+                    throw new TgApiRateLimitException($tgMethodName);
+                }
+            })
+            ->then(function () use (
+                $tgMethodName,
+                $params,
+                $token
+            ): PromiseInterface {
+                return $this->transport->requestAsync(
+                    $tgMethodName,
+                    $params,
+                    $token,
+                );
+            })
+            ->then(function (array $response) use (
+                $tgMethodName
+            ): array {
+                if (($response['ok'] ?? false) === true) {
+                    $this->circuitBreaker->recordSuccess(
+                        $tgMethodName
+                    );
+
+                    return $response;
+                }
+
+                $this->circuitBreaker->recordFailure(
+                    $tgMethodName
+                );
+
+                throw new TgApiReturnException(
+                    tgEntityName: $tgMethodName,
+                    response: new TgApiResponse(
+                        ok: (bool)($response['ok'] ?? false),
+                        possibleResultTypes: [],
+                        result: $response['result'] ?? null,
+                    )
+                );
+            })
+            ->otherwise(function (
+                Throwable|string $error
+            ) use (
+                $tgMethodName,
+                $token,
+                $params,
+                $attempt,
+            ) {
+                $exception = $this->normalizeException(
+                    $error,
+                    $tgMethodName,
+                );
+
+                /**
+                 * Critical:
+                 * getUpdates must not recurse forever.
+                 * Rate limit exceptions are transient — allow retry.
+                 */
+                if (
+                    $tgMethodName === 'getUpdates'
+                    && !$exception instanceof TgApiRateLimitException
+                    && $attempt >= 2
+                ) {
+                    throw $exception;
+                }
+
+                if (
+                    $this->shouldRetry(
+                        $tgMethodName,
+                        $attempt,
+                        $exception,
+                    )
+                ) {
+                    /**
+                     * Critical:
+                     * Keep retry policy deterministic.
+                     * Blocking sleep remains here because
+                     * retry policy contract is sync-only.
+                     * Later should be moved to transport-level delayed promises.
+                     */
+                    $delaySeconds = $this->retryPolicy->getDelay(
+                        $attempt
+                    );
+
+                    if ($tgMethodName === 'getUpdates') {
+                        $delaySeconds = max(
+                            3,
+                            $delaySeconds,
+                        );
+                    }
+
+                    usleep(
+                        (int)($delaySeconds * 1_000_000)
+                    );
+
+                    return $this->requestAsync(
+                        token: $token,
+                        tgMethod: $tgMethodName,
+                        params: $params,
+                        attempt: $attempt + 1,
+                    );
+                }
+
+                if ($exception instanceof RequestException) {
+                    throw new TgApiNetworkException(
+                        tgEntityName: $tgMethodName,
+                        previous: $exception,
+                    );
+                }
+
+                throw $exception;
+            });
     }
 
-    private function buildChain(
-        string $origMethod,
-        array $params,
-        string $token,
+    private function shouldRetry(
+        string $method,
         int $attempt,
-    ): PromiseInterface {
-        return \GuzzleHttp\Promise\Create::promiseFor(null)
-            ->then(
-                function () use ($origMethod, $token) {
-                    $this->logger?->debug('THEN: rate limiter');
-                    $this->rateLimiter->acquire($this->getRateLimitKey($token, $origMethod))
-                        ?: throw new TgApiRateLimitException($origMethod);
-                }
-            )
-            ->then(
-                function () use ($origMethod, $params, $token) {
-                    $this->logger?->debug('THEN: transport');
-                    return $this->transport->requestAsync($origMethod, $params, $token);
-                }
-            )
-            ->then(
-                function (array $data) use ($origMethod) {
-                    $this->logger?->debug('THEN: process response');
-                    if ($data['ok'] ?? false) {
-                        $this->circuitBreaker->recordSuccess($origMethod);
-                    } else {
-                        $this->circuitBreaker->recordFailure($origMethod);
-                    }
+        Throwable $exception,
+    ): bool {
+        if (
+            !$exception instanceof TgApiRateLimitException
+            && !$exception instanceof RequestException
+        ) {
+            return false;
+        }
 
-                    return ($data['ok'] ?? false)
-                        ? $data
-                        : throw new TgApiReturnException(
-                            tgEntityName: $origMethod,
-                            response: new TgApiResponse(
-                                $data['ok'] ?? false,
-                                [],
-                                $data['result'] ?? null
-                            )
-                        );
-                }
+        return $this->retryPolicy->shouldRetry(
+            $method,
+            $attempt,
+            $exception,
+        );
+    }
+
+    private function normalizeException(
+        Throwable|string $error,
+        string $method,
+    ): Throwable {
+        if ($error instanceof TelegramBotException) {
+            return $error;
+        }
+
+        if ($error instanceof Throwable) {
+            return $error;
+        }
+
+        return new TgApiException(
+            'TgBotApiClient::requestAsync(): '
+            . (
+                is_scalar($error)
+                ? (string)$error
+                : "Unknown async failure for {$method}"
             )
-            ->then(
-                null,
-                function (\Throwable|string $error)
-                use ($origMethod, $token, $attempt, $params) {
-                    if (is_string($error)) {
-                        $error = new \RuntimeException($error);
-                    }
-                    if ($error instanceof TgApiRateLimitException) {
-                        if ($this->retryPolicy->shouldRetry($origMethod, $attempt, $error)) {
-                            $delay = 1000000 * $this->retryPolicy->getDelay($attempt);
-                            $this->logger?->debug('RETRY: rate limit attempt '.($attempt + 1));
-                            return \GuzzleHttp\Promise\Create::promiseFor(null)
-                                ->then(function () use ($delay) {
-                                    usleep($delay);
-                                })
-                                ->then(function () use ($origMethod, $token, $params, $attempt) {
-                                    return $this->requestAsync($token, $origMethod, $params, $attempt + 1);
-                                });
-                        }
-                        throw $error;
-                    }
-                    if ($error instanceof TelegramBotException) {
-                        throw $error;
-                    }
-                    if ($error instanceof \GuzzleHttp\Exception\RequestException) {
-                        if ($this->retryPolicy->shouldRetry($origMethod, $attempt, $error)) {
-                            $delay = 1000000 * $this->retryPolicy->getDelay($attempt);
-                            $this?->logger->debug('RETRY: attempt '.($attempt + 1));
-                            return \GuzzleHttp\Promise\Create::promiseFor(null)
-                                ->then(function () use ($delay) {
-                                    usleep($delay);
-                                })
-                                ->then(function () use ($origMethod, $token, $params, $attempt) {
-                                    return $this->requestAsync($token, $origMethod, $params, $attempt + 1);
-                                });
-                        }
-
-                        throw new TgApiNetworkException(
-                            tgEntityName: $origMethod,
-                            previous: $error,
-                        );
-                    }
-
-                    throw $error;
-                }
-            );
+        );
     }
 
     private function getRateLimitKey(
         string $token,
-        TgApiEntityEnumContract|string $method,
+        string $method,
     ): string {
-        return "tg_bot_{$token}_"
-            .($method instanceof TgApiEntityEnumContract
-                ? $method->name
-                : $method);
+        return "tg_bot_{$token}_{$method}";
     }
 
-    public function tick(): void
-    {
-        $this->transport->tick();
+    public function queue(
+        string $token,
+        TgApiMethodDTOContract $dto,
+    ): string {
+        if ($this->queueProducer === null || $this->correlation === null) {
+            throw new TgQueueException(
+                'queue requires queueProducer and correlation. '
+                . 'Inject QueueProducerContract and TgRequestCorrelationContract into the constructor.'
+            );
+        }
+
+        $requestId = $this->correlation->generateRequestId();
+
+        $config = new TgRequestExecutionConfig(
+            mode: TgRequestExecutionConfig::MODE_ASYNC,
+        );
+
+        $requestDTO = new TgOutboundRequestDTO(
+            requestId: $requestId,
+            token: $token,
+            dto: $dto,
+            executionConfig: $config,
+            createdAt: time(),
+        );
+
+        $this->queueProducer->publish($requestDTO);
+
+        $this->logger?->debug(sprintf(
+            'Message sent to daemon: requestId=%s method=%s',
+            $requestId,
+            $requestDTO->dto->tgApiEntity()->name,
+        ));
+
+        return $requestId;
     }
 }

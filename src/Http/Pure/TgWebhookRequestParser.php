@@ -24,7 +24,7 @@ class TgWebhookRequestParser
     ) {
     }
 
-    public function build(array $data): TgApiTypeDTOContract
+    public function makeDTO(array $data): TgApiTypeDTOContract
     {
         $typeDTO = $this->tgApiDTOMapper->fromArray(
             UpdateTypeDTO::class,
@@ -43,7 +43,7 @@ class TgWebhookRequestParser
         try {
             $botId = $this->secretService->botId($secret);
 
-            $updateDTO = $this->build($data);
+            $updateDTO = $this->makeDTO($data);
             $result = $this->process($updateDTO, $botId, $config);
             if (!$result) {
                 $this->logger->info('TgWebhook: Response is true, but processing error', [

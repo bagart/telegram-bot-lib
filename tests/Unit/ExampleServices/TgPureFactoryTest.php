@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
 use BAGArt\TelegramBot\BotServices\BotSecretRegistry;
+use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
 use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
-use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
-use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 use BAGArt\TelegramBot\TypeDTOProcessor\TypeDTOProcessorRegistry;
+use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
+use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 
 describe('TgPureFactory', function () {
     describe('logger()', function () {
@@ -50,7 +50,7 @@ describe('TgPureFactory', function () {
 
     describe('webhook()', function () {
         it('returns TgWebhookRequestParser instance', function () {
-            $registry = new TypeDTOProcessorRegistry();
+            $registry = TypeDTOProcessorRegistry::build();
             $webhook = TgPureFactory::webhook($registry);
 
             expect($webhook)->toBeInstanceOf(TgWebhookRequestParser::class);

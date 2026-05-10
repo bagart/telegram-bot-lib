@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\ExampleServices;
 
 use BAGArt\TelegramBot\ApiCommunication\Async\Dispatchers\SyncDtoPipelineDispatcher;
+use BAGArt\TelegramBot\ApiCommunication\TgApiSender;
 use BAGArt\TelegramBot\ApiCommunication\TgBotApiClient;
 use BAGArt\TelegramBot\ApiCommunication\TgBotApiDTOClient;
 use BAGArt\TelegramBot\ApiCommunication\Transport\GuzzleTransport;
@@ -15,14 +16,15 @@ use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
 use BAGArt\TelegramBot\Http\Pure\TgResponseParser;
 use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
-use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper;
-use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistryFactory;
+use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistry;
+use BAGArt\TelegramBot\TgBotConfig;
 use BAGArt\TelegramBot\TgUpdateConfig;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\AnyDTOToLoggerProcessor;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOEchoToUserProcessor;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOShowToConsoleProcessor;
+use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOToDbProcessor;
 use BAGArt\TelegramBot\TypeDTOProcessor\TypeDTOProcessorRegistry;
 use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
@@ -37,7 +39,7 @@ final class TgPureFactory
     private static ?TgBotCacheWrapper $cache = null;
     private static ?PDO $pdo = null;
 
-    public static function logger(?TgUpdateConfig $config = null): TgBotLogWrapper
+    public static function logger(?TgBotConfig $config = null): TgBotLogWrapper
     {
         if (static::$logger === null) {
             TgBotLogWrapper::init(
@@ -50,7 +52,7 @@ final class TgPureFactory
                         ),
                     ],
                 ),
-                debugEnabled: $config ? $config->dbg : false,
+                minLevel: $config?->logLevel ?? TgBotLogWrapper::LEVEL_DEFAULT,
             );
             static::$logger = TgBotLogWrapper::build();
         }
@@ -70,13 +72,13 @@ final class TgPureFactory
         return static::$cache;
     }
 
-    public static function dtoMapper(): TgApiDTOMapper
-    {
-        $logger = static::logger();
+    public static function dtoMapper(
+        ?TgUpdateConfig $config = null,
+    ): TgApiDTOMapper {
+        $logger = static::logger($config);
 
         return new TgApiDTOMapper(
-            tgApiDTORegistry: new TgEntityToDTORegistryFactory($logger)
-                ->build(TgApiEntityScopeEnum::class),
+            tgApiDTORegistry: TgEntityToDTORegistry::build(),
             logger: $logger,
         );
     }
@@ -96,19 +98,33 @@ final class TgPureFactory
     public static function dtoClient(
         ?TgUpdateConfig $config = null,
     ): TgBotApiDTOClientContract {
-        $dtoMapper = static::dtoMapper();
+        $dtoMapper = static::dtoMapper($config);
+
         return new TgBotApiDTOClient(
             tgClient: TgBotApiClient::build(
                 cache: static::cache(),
+                logger: static::logger(),
                 transport: $config?->poller === 'async'
-                    ? TgPureFactory::transportAsync()
-                    : TgPureFactory::transport()
+                    ? static::transportAsync()
+                    : static::transport(),
             ),
             tgApiDTOMapper: $dtoMapper,
             returnParser: new TgResponseParser(
                 tgApiDTOMapper: $dtoMapper,
                 logger: static::logger(),
             ),
+        );
+    }
+
+    public static function tgApiSender(
+        ?TgUpdateConfig $config = null,
+    ): TgApiSender {
+        return TgApiSender::build(
+            cache: static::cache(),
+            logger: static::logger($config),
+            transport: $config?->poller === 'async'
+                ? static::transportAsync()
+                : static::transport(),
         );
     }
 
@@ -167,53 +183,17 @@ final class TgPureFactory
         return SyncDtoPipelineDispatcher::TYPE;
     }
 
-    /**
-     * Build a TypeDTOProcessorRegistry from CLI flags.
-     *
-     * Supported flags:
-     *   'echo'  => MessageDTOEchoToUserProcessor (requires dtoClient + token)
-     *   'log'   => AnyDTOToLoggerProcessor
-     *   'store' => MessageDTOPdoStoreProcessor
-     *   'show'  => MessageDTOShowToConsoleProcessor
-     *
-     * @param  array<string, bool>  $processors  e.g. ['echo' => true, 'log' => false]
-     * @param  TgUpdateConfig  $config  contains token, scheduler, and flags
-     * @return TypeDTOProcessorRegistry
-     */
     public static function processorRegistry(
-        array $processors,
         TgUpdateConfig $config,
+        ?array $processors = null,
     ): TypeDTOProcessorRegistry {
-        $registry = new TypeDTOProcessorRegistry();
-
-        if (!empty($processors['echo'])) {
-            $registry->register(
-                MessageTypeDTO::class,
-                MessageDTOEchoToUserProcessor::class,
-            );
-        }
-
-        if (!empty($processors['log'])) {
-            $registry->register(
-                MessageTypeDTO::class,
-                AnyDTOToLoggerProcessor::class,
-            );
-        }
-
-        if (!empty($processors['store'])) {
-            $registry->register(
-                MessageTypeDTO::class,
-                MessageDTOPdoStoreProcessor::class,
-            );
-        }
-
-        if (!empty($processors['show'])) {
-            $registry->register(
-                MessageTypeDTO::class,
-                MessageDTOShowToConsoleProcessor::class,
-            );
-        }
-
-        return $registry;
+        return TypeDTOProcessorRegistry::build([
+            MessageTypeDTO::class => $processors ?? array_keys(array_filter([
+                MessageDTOEchoToUserProcessor::class => $config->echo,
+                AnyDTOToLoggerProcessor::class => $config->log,
+                MessageDTOToDbProcessor::class => $config->store,
+                MessageDTOShowToConsoleProcessor::class => $config->show,
+            ])),
+        ]);
     }
 }

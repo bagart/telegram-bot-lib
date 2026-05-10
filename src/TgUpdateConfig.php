@@ -10,11 +10,10 @@ use BAGArt\TelegramBot\ApiCommunication\Pollers;
 class TgUpdateConfig
 {
     public function __construct(
-        public string $token,
+        public readonly TgBotConfig $bot,
         public string $poller = Pollers\AsyncPoller::TYPE,
         public string $dispatcher = Dispatchers\AsyncFiberDtoPipelineDispatcher::TYPE,
         public bool $show = false,
-        public bool $dbg = false,
         public bool $noAck = false,
         public bool $log = false,
     ) {

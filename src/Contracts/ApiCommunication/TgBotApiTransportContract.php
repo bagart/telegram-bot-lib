@@ -16,26 +16,26 @@ interface TgBotApiTransportContract
     /**
      * Send a request to the Telegram Bot API.
      *
-     * @param  string  $method  The Telegram method name (e.g., sendMessage)
+     * @param  string  $tgMethodName  The Telegram method name (e.g., sendMessage)
      * @param  array  $parameters  The method parameters
      * @param  string  $token  The bot token
      *
      * @return array The raw response from Telegram
      * @throws \Throwable
      */
-    public function request(string $method, array $parameters, string $token): array;
+    public function request(string $tgMethodName, array $parameters, string $token): array;
 
     /**
      * Send an asynchronous request to the Telegram Bot API.
      *
-     * @param  string  $method  The Telegram method name (e.g., sendMessage)
+     * @param  string  $tgMethodName  The Telegram method name (e.g., sendMessage)
      * @param  array  $parameters  The method parameters
      * @param  string  $token  The bot token
      *
      * @return PromiseInterface A promise that resolves to the array response
      * @throws \Throwable
      */
-    public function requestAsync(string $method, array $parameters, string $token): PromiseInterface;
+    public function requestAsync(string $tgMethodName, array $parameters, string $token): PromiseInterface;
 
     public function tick(): void;
 

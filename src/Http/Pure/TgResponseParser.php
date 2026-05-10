@@ -11,7 +11,7 @@ use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Exceptions\TgApi\TgApiException;
 use BAGArt\TelegramBot\Exceptions\TgApi\TgBadRequestException;
 use BAGArt\TelegramBot\Exceptions\TgApi\TgFloodWaitException;
-use BAGArt\TelegramBot\Exceptions\TgBotTechnicalException;
+use BAGArt\TelegramBot\Exceptions\TgBotTechnicalWithEntityException;
 use BAGArt\TelegramBot\Exceptions\TgUnexpectedDataFormatException;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 
@@ -60,7 +60,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
                 );
                 $isOk = true;
                 break;
-            } catch (TgBotTechnicalException $buildException) {
+            } catch (TgBotTechnicalWithEntityException $buildException) {
                 //try to check next
             }
         }
@@ -130,7 +130,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
                 );
             }
             if (count($expectType) !== 1) {
-                throw new TgBotTechnicalException(
+                throw new TgBotTechnicalWithEntityException(
                     $dto::tgApiEntity()->name,
                     '@todo NotImplemented: Return Types contain not 1 type: '
                     .json_encode($expectType),
@@ -205,7 +205,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
                 return $returnLevel;
         }
 
-        throw new TgBotTechnicalException(
+        throw new TgBotTechnicalWithEntityException(
             $dto::tgApiEntity()->name,
             "@todo NotImplemented: Unsupported Tg Api Return type: $expectType"
             .json_encode($returnLevel),

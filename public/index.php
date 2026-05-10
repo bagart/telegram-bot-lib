@@ -11,25 +11,31 @@ declare(strict_types=1);
  */
 
 use BAGArt\TelegramBot\BotServices\AutoSecretByTokenService;
+use BAGArt\TelegramBot\Contracts\TgUpdateProcessor\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
+use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
 use BAGArt\TelegramBot\Http\Pure\Validators\TelegramIpValidator;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
-use BAGArt\TelegramBot\TgApiServices\TgEntityNamer;
-use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageEchoProcessor;
-use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessagePdoStoreProcessor;
-use BAGArt\TelegramBot\TypeDTOProcessor\Processors\UpdateLoggerProcessor;
+use BAGArt\TelegramBot\TypeDTOProcessor\Processors\AnyDTOToLoggerProcessor;
+use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOEchoToUserProcessor;
+use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOShowToConsoleProcessor;
+use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOToDbProcessor;
 use BAGArt\TelegramBot\TypeDTOProcessor\TypeDTOProcessorRegistry;
 
 require_once __DIR__.'/../../../../vendor/autoload.php';
 
-// Token
 $token = $_GET['token'] ?? null;
 if (!$token) {
     http_response_code(400);
     exit;
 }
+$config = new TgUpdateExampleConfig(token: $token);
 
-// Validate IP
+initUpdatePollerConfig(
+    array_intersect_key($_REQUEST, ['echo', 'show', 'log', 'store']),
+    $config,
+);
+
 $ipValidator = new TelegramIpValidator();
 if (!$ipValidator->validate($_SERVER['REMOTE_ADDR'] ?? '')) {
     http_response_code(403);
@@ -46,66 +52,32 @@ if (!hash_equals($expectedSecret, $providedSecret ?? '')) {
     exit;
 }
 
-// Input
 $data = json_decode(file_get_contents('php://input'), true);
 if (!is_array($data)) {
     http_response_code(400);
     exit;
 }
 
-// Processors
-$registry = new TypeDTOProcessorRegistry();
+/** @var TgTypeDTOProcessorContract[]|string[] $processors */
+$processors = array_keys(array_filter([
+    MessageDTOEchoToUserProcessor::class => $config->echo,
+    AnyDTOToLoggerProcessor::class => $config->log,
+    MessageDTOToDbProcessor::class => $config->store,
+    MessageDTOShowToConsoleProcessor::class => $config->show,
+]));
 
-$echoMode = true;
-if ($echoMode) {
+$registry = TypeDTOProcessorRegistry::build();
+foreach ($processors as $processor) {
     $registry->register(
-        MessageTypeDTO::class,
-        new MessageEchoProcessor(
-            dtoClient: TgPureFactory::dtoClient(),
-            logger: TgPureFactory::logger(),
-            token: $token,
-        )
-    );
-}
-
-
-$logMode = true;
-if ($logMode) {
-    $registry->register(
-        MessageTypeDTO::class,
-        new UpdateLoggerProcessor(
-            logger: TgPureFactory::logger(),
-            namer: new TgEntityNamer(),
-        )
-    );
-}
-
-
-$logMode = isset($_GET['log']) && $_GET['log'] === '1';
-if ($logMode) {
-    $registry->register(
-        MessageTypeDTO::class,
-        new UpdateLoggerProcessor(
-            logger: TgPureFactory::logger(),
-            namer: new TgEntityNamer(),
-        )
-    );
-}
-
-$storeMode = true;
-if ($storeMode) {
-    $registry->register(
-        MessageTypeDTO::class,
-        new MessagePdoStoreProcessor(
-            pdo: TgPureFactory::pdo(),
-        )
+        dtoClass: MessageTypeDTO::class,
+        processor: $processor
     );
 }
 
 // Parse and process
 $botId = explode(':', $token)[0];
 $result = TgPureFactory::webhook($registry)
-    ->parse($data, $botId);
+    ->parse($data, $botId, config: $config);
 
 http_response_code(200);
 header('Content-Type: application/json');

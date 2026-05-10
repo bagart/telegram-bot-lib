@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use BAGArt\TelegramBot\BotServices\WebhookManager;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
-use BAGArt\TelegramBot\Http\Pure\TgApiResponse;
 use BAGArt\TelegramBot\TgApi\Types\DTO\WebhookInfoTypeDTO;
 
 describe('WebhookManager', function () {

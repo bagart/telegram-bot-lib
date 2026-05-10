@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use BAGArt\TelegramBot\BotServices\BotSecretDTO;
-use InvalidArgumentException;
 
 describe('BotSecretDTO', function () {
     $token = '123456789:ABCdefGHIjklMNOpqrsTUVwxyz';

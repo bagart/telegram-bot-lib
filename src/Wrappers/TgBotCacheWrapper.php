@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Wrappers;
 
+use BAGArt\TelegramBot\Exceptions\TgBotConfigurationException;
 use Closure;
 use DateInterval;
 use DateTimeInterface;
 use Illuminate\Contracts\Cache\Store;
 use Psr\SimpleCache\CacheInterface;
-use RuntimeException;
 
 final class TgBotCacheWrapper implements CacheInterface, Store
 {
@@ -18,7 +18,7 @@ final class TgBotCacheWrapper implements CacheInterface, Store
     public static function build(): self
     {
         if (self::$initCache === null) {
-            throw new RuntimeException('TgBotCacheWrapper::build() called without initCache. Call TgBotCacheWrapper::init() first.');
+            throw new TgBotConfigurationException('TgBotCacheWrapper::build() called without initCache. Call TgBotCacheWrapper::init() first.');
         }
         return new self(self::$initCache);
     }

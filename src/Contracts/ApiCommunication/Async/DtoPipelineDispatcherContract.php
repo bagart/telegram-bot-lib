@@ -6,7 +6,7 @@ namespace BAGArt\TelegramBot\Contracts\ApiCommunication\Async;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\Contracts\TgUpdateProcessor\TgTypeDTOProcessorContract;
-use BAGArt\TelegramBot\TypeDTOProcessor\DtoProcessorConfig;
+use BAGArt\TelegramBot\TgUpdateConfig;
 
 interface DtoPipelineDispatcherContract
 {
@@ -18,10 +18,10 @@ interface DtoPipelineDispatcherContract
      * @param  list<TgTypeDTOProcessorContract|class-string<TgTypeDTOProcessorContract>>  $processors
      */
     public function dispatch(
-        DtoProcessorConfig $config,
+        TgUpdateConfig $config,
         TgApiTypeDTOContract $dto,
         string $botId,
         array $processors,
         ?string $action = null,
-    ): void;
+    ): int;
 }

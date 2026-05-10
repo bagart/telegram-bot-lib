@@ -13,8 +13,9 @@ use GuzzleHttp\Promise\PromiseInterface;
 interface TgBotApiDTOClientContract
 {
     public static function build(
-        TgBotCacheWrapper $cache,
+        ?TgBotCacheWrapper $cache = null,
         ?TgBotLogWrapper $logger = null,
+        ?TgBotApiTransportContract $transport = null,
     ): self;
 
     /** @see https://core.telegram.org/bots/api */

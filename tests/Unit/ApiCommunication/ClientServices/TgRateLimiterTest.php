@@ -20,14 +20,21 @@ describe('TgRateLimiter', function () {
             expect($limiter->acquire('test'))->toBeTrue();
         });
 
-        it('denies requests over limit', function () {
+        it('rejects when at limit, then succeeds after reset', function () {
             $cache = Mockery::mock(CacheInterface::class);
             $wrapper = new TgBotCacheWrapper($cache);
             $limiter = new TgRateLimiter($wrapper);
 
-            $cache->shouldReceive('get')->with('tg_rate_limit_test', 0)->andReturn(50);
-
+            $cache->shouldReceive('get')->with('tg_rate_limit_test', 0)->once()->andReturn(300);
             expect($limiter->acquire('test'))->toBeFalse();
+
+            $cache->shouldReceive('delete')->with('tg_rate_limit_test')->once()->andReturn(true);
+            $limiter->reset('test');
+
+            $cache->shouldReceive('get')->with('tg_rate_limit_test', 0)->once()->andReturn(0);
+            $cache->shouldReceive('increment')->with('tg_rate_limit_test', 1)->once()->andReturn(1);
+            $cache->shouldReceive('set')->with('tg_rate_limit_test', 1, 60)->once()->andReturn(true);
+            expect($limiter->acquire('test'))->toBeTrue();
         });
 
         it('allows multiple tokens when under limit', function () {
@@ -51,7 +58,7 @@ describe('TgRateLimiter', function () {
 
             $cache->shouldReceive('get')->with('tg_rate_limit_test', 0)->andReturn(10);
 
-            expect($limiter->available('test'))->toBe(40);
+            expect($limiter->available('test'))->toBe(290);
         });
 
         it('returns 0 when at limit', function () {
@@ -59,7 +66,7 @@ describe('TgRateLimiter', function () {
             $wrapper = new TgBotCacheWrapper($cache);
             $limiter = new TgRateLimiter($wrapper);
 
-            $cache->shouldReceive('get')->with('tg_rate_limit_test', 0)->andReturn(50);
+            $cache->shouldReceive('get')->with('tg_rate_limit_test', 0)->andReturn(300);
 
             expect($limiter->available('test'))->toBe(0);
         });
@@ -71,7 +78,7 @@ describe('TgRateLimiter', function () {
 
             $cache->shouldReceive('get')->with('tg_rate_limit_test', 0)->andReturn(0);
 
-            expect($limiter->available('test'))->toBe(50);
+            expect($limiter->available('test'))->toBe(300);
         });
     });
 

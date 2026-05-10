@@ -9,16 +9,17 @@ use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRateLimiter;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRetryPolicy;
 use BAGArt\TelegramBot\ApiCommunication\TgBotApiClient;
 use BAGArt\TelegramBot\ApiCommunication\TgBotApiDTOClient;
+use BAGArt\TelegramBot\ApiCommunication\Transport\GuzzleTransport;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgCircuitBreakerContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRateLimiterContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRetryPolicyContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
 use BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper;
 use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistry;
-use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistryFactory;
 use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 use Illuminate\Cache\CacheManager;
@@ -90,9 +91,12 @@ class TelegramBotServiceProvider extends ServiceProvider
         );
         $this->app->singleton(
             TgEntityToDTORegistry::class,
-            fn () => $this->app
-                ->make(TgEntityToDTORegistryFactory::class)
-                ->default(),
+            fn () => TgEntityToDTORegistry::build(),
+        );
+
+        $this->app->singleton(
+            TgBotApiTransportContract::class,
+            fn () => new GuzzleTransport(),
         );
     }
 

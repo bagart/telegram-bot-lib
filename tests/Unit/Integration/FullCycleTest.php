@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 use BAGArt\TelegramBot\BotServices\AutoSecretByTokenService;
 use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
+use BAGArt\TelegramBot\Tests\Integration\Support\TestMessageCollectorProcessor;
+use BAGArt\TelegramBot\Tests\Integration\Support\TestTypeDTOCollectorProcessor;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
+use BAGArt\TelegramBot\TgUpdateConfig;
 use BAGArt\TelegramBot\TypeDTOProcessor\TypeDTOProcessorRegistry;
-use BAGArt\TelegramBot\Tests\Unit\Integration\Support\TestMessageCollectorProcessor;
-use BAGArt\TelegramBot\Tests\Unit\Integration\Support\TestUpdateCollectorProcessor;
 
-const TOKEN = '123456789:ABCdefGHIjklMNOpqrsTUVwxyz';
+define('TG_TEST_TG_TEST_TOKEN', '123456789:ABCdefGHIjklMNOpqrsTUVwxyz');
 
 /**
  * Real Telegram webhook payloads (from documentation + real bots).
@@ -192,19 +193,21 @@ function groupMessagePayload(): array
 
 test('full cycle: text message -> DTO -> processors', function () {
     $payload = messagePayload();
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
-    $updateCollector = new TestUpdateCollectorProcessor();
+    $updateCollector = new TestTypeDTOCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
     $registry->register(UpdateTypeDTO::class, $updateCollector);
 
     $webhook = TgPureFactory::webhook($registry);
     $secretService = new AutoSecretByTokenService();
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
     $botId = $secretService->botId($secret);
 
-    $result = $webhook->parse($payload, $secret);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
+
+    $result = $webhook->parse($payload, $secret, $config);
 
     expect($result)->toBeTrue()
         ->and($updateCollector->count())->toBe(1)
@@ -227,16 +230,17 @@ test('full cycle: text message -> DTO -> processors', function () {
 
 test('full cycle: edited message -> DTO -> processors', function () {
     $payload = editedMessagePayload();
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
 
     $webhook = TgPureFactory::webhook($registry);
     $secretService = new AutoSecretByTokenService();
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
 
-    $result = $webhook->parse($payload, $secret);
+    $result = $webhook->parse($payload, $secret, $config);
 
     expect($result)->toBeTrue()
         ->and($messageCollector->count())->toBe(1);
@@ -248,16 +252,18 @@ test('full cycle: edited message -> DTO -> processors', function () {
 
 test('full cycle: reply message -> DTO -> processors', function () {
     $payload = replyMessagePayload();
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
 
     $webhook = TgPureFactory::webhook($registry);
     $secretService = new AutoSecretByTokenService();
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
 
-    $result = $webhook->parse($payload, $secret);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
+
+    $result = $webhook->parse($payload, $secret, $config);
 
     expect($result)->toBeTrue()
         ->and($messageCollector->count())->toBe(1);
@@ -271,18 +277,20 @@ test('full cycle: reply message -> DTO -> processors', function () {
 
 test('full cycle: callback query -> no message processor triggered', function () {
     $payload = callbackQueryPayload();
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
-    $updateCollector = new TestUpdateCollectorProcessor();
+    $updateCollector = new TestTypeDTOCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
     $registry->register(UpdateTypeDTO::class, $updateCollector);
 
     $webhook = TgPureFactory::webhook($registry);
     $secretService = new AutoSecretByTokenService();
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
 
-    $result = $webhook->parse($payload, $secret);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
+
+    $result = $webhook->parse($payload, $secret, $config);
 
     expect($result)->toBeTrue()
         ->and($updateCollector->count())->toBe(1)
@@ -291,16 +299,18 @@ test('full cycle: callback query -> no message processor triggered', function ()
 
 test('full cycle: channel post -> DTO -> processors', function () {
     $payload = channelPostPayload();
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
 
     $webhook = TgPureFactory::webhook($registry);
     $secretService = new AutoSecretByTokenService();
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
 
-    $result = $webhook->parse($payload, $secret);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
+
+    $result = $webhook->parse($payload, $secret, $config);
 
     expect($result)->toBeTrue()
         ->and($messageCollector->count())->toBe(1);
@@ -313,16 +323,18 @@ test('full cycle: channel post -> DTO -> processors', function () {
 
 test('full cycle: group message -> DTO -> processors', function () {
     $payload = groupMessagePayload();
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
 
     $webhook = TgPureFactory::webhook($registry);
     $secretService = new AutoSecretByTokenService();
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
 
-    $result = $webhook->parse($payload, $secret);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
+
+    $result = $webhook->parse($payload, $secret, $config);
 
     expect($result)->toBeTrue()
         ->and($messageCollector->count())->toBe(1);
@@ -334,68 +346,70 @@ test('full cycle: group message -> DTO -> processors', function () {
 });
 
 test('full cycle: multiple messages accumulate in collectors', function () {
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
 
     $webhook = TgPureFactory::webhook($registry);
     $secretService = new AutoSecretByTokenService();
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
 
-    $webhook->parse(messagePayload(), $secret);
-    $webhook->parse(editedMessagePayload(), $secret);
-    $webhook->parse(replyMessagePayload(), $secret);
+    $webhook->parse(messagePayload(), $secret, $config);
+    $webhook->parse(editedMessagePayload(), $secret, $config);
+    $webhook->parse(replyMessagePayload(), $secret, $config);
 
     expect($messageCollector->count())->toBe(3);
 
-    $texts = array_map(fn($item) => $item['dto']->text, $messageCollector->collected);
+    $texts = array_map(fn ($item) => $item['dto']->text, $messageCollector->collected);
     expect($texts)->toBe(['Hello, bot!', 'Hello, bot! (edited)', 'Hi back!']);
 });
 
 test('full cycle: reset collector clears data', function () {
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
 
     $webhook = TgPureFactory::webhook($registry);
     $secretService = new AutoSecretByTokenService();
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
 
-    $webhook->parse(messagePayload(), $secret);
+    $webhook->parse(messagePayload(), $secret, $config);
     expect($messageCollector->count())->toBe(1);
 
     $messageCollector->reset();
     expect($messageCollector->count())->toBe(0);
 
-    $webhook->parse(editedMessagePayload(), $secret);
+    $webhook->parse(editedMessagePayload(), $secret, $config);
     expect($messageCollector->count())->toBe(1);
 });
 
 test('full cycle: invalid secret returns false', function () {
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
 
     $webhook = TgPureFactory::webhook($registry);
 
-    $result = $webhook->parse(messagePayload(), 'invalid:secret');
+    $result = $webhook->parse(messagePayload(), 'invalid:secret', new TgUpdateConfig(TG_TEST_TOKEN));
 
     expect($result)->toBeFalse()
         ->and($messageCollector->count())->toBe(0);
 });
 
 test('full cycle: null secret returns false', function () {
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
 
     $webhook = TgPureFactory::webhook($registry);
 
-    $result = $webhook->parse(messagePayload(), null);
+    $result = $webhook->parse(messagePayload(), null, new TgUpdateConfig(TG_TEST_TOKEN));
 
     expect($result)->toBeFalse()
         ->and($messageCollector->count())->toBe(0);
@@ -404,7 +418,7 @@ test('full cycle: null secret returns false', function () {
 test('full cycle: secret service generates correct format', function () {
     $secretService = new AutoSecretByTokenService();
 
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
     $botId = $secretService->botId($secret);
 
     expect($secret)->toMatch('/^\d+:[a-f0-9]{64}$/')
@@ -413,18 +427,20 @@ test('full cycle: secret service generates correct format', function () {
 });
 
 test('full cycle: both update and message processors work together', function () {
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
-    $updateCollector = new TestUpdateCollectorProcessor();
+    $updateCollector = new TestTypeDTOCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
     $registry->register(UpdateTypeDTO::class, $updateCollector);
 
     $webhook = TgPureFactory::webhook($registry);
     $secretService = new AutoSecretByTokenService();
-    $secret = $secretService->secret(TOKEN);
+    $secret = $secretService->secret(TG_TEST_TOKEN);
 
-    $webhook->parse(messagePayload(), $secret);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
+
+    $webhook->parse(messagePayload(), $secret, $config);
 
     expect($updateCollector->count())->toBe(1)
         ->and($messageCollector->count())->toBe(1);
@@ -438,7 +454,7 @@ test('full cycle: both update and message processors work together', function ()
 });
 
 test('full cycle: webhooks with different bots use same processors', function () {
-    $registry = new TypeDTOProcessorRegistry();
+    $registry = TypeDTOProcessorRegistry::build();
     $messageCollector = new TestMessageCollectorProcessor();
 
     $registry->register(MessageTypeDTO::class, $messageCollector);
@@ -452,8 +468,10 @@ test('full cycle: webhooks with different bots use same processors', function ()
     $secret1 = $secretService->secret($token1);
     $secret2 = $secretService->secret($token2);
 
-    $webhook->parse(messagePayload(), $secret1);
-    $webhook->parse(editedMessagePayload(), $secret2);
+    $config = new TgUpdateConfig(TG_TEST_TOKEN);
+
+    $webhook->parse(messagePayload(), $secret1, $config);
+    $webhook->parse(editedMessagePayload(), $secret2, $config);
 
     expect($messageCollector->count())->toBe(2)
         ->and($messageCollector->collected[0]['botId'])->toBe('111111111')

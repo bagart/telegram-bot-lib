@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\Contracts\ApiCommunication\Async;
 
 use Fiber;
+use GuzzleHttp\Promise\PromiseInterface;
 
 /**
  * Interface SchedulerContract
@@ -14,6 +15,7 @@ use Fiber;
 interface SchedulerContract
 {
     public const string TYPE = 'undefined';
+
     /**
      * Adds a new task (Fiber) to the scheduler.
      *
@@ -23,39 +25,32 @@ interface SchedulerContract
     public function enqueue(Fiber $fiber): void;
 
     /**
-     * Runs the event loop until there are no more active tasks or it is stopped.
+     * Await a Guzzle Promise within a Fiber context.
+     * Suspends the current Fiber until the promise resolves or rejects.
      *
-     * @return void
+     * @param  PromiseInterface  $promise  The promise to await.
+     * @return mixed  The resolved value.
      */
-    public function run(): void;
+    public function await(PromiseInterface $promise): mixed;
+
+    public function isIdle(): bool;
+
+    public function unpark(Fiber $fiber): void;
 
     /**
-     * Stops the event loop.
+     * Park the currently running fiber.
      *
-     * @return void
-     */
-    public function stop(): void;
-
-     /**
-     * Returns the number of currently active fibers.
+     * The fiber is suspended and will NOT be re-enqueued
+     * automatically by the scheduler. It can only be
+     * resumed via unpark().
      *
-     * @return int
+     * Must be called inside Fiber context.
      */
-    public function getActiveCount(): int;
+    public function parkCurrentFiber(): void;
 
-    /**
-     * Register a fiber as waiting for I/O.
-     */
-    public function registerWaitingFiber(Fiber $fiber): void;
+    public function acquireLock(string $key): bool;
 
-    /**
-     * Unregister a fiber that was waiting for I/O.
-     */
-    public function unregisterWaitingFiber(Fiber $fiber): void;
+    public function releaseLock(string $key): void;
 
-    /**
-     * Runs pending Guzzle promise tasks and advances the transport.
-     * Called before Fiber::suspend() to ensure I/O handles are registered and executed.
-     */
-    public function preAwaitTick(): void;
+    public function tick(): void;
 }

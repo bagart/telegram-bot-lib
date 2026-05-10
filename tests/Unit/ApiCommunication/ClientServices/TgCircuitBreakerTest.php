@@ -51,7 +51,9 @@ describe('TgCircuitBreaker', function () {
 
             $cache->shouldReceive('get')->with('tg_circuit_sendMessage_failures', 0)->andReturn(0);
             $cache->shouldReceive('set')->with('tg_circuit_sendMessage_failures', 1, 30)->andReturn(true);
-            $cache->shouldReceive('set')->with('tg_circuit_sendMessage_opened_at', Mockery::type('int'), 30)->andReturn(true);
+            $cache->shouldReceive('set')->with('tg_circuit_sendMessage_opened_at', Mockery::type('int'), 30)->andReturn(
+                true
+            );
 
             $breaker->recordFailure('sendMessage');
 

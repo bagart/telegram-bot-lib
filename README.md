@@ -25,9 +25,9 @@ Long polling with DTO (typed objects).
 ```bash
 export TELEGRAM_BOT_TOKEN=xxx:xxx           # Default Telegram Token
 
-php commands/poller.php                     # receive updates
-php commands/poller.php --help              # show help
-php commands/poller.php                     # receive updates with DTOProcessor
+php commands/poller-daemon.php                     # receive updates
+php commands/poller-daemon.php --help              # show help
+php commands/poller-daemon.php                     # receive updates with DTOProcessor
   --echo                                    # echo reply to messages
   --store                                   # store messages to database
   --log                                     # log messages to stderr
