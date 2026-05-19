@@ -7,20 +7,14 @@ namespace BAGArt\TelegramBot\ApiCommunication;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgCircuitBreaker;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRateLimiter;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRetryPolicy;
-use BAGArt\TelegramBot\ApiCommunication\Queue\TgOutboundRequestDTO;
-use BAGArt\TelegramBot\ApiCommunication\Queue\TgRequestExecutionConfig;
-use BAGArt\TelegramBot\Exceptions\TgQueueException;
 use BAGArt\TelegramBot\ApiCommunication\Transport\GuzzleTransport;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgCircuitBreakerContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRateLimiterContract;
-use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRequestCorrelationContract;
-use BAGArt\TelegramBot\Contracts\ApiCommunication\QueueProducerContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRetryPolicyContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
 use BAGArt\TelegramBot\Contracts\Exceptions\TelegramBotException;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
-use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiNetworkException;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiRateLimitException;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiReturnException;
@@ -42,8 +36,6 @@ final class TgBotApiClient implements TgBotApiClientContract
         private readonly TgRetryPolicyContract $retryPolicy,
         private readonly TgBotApiTransportContract $transport,
         private readonly ?TgBotLogWrapper $logger = null,
-        private readonly ?QueueProducerContract $queueProducer = null,
-        private readonly ?TgRequestCorrelationContract $correlation = null,
     ) {
     }
 
@@ -97,10 +89,6 @@ final class TgBotApiClient implements TgBotApiClientContract
             )
         );
 
-        /**
-         * Critical:
-         * Circuit breaker must fail fast before transport.
-         */
         if (!$this->circuitBreaker->canExecute($tgMethodName)) {
             return Create::rejectionFor(
                 new TgBotTechnicalWithEntityException(
@@ -115,11 +103,6 @@ final class TgBotApiClient implements TgBotApiClientContract
                 $token,
                 $tgMethodName
             ): void {
-                /**
-                 * Critical:
-                 * Never block scheduler here.
-                 * Just reject and let retry chain decide.
-                 */
                 $acquired = $this->rateLimiter->acquire(
                     $this->getRateLimitKey(
                         $token,
@@ -179,11 +162,6 @@ final class TgBotApiClient implements TgBotApiClientContract
                     $tgMethodName,
                 );
 
-                /**
-                 * Critical:
-                 * getUpdates must not recurse forever.
-                 * Rate limit exceptions are transient — allow retry.
-                 */
                 if (
                     $tgMethodName === 'getUpdates'
                     && !$exception instanceof TgApiRateLimitException
@@ -199,13 +177,6 @@ final class TgBotApiClient implements TgBotApiClientContract
                         $exception,
                     )
                 ) {
-                    /**
-                     * Critical:
-                     * Keep retry policy deterministic.
-                     * Blocking sleep remains here because
-                     * retry policy contract is sync-only.
-                     * Later should be moved to transport-level delayed promises.
-                     */
                     $delaySeconds = $this->retryPolicy->getDelay(
                         $attempt
                     );
@@ -286,41 +257,5 @@ final class TgBotApiClient implements TgBotApiClientContract
         string $method,
     ): string {
         return "tg_bot_{$token}_{$method}";
-    }
-
-    public function queue(
-        string $token,
-        TgApiMethodDTOContract $dto,
-    ): string {
-        if ($this->queueProducer === null || $this->correlation === null) {
-            throw new TgQueueException(
-                'queue requires queueProducer and correlation. '
-                . 'Inject QueueProducerContract and TgRequestCorrelationContract into the constructor.'
-            );
-        }
-
-        $requestId = $this->correlation->generateRequestId();
-
-        $config = new TgRequestExecutionConfig(
-            mode: TgRequestExecutionConfig::MODE_ASYNC,
-        );
-
-        $requestDTO = new TgOutboundRequestDTO(
-            requestId: $requestId,
-            token: $token,
-            dto: $dto,
-            executionConfig: $config,
-            createdAt: time(),
-        );
-
-        $this->queueProducer->publish($requestDTO);
-
-        $this->logger?->debug(sprintf(
-            'Message sent to daemon: requestId=%s method=%s',
-            $requestId,
-            $requestDTO->dto->tgApiEntity()->name,
-        ));
-
-        return $requestId;
     }
 }

@@ -61,8 +61,8 @@ if ($chatId === null || $text === null) {
     exit(1);
 }
 
-$chatId = (string) $chatId;
-$text = (string) $text;
+$chatId = (string)$chatId;
+$text = (string)$text;
 $token = getCommandToken($options);
 
 // --- Create DTO ---
@@ -86,7 +86,7 @@ if (isset($options['queue'])) {
             : TgRequestExecutionConfig::MODE_SYNC,
         ordered: isset($options['ordered']),
         orderingKey: $options['ordering-key'] ?? null,
-        timeoutSeconds: (int) ($options['timeout'] ?? 30),
+        timeoutSeconds: (int)($options['timeout'] ?? 30),
     );
 
     $queuedClient = new QueuedTgBotApiDTOClient(
@@ -127,20 +127,20 @@ if ($response->ok) {
         $msg = $response->result;
         echo "  Message ID: {$msg->messageId}\n";
         echo "  Chat ID:    {$msg->chat->id}\n";
-        echo "  Date:       " . date('Y-m-d H:i:s', $msg->date) . "\n";
+        echo "  Date:       ".date('Y-m-d H:i:s', $msg->date)."\n";
 
         if ($msg->from !== null) {
             echo "  From:       @{$msg->from->username} ({$msg->from->firstName})\n";
         }
     } else {
-        echo "  Result: " . json_encode($response->result, JSON_UNESCAPED_UNICODE) . "\n";
+        echo "  Result: ".json_encode($response->result, JSON_UNESCAPED_UNICODE)."\n";
     }
 
     exit(0);
 }
 
 echo "\n✗ Message failed.\n";
-echo "  Error code: " . ($response->errorCode ?? 'N/A') . "\n";
+echo "  Error code: ".($response->errorCode ?? 'N/A')."\n";
 
 if (!$response->ok && $response->result === null) {
     echo "  Error: Request failed (no response from daemon)\n";

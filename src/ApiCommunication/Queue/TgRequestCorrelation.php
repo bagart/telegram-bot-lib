@@ -28,14 +28,6 @@ final class TgRequestCorrelation implements TgRequestCorrelationContract
         );
     }
 
-    public function generateResponseQueue(
-        TgOutboundRequestDTO $request,
-    ): string {
-        return $this->generateResponseQueueByRequestId(
-            $request->requestId,
-        );
-    }
-
     public function generateResponseQueueByRequestId(
         string $requestId,
     ): string {

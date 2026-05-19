@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\ApiCommunication;
 
 use BAGArt\TelegramBot\ApiCommunication\Queue\TgBotApiDTOQueue;
+use BAGArt\TelegramBot\ApiCommunication\Queue\TgRequestCorrelation;
 use BAGArt\TelegramBot\ApiCommunication\Queue\TgRequestExecutionConfig;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
@@ -33,9 +34,11 @@ final class TgApiSender implements TgBotApiDTOClientContract
         $cache ??= TgBotCacheWrapper::build();
         $redisWrapper ??= TgBotRedisQueueWrapper::build(logger: $logger);
 
+        $correlation = new TgRequestCorrelation();
+
         return new self(
             client: TgBotApiDTOClient::build($cache, $logger, $transport),
-            queue: TgBotApiDTOQueue::build($redisWrapper, $logger),
+            queue: new TgBotApiDTOQueue($redisWrapper, $correlation, $logger),
         );
     }
 

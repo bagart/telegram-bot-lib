@@ -5,8 +5,8 @@ declare(strict_types=1);
 use BAGArt\TelegramBot\ApiCommunication\Async\Dispatchers;
 use BAGArt\TelegramBot\ApiCommunication\Pollers;
 use BAGArt\TelegramBot\ApiCommunication\Pollers\AsyncPoller;
-use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
 use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
+use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
 use BAGArt\TelegramBot\TgBotConfig;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\UpdateDTOInitProcessor;
 
@@ -51,7 +51,9 @@ export TELEGRAM_BOT_TOKEN=xxx:xxx           # Default Telegram Bot Token
 
 $token = getCommandToken($options);
 
-$config = new TgUpdateExampleConfig(bot: new TgBotConfig(token:$token));
+$config = new TgUpdateExampleConfig(
+    bot: new TgBotConfig(token: $token)
+);
 initUpdatePollerConfig(
     [
         'poller' => Pollers\AsyncPoller::TYPE,

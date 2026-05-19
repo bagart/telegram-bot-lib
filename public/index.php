@@ -16,6 +16,7 @@ use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
 use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
 use BAGArt\TelegramBot\Http\Pure\Validators\TelegramIpValidator;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
+use BAGArt\TelegramBot\TgBotConfig;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\AnyDTOToLoggerProcessor;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOEchoToUserProcessor;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\MessageDTOShowToConsoleProcessor;
@@ -29,7 +30,9 @@ if (!$token) {
     http_response_code(400);
     exit;
 }
-$config = new TgUpdateExampleConfig(token: $token);
+$config = new TgUpdateExampleConfig(
+    bot: new TgBotConfig(token: $token),
+);
 
 initUpdatePollerConfig(
     array_intersect_key($_REQUEST, ['echo', 'show', 'log', 'store']),

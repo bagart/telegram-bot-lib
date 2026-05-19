@@ -70,8 +70,9 @@ $daemon = new TgOutboundDaemon(
     producer: $queue,
     scheduler: $scheduler,
     dtoClient: TgBotApiDTOClient::build(
-        transport: $transport,
+        cache: TgPureFactory::cache(),
         logger: $logger,
+        transport: $transport,
     ),
     ordering: new TgRequestOrderingManager(
         scheduler: $scheduler,
@@ -84,6 +85,8 @@ $daemon = new TgOutboundDaemon(
     logger: $logger,
 );
 
-$logger->info("TgOutboundDaemon started.\n  Transport: ".$transport::class."\n  Request queue: {$requestQueue}\nPress Ctrl+C to stop.");
+$logger->info(
+    "TgOutboundDaemon started.\n  Transport: ".$transport::class."\n  Request queue: {$requestQueue}\nPress Ctrl+C to stop."
+);
 
 $daemon->run();

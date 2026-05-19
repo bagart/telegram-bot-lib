@@ -8,7 +8,6 @@ use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRequestCorrel
 use BAGArt\TelegramBot\Contracts\ApiCommunication\QueueProducerContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
-use BAGArt\TelegramBot\Wrappers\TgBotRedisQueueWrapper;
 
 final class TgBotApiDTOQueue
 {
@@ -17,17 +16,6 @@ final class TgBotApiDTOQueue
         private readonly TgRequestCorrelationContract $correlation,
         private readonly ?TgBotLogWrapper $logger = null,
     ) {
-    }
-
-    public static function build(
-        TgBotRedisQueueWrapper $wrapper,
-        ?TgBotLogWrapper $logger = null,
-    ): self {
-        return new self(
-            producer: $wrapper,
-            correlation: new TgRequestCorrelation(),
-            logger: $logger,
-        );
     }
 
     public function queue(
@@ -39,20 +27,7 @@ final class TgBotApiDTOQueue
             mode: TgRequestExecutionConfig::MODE_ASYNC,
         );
 
-        $requestId = $this->correlation->generateRequestId();
-
-        $responseQueue = $config->mode === TgRequestExecutionConfig::MODE_SYNC
-            ? $this->correlation->generateResponseQueueByRequestId($requestId)
-            : null;
-
-        $requestDTO = new TgOutboundRequestDTO(
-            requestId: $requestId,
-            token: $token,
-            dto: $dto,
-            executionConfig: $config,
-            responseQueue: $responseQueue,
-            createdAt: time(),
-        );
+        $requestDTO = $this->buildRequestDTO($token, $dto, $config);
 
         $this->producer->publish($requestDTO);
 
@@ -60,11 +35,32 @@ final class TgBotApiDTOQueue
             sprintf(
                 'Message %s queued: #%s method=%s',
                 $dto->tgApiEntity()->value,
-                $requestId,
+                $requestDTO->requestId,
                 $dto->tgApiEntity()->name,
             ),
         );
 
-        return $requestId;
+        return $requestDTO->requestId;
+    }
+
+    private function buildRequestDTO(
+        string $token,
+        TgApiMethodDTOContract $dto,
+        TgRequestExecutionConfig $config,
+    ): TgOutboundRequestDTO {
+        $requestId = $this->correlation->generateRequestId();
+
+        $responseQueue = $config->mode === TgRequestExecutionConfig::MODE_SYNC
+            ? $this->correlation->generateResponseQueueByRequestId($requestId)
+            : null;
+
+        return new TgOutboundRequestDTO(
+            requestId: $requestId,
+            token: $token,
+            dto: $dto,
+            executionConfig: $config,
+            responseQueue: $responseQueue,
+            createdAt: time(),
+        );
     }
 }

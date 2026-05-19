@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\Contracts\ApiCommunication;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
-use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Wrappers\TgBotCacheWrapper;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -29,9 +28,4 @@ interface TgBotApiClientContract
         array $params = [],
         int $attempt = 1,
     ): PromiseInterface;
-
-    public function queue(
-        string $token,
-        TgApiMethodDTOContract $dto,
-    ): string;
 }

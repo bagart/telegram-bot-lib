@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use BAGArt\TelegramBot\ApiCommunication\Async\PipelineDispatcherRegistry;
-use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
 use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
+use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
 use BAGArt\TelegramBot\TgApi;
+use BAGArt\TelegramBot\TgBotConfig;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\UpdateDTOInitProcessor;
 
 require_once __DIR__.'/../../../../../vendor/autoload.php';
@@ -48,7 +49,7 @@ $log = array_key_exists('log', $options);
 $tgDTOClient = TgPureFactory::dtoClient();
 $logger = TgPureFactory::logger();
 $config = new TgUpdateExampleConfig(
-    token: $token,
+    bot: new TgBotConfig(token: $token),
     dispatcher: TgPureFactory::syncDispatcherType(),
 );
 initUpdatePollerConfig($options, $config);

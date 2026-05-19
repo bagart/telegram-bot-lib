@@ -12,14 +12,22 @@ use BAGArt\TelegramBot\TgUpdateConfig;
 class TgUpdateExampleConfig extends TgUpdateConfig
 {
     public function __construct(
-        public readonly TgBotConfig $bot,
-        public string $poller = Pollers\AsyncPoller::TYPE,
-        public string $dispatcher = Dispatchers\AsyncFiberDtoPipelineDispatcher::TYPE,
-        public bool $show = false,
-        public bool $noAck = false,
-        public bool $log = false,
+        TgBotConfig $bot,
+        string $poller = Pollers\AsyncPoller::TYPE,
+        string $dispatcher = Dispatchers\AsyncFiberDtoPipelineDispatcher::TYPE,
+        bool $show = false,
+        bool $noAck = false,
+        bool $log = false,
         public bool $echo = false,
         public bool $store = false,
     ) {
+        parent::__construct(
+            bot: $bot,
+            poller: $poller,
+            dispatcher: $dispatcher,
+            show: $show,
+            noAck: $noAck,
+            log: $log,
+        );
     }
 }

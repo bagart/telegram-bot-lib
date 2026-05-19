@@ -72,15 +72,6 @@ final class QueuedTgBotApiDTOClient implements TgBotApiDTOClientContract
         return $this->awaitResponse($requestDTO, $dto);
     }
 
-    /**
-     * IMPORTANT:
-     * This async returns requestId immediately.
-     *
-     * Real async response processing must be handled
-     * by a separate response daemon / consumer worker.
-     *
-     * Promise here must NOT busy-wait.
-     */
     public function requestAsync(
         string $token,
         TgApiMethodDTOContract $dto,
@@ -99,18 +90,9 @@ final class QueuedTgBotApiDTOClient implements TgBotApiDTOClientContract
                 'Async request queued: requestId=%s method=%s',
                 $requestDTO->requestId,
                 $dto->tgApiEntity()->name,
-            )
+            ),
         );
 
-        /**
-         * Return immediately.
-         *
-         * Response must be consumed later by:
-         * - daemon
-         * - webhook
-         * - callback worker
-         * - event processor
-         */
         return Create::promiseFor($requestDTO->requestId);
     }
 

@@ -5,8 +5,8 @@ declare(strict_types=1);
 use BAGArt\TelegramBot\ApiCommunication\Async\Dispatchers;
 use BAGArt\TelegramBot\ApiCommunication\Pollers;
 use BAGArt\TelegramBot\ApiCommunication\Pollers\SyncPoller;
-use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
 use BAGArt\TelegramBot\ExampleServices\TgPureFactory;
+use BAGArt\TelegramBot\ExampleServices\TgUpdateExampleConfig;
 use BAGArt\TelegramBot\TgBotConfig;
 use BAGArt\TelegramBot\TypeDTOProcessor\Processors\UpdateDTOInitProcessor;
 
@@ -48,7 +48,9 @@ php commands/pollers/poller-sync.php                # sync polling with DTOProce
 
 $token = getCommandToken($options);
 
-$config = new TgUpdateExampleConfig(bot: new TgBotConfig(token:$token));
+$config = new TgUpdateExampleConfig(
+    bot: new TgBotConfig(token: $token),
+);
 initUpdatePollerConfig(
     [
         'poller' => Pollers\SyncPoller::TYPE,

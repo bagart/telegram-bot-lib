@@ -62,7 +62,9 @@ function_exists('pcntl_async_signals') && pcntl_async_signals(true);
 
 $token = getCommandToken($options);
 
-$config = new TgUpdateExampleConfig(bot: new TgBotConfig(token:$token));
+$config = new TgUpdateExampleConfig(
+    bot: new TgBotConfig(token: $token)
+);
 initUpdatePollerConfig($options, $config);
 
 $logger = TgPureFactory::logger($config);

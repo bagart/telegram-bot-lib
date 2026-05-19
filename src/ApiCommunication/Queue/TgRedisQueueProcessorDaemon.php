@@ -10,86 +10,45 @@ use BAGArt\TelegramBot\Exceptions\TgQueueException;
 use BAGArt\TelegramBot\Wrappers\TgBotLogWrapper;
 use BAGArt\TelegramBot\Wrappers\TgBotRedisQueueWrapper;
 use Fiber;
-use SplObjectStorage;
 use Throwable;
 
 final class TgRedisQueueProcessorDaemon
 {
-    private const int IDLE_SLEEP_US = 200000;
-
-    private const int MIN_SLEEP_US = 1000;
-
-    private const int MAX_CONCURRENT_FIBERS = 500;
-
-    private bool $shouldStop = false;
-
-    private int $totalProcessed = 0;
-
-    private int $totalErrors = 0;
-
-    private int $concurrentFibers = 0;
-
-    /**
-     * @var SplObjectStorage<Fiber, float>
-     */
-    private SplObjectStorage $delayedUnpark;
+    use DaemonTrait;
 
     public function __construct(
         private readonly TgBotRedisQueueWrapper $queue,
-        private readonly SchedulerContract $scheduler,
-        private readonly ?TgBotLogWrapper $logger = null,
+        SchedulerContract $scheduler,
+        ?TgBotLogWrapper $logger = null,
     ) {
-        $this->delayedUnpark = new SplObjectStorage();
+        $this->initDaemon($scheduler, $logger);
     }
 
-    public function run(): void
+    protected function getLogPrefix(): string
     {
-        $this->logInfo('TgRedisQueueProcessorDaemon started');
+        return 'TgRedisQueueProcessorDaemon';
+    }
+
+    protected function onStart(): void
+    {
         $this->queue->connect();
+    }
 
-        $this->setupSignalHandlers();
+    protected function tryConsume(): mixed
+    {
+        return $this->queue->consumeRaw();
+    }
 
-        while (!$this->shouldStop) {
-            try {
-                $this->processDelayedUnparks();
-
-                if ($this->concurrentFibers < self::MAX_CONCURRENT_FIBERS) {
-                    $payload = $this->queue->consumeRaw();
-
-                    if ($payload !== null) {
-                        $this->dispatchJob($payload);
-                    }
-                }
-
-                $this->scheduler->tick();
-
-                $this->adaptiveSleep();
-            } catch (Throwable $e) {
-                $this->logger?->error(
-                    sprintf(
-                        'Daemon loop error: %s',
-                        $e->getMessage(),
-                    ),
-                    ['exception' => $e::class]
-                );
-
-                usleep(self::IDLE_SLEEP_US);
-            }
+    protected function dispatch(mixed $item): void
+    {
+        if (!is_string($item)) {
+            return;
         }
 
-        $this->shutdown();
-    }
-
-    public function stop(): void
-    {
-        $this->shouldStop = true;
-    }
-
-    private function dispatchJob(string $payload): void
-    {
         ++$this->concurrentFibers;
 
         $daemon = $this;
+        $payload = $item;
 
         $fiber = new Fiber(function () use ($payload, $daemon): void {
             try {
@@ -99,7 +58,7 @@ final class TgRedisQueueProcessorDaemon
 
                 if (!$job instanceof RedisQueueDTOProcessJob) {
                     throw new TgQueueException(
-                        'Invalid job payload: expected RedisQueueDTOProcessJob'
+                        'Invalid job payload: expected RedisQueueDTOProcessJob',
                     );
                 }
 
@@ -112,20 +71,17 @@ final class TgRedisQueueProcessorDaemon
                         'Job completed: processor=%s botId=%s',
                         $job->processor,
                         $job->botId,
-                    )
+                    ),
                 );
             } catch (Throwable $e) {
                 ++$daemon->totalErrors;
 
                 $daemon->logger?->error(
-                    sprintf(
-                        'Job failed: error=%s',
-                        $e->getMessage(),
-                    ),
+                    sprintf('Job failed: error=%s', $e->getMessage()),
                     [
                         'exception' => $e::class,
                         'payload_preview' => substr($payload, 0, 200),
-                    ]
+                    ],
                 );
             } finally {
                 --$daemon->concurrentFibers;
@@ -133,124 +89,5 @@ final class TgRedisQueueProcessorDaemon
         });
 
         $this->scheduler->enqueue($fiber);
-    }
-
-    private function processDelayedUnparks(): void
-    {
-        if ($this->delayedUnpark->count() === 0) {
-            return;
-        }
-
-        $now = microtime(true);
-        $readyFibers = [];
-
-        foreach ($this->delayedUnpark as $fiber) {
-            $unparkAt = $this->delayedUnpark->getInfo();
-
-            if ($now >= $unparkAt) {
-                $readyFibers[] = $fiber;
-            }
-        }
-
-        foreach ($readyFibers as $fiber) {
-            $this->delayedUnpark->detach($fiber);
-
-            try {
-                $this->scheduler->unpark($fiber);
-            } catch (Throwable) {
-            }
-        }
-    }
-
-    private function adaptiveSleep(): void
-    {
-        if (
-            !$this->scheduler->isIdle()
-            && $this->concurrentFibers > 0
-        ) {
-            return;
-        }
-
-        if ($this->delayedUnpark->count() > 0) {
-            $nextUnpark = null;
-
-            foreach ($this->delayedUnpark as $fiber) {
-                $time = $this->delayedUnpark->getInfo();
-
-                if ($nextUnpark === null || $time < $nextUnpark) {
-                    $nextUnpark = $time;
-                }
-            }
-
-            if ($nextUnpark !== null) {
-                $remainingUs = (int) (
-                    ($nextUnpark - microtime(true)) * 1_000_000
-                );
-
-                if ($remainingUs > self::MIN_SLEEP_US) {
-                    usleep(
-                        min(
-                            $remainingUs,
-                            self::IDLE_SLEEP_US,
-                        )
-                    );
-                }
-
-                return;
-            }
-        }
-
-        usleep(self::IDLE_SLEEP_US);
-    }
-
-    private function setupSignalHandlers(): void
-    {
-        if (!function_exists('pcntl_signal')) {
-            return;
-        }
-
-        pcntl_async_signals(true);
-
-        $daemon = $this;
-
-        pcntl_signal(SIGTERM, static function () use ($daemon): void {
-            $daemon->logger?->info(
-                'Received SIGTERM, shutting down...',
-            );
-
-            $daemon->stop();
-        });
-
-        pcntl_signal(SIGINT, static function () use ($daemon): void {
-            $daemon->logger?->info(
-                'Received SIGINT, shutting down...',
-            );
-
-            $daemon->stop();
-        });
-    }
-
-    private function shutdown(): void
-    {
-        $this->logInfo(
-            sprintf(
-                'Daemon shutting down. Processed: %d, Errors: %d, Concurrent: %d',
-                $this->totalProcessed,
-                $this->totalErrors,
-                $this->concurrentFibers,
-            )
-        );
-
-        $this->scheduler->drainUntilIdle();
-    }
-
-    private function logInfo(string $message): void
-    {
-        $this->logger?->info(
-            sprintf(
-                '[TgRedisQueueProcessorDaemon] %s',
-                $message,
-            )
-        );
     }
 }
