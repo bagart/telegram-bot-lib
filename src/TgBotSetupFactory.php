@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot;
 
-use BAGArt\ASKClient\Client\ApiClient;
-use BAGArt\ASKClient\Client\CurlMultiClient;
-use BAGArt\ASKClient\Client\GuzzleClient;
-use BAGArt\ASKClient\Client\HttpsSocketClient\HttpsSocketClient;
-use BAGArt\ASKClient\Client\HttpsSocketClient\HttpsSocketClientConfig;
-use BAGArt\ASKClient\Contracts\Client\NetworkClientContract;
+use BAGArt\ASKClient\AskClient\Adapters\AskCurlMultiClientAdapter;
+use BAGArt\ASKClient\AskClient\Adapters\AskGuzzleClientAdapter;
+use BAGArt\ASKClient\AskClient\AskApiClient;
+use BAGArt\ASKClient\Contracts\Client\AskNetworkClientContract;
 use BAGArt\ASKClient\Contracts\Transporting\HttpTransportContract;
+use BAGArt\ASKClient\AskHttpSocketClient\AskHttpSocketClient;
+use BAGArt\ASKClient\AskHttpSocketClient\HttpsSocketClientConfig;
 use BAGArt\ASKClient\Lockers\InMemoryLocker;
 use BAGArt\ASKClient\RateLimiter\ASKRateLimiter;
-use BAGArt\ASKClient\Transporting\HttpTransports\ASKSocketTransport;
-use BAGArt\ASKClient\Transporting\HttpTransports\CurlMultiTransport;
-use BAGArt\ASKClient\Transporting\HttpTransports\GuzzleTransport;
-use BAGArt\ASKClient\Transporting\TransportRegistry;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\ASKSocketTransportAdapter;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\CurlMultiTransportAdapter;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\GuzzleTransportAdapter;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportRegistry;
 use BAGArt\ASKClientRedis\Connection\FiberRedisConnection;
 use BAGArt\ASKClientRedis\Redis\Client\AsyncFiberRedisClient;
 use BAGArt\ASKClientRedis\Redis\Client\PhpRedisAdapter;
@@ -115,7 +115,7 @@ final readonly class TgBotSetupFactory
 
         $transport = self::buildSocketTransport($serviceConfig, $this->logger, $env);
 
-        if ($transport instanceof ASKSocketTransport) {
+        if ($transport instanceof ASKSocketTransportAdapter) {
             self::warmSocketPool($transport, $this->logger, $env);
         }
 
@@ -139,14 +139,14 @@ final readonly class TgBotSetupFactory
         TgServiceConfig $config,
         ASKLogWrapper $logger,
         array $env,
-    ): ?ASKSocketTransport {
+    ): ?ASKSocketTransportAdapter {
         $isPoolEnabled = ($env['TG_OUTBOUND_SOCKET_POOL'] ?? null) === '1';
 
-        if (!$isPoolEnabled || $config->transport !== ASKSocketTransport::TYPE) {
+        if (!$isPoolEnabled || $config->transport !== ASKSocketTransportAdapter::TYPE) {
             return null;
         }
 
-        $transport = ASKSocketTransport::withConfig(
+        $transport = ASKSocketTransportAdapter::withConfig(
             new HttpsSocketClientConfig(
                 keepAlive: true,
                 maxIdlePerHost: (int)($env['TG_OUTBOUND_MAX_IDLE_PER_HOST'] ?? 8),
@@ -165,7 +165,7 @@ final readonly class TgBotSetupFactory
      * pool is disabled.
      */
     public static function warmSocketPool(
-        ASKSocketTransport $transport,
+        ASKSocketTransportAdapter $transport,
         ASKLogWrapper $logger,
         array $env,
     ): int {
@@ -258,7 +258,7 @@ final readonly class TgBotSetupFactory
         $logger = $this->logger;
         $cache = $this->cache ?? self::createCache($serviceConfig);
 
-        $transport ??= TransportRegistry::build()->make($serviceConfig->transport);
+        $transport ??= HttpTransportRegistry::build()->make($serviceConfig->transport);
 
         $tgTransport = new TgBotApiTransport($transport);
 
@@ -308,7 +308,7 @@ final readonly class TgBotSetupFactory
             redis: $redisClient,
         );
 
-        $apiClient = new ApiClient(
+        $apiClient = new AskApiClient(
             transport: self::resolveNetworkClient($transport),
             rateLimiter: new ASKRateLimiter($cache, new ASKClock()),
             promiseResolver: new ASKPromiseResolver(),
@@ -366,7 +366,7 @@ final readonly class TgBotSetupFactory
         TgServiceConfig $config,
         ?HttpTransportContract $transport = null
     ): TgBotApiDTOClientContract {
-        $transport ??= TransportRegistry::build()->make($config->transport);
+        $transport ??= HttpTransportRegistry::build()->make($config->transport);
         $tgTransport = new TgBotApiTransport($transport);
 
         return TgBotApiDTOClient::build(
@@ -424,12 +424,12 @@ final readonly class TgBotSetupFactory
         );
     }
 
-    private static function resolveNetworkClient(HttpTransportContract $transport): NetworkClientContract
+    private static function resolveNetworkClient(HttpTransportContract $transport): AskNetworkClientContract
     {
         return match ($transport::class) {
-            GuzzleTransport::class => new GuzzleClient(),
-            CurlMultiTransport::class => new CurlMultiClient(),
-            ASKSocketTransport::class => new HttpsSocketClient(),
+            GuzzleTransportAdapter::class => new AskGuzzleClientAdapter(),
+            CurlMultiTransportAdapter::class => new AskCurlMultiClientAdapter(),
+            ASKSocketTransportAdapter::class => new AskHttpSocketClient(),
             default => throw new \RuntimeException(
                 sprintf(
                     'Cannot resolve network client for transport class: %s',

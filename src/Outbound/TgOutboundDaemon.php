@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot\Outbound;
 use BAGArt\AsyncKernel\ASKShutdownContext;
 use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\ASKDaemonContract;
+use BAGArt\AsyncKernel\Contracts\Daemons\ASKShutdownAware;
 use BAGArt\AsyncKernel\Contracts\Daemons\ASKTickableContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\WithASKTickableContract;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
@@ -19,7 +20,7 @@ use Closure;
 use Fiber;
 use Throwable;
 
-final class TgOutboundDaemon implements ASKDaemonContract, ASKTickableContract, WithASKTickableContract
+final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASKTickableContract, WithASKTickableContract
 {
     private bool $isShuttingDown = false;
 
@@ -231,6 +232,9 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKTickableContract, 
 
     public function shutdown(ASKShutdownContext $context): bool
     {
+        // prepareShutdown() (called by the kernel in STOPPING phase) is the canonical
+        // place $isShuttingDown is set. Guard here in case the kernel calls shutdown()
+        // without the prepare step, or calls it repeatedly across DRAINING/FORCING.
         if (!$this->isShuttingDown) {
             $this->isShuttingDown = true;
 
@@ -248,6 +252,29 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKTickableContract, 
         ]);
 
         return false;
+    }
+
+    public function shutdownPriority(): int
+    {
+        // OutboundDaemon drains first (highest priority) so the metrics daemon
+        // (priority 0) still captures the final batch of stats. See ASKShutdownAware.
+        return 100;
+    }
+
+    public function shutdownTimeout(): int
+    {
+        return 30;
+    }
+
+    public function prepareShutdown(): void
+    {
+        // Stop accepting new tasks — tick() checks this flag and returns early.
+        // Called by the kernel in the STOPPING phase, before DRAINING begins.
+        $this->isShuttingDown = true;
+
+        $this->logger->debug('[OutboundWorker] prepareShutdown: stopping ingestion, draining in-flight', [
+            'count' => count($this->inflight),
+        ]);
     }
 
     public function name(): string

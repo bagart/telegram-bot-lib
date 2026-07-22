@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 COPY composer.json .
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+RUN rm -f /usr/bin/composer /usr/local/bin/composer \
+    && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && php -r "unlink('composer-setup.php');" \
     && composer install --no-interaction --no-dev --optimize-autoloader

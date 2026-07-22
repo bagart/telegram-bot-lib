@@ -21,7 +21,7 @@ $options = CommandActions::parseOptions(getopt('', [
 
 if (isset($options['help'])) {
     echo "Usage:
-php commands/debug/get-me.php                   # show bot info
+php commands/debug/get_me.php                   # show bot info
 
 Options:
   --help

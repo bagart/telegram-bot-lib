@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Tests\Unit\ApiCommunication\Transport;
 
-use BAGArt\ASKClient\Client\HttpsSocketClient\MemoryStreamFactory;
 use BAGArt\ASKClient\Contracts\Transporting\HttpTransportContract;
+use BAGArt\ASKClient\AskHttpSocketClient\MemoryStreamFactory;
 use BAGArt\ASKClient\Request\ASKHttpRequest;
 use BAGArt\ASKClient\Response\ASKHttpResponse;
 use BAGArt\AsyncKernel\Contracts\ASKPromiseContract;

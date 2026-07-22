@@ -15,7 +15,7 @@ use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgResponseDecoder;
 /**
  * ASKClient transport that bridges TgApiAskOperation → {@see ApiClientContract}.
  *
- * Sits on top of the ASKClient ApiClient, which already provides rate limiting,
+ * Sits on top of the ASKClient AskApiClient, which already provides rate limiting,
  * promise resolution and tickable driving of the underlying network client. This
  * adapter owns only the Telegram-specific concern: turning the raw JSON response
  * body into the decoded array shape callers expect.

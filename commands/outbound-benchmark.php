@@ -5,9 +5,9 @@ declare(strict_types=1);
 use BAGArt\ASKClient\Contracts\Transporting\HttpTransportContract;
 use BAGArt\ASKClient\Lockers\InMemoryLocker;
 use BAGArt\ASKClient\Request\ASKHttpRequest;
-use BAGArt\ASKClient\Transporting\HttpTransports\ASKSocketTransport;
-use BAGArt\ASKClient\Transporting\HttpTransports\CurlMultiTransport;
-use BAGArt\ASKClient\Transporting\HttpTransports\GuzzleTransport;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\ASKSocketTransportAdapter;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\CurlMultiTransportAdapter;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\GuzzleTransportAdapter;
 use BAGArt\AsyncKernel\ASKClock;
 use BAGArt\AsyncKernel\AsyncKernel;
 use BAGArt\AsyncKernel\Cache\InMemoryCache;
@@ -90,9 +90,9 @@ $customHost = (string) ($options['host'] ?? '');
 function transportFactories(): array
 {
     return [
-        CurlMultiTransport::TYPE => fn () => new CurlMultiTransport(),
-        GuzzleTransport::TYPE => fn () => new GuzzleTransport(),
-        ASKSocketTransport::TYPE => fn () => new ASKSocketTransport(),
+        CurlMultiTransportAdapter::TYPE => fn () => new CurlMultiTransportAdapter(),
+        GuzzleTransportAdapter::TYPE => fn () => new GuzzleTransportAdapter(),
+        ASKSocketTransportAdapter::TYPE => fn () => new ASKSocketTransportAdapter(),
     ];
 }
 
@@ -458,8 +458,8 @@ function runBenchmark(
     $throughput = $elapsedAvg > 0 ? $sentAvg / $elapsedAvg : 0.0;
     $pctOfLimit = $rate > 0 ? ($throughput / $rate) * 100 : 0.0;
 
-    echo "            \x1b[1mavg sent={$sentAvg}, errors={$errorsMax}, "
-        .number_format($throughput, 1)." msgs/s ({$pctOfLimit}% of limit)\x1b[0m\n";
+    echo "            avg sent={$sentAvg}, errors={$errorsMax}, "
+        .number_format($throughput, 1)." msgs/s ({$pctOfLimit}% of limit)\n";
 
     return [
         'sent' => $sentAvg,

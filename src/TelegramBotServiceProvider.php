@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot;
 
 use BAGArt\ASKClient\ASKClient;
-use BAGArt\ASKClient\Client\ApiClient;
-use BAGArt\ASKClient\Client\HttpsSocketClient\HttpsSocketClient;
-use BAGArt\ASKClient\Client\HttpsSocketClient\HttpsSocketClientConfig;
-use BAGArt\ASKClient\Client\Services\PoolWarmer;
+use BAGArt\ASKClient\AskClient\AskApiClient;
+use BAGArt\ASKClient\AskClient\PoolWarmer;
 use BAGArt\ASKClient\Contracts\Client\ApiClientContract;
 use BAGArt\ASKClient\Contracts\Transporting\HttpTransportContract;
+use BAGArt\ASKClient\AskHttpSocketClient\AskHttpSocketClient;
+use BAGArt\ASKClient\AskHttpSocketClient\HttpsSocketClientConfig;
 use BAGArt\ASKClient\RateLimiter\ASKRateLimiter;
-use BAGArt\ASKClient\Transporting\HttpTransports\ASKSocketTransport;
-use BAGArt\ASKClient\Transporting\TransportRegistry;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\ASKSocketTransportAdapter;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportRegistry;
 use BAGArt\AsyncKernel\ASKClock;
 use BAGArt\AsyncKernel\Promise\ASKPromiseResolver;
 use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;
@@ -92,11 +92,11 @@ class TelegramBotServiceProvider extends ServiceProvider
         // Configured from tg-outbound-daemon.daemon.socket_pool so the outbound daemon can opt
         // into HTTP/1.1 connection pooling (keep-alive) without touching call sites.
         $this->app->singleton(
-            HttpsSocketClient::class,
-            function (): HttpsSocketClient {
+            AskHttpSocketClient::class,
+            function (): AskHttpSocketClient {
                 $pool = (array) config('tg-outbound-daemon.daemon.socket_pool', []);
 
-                return new HttpsSocketClient(new HttpsSocketClientConfig(
+                return new AskHttpSocketClient(new HttpsSocketClientConfig(
                     keepAlive: (bool) ($pool['enabled'] ?? false),
                     maxIdlePerHost: (int) ($pool['max_idle_per_host'] ?? 4),
                     maxIdleTotal: (int) ($pool['max_idle_total'] ?? 16),
@@ -125,7 +125,7 @@ class TelegramBotServiceProvider extends ServiceProvider
                 }
 
                 return new PoolWarmer(
-                    client: $this->app->make(HttpsSocketClient::class),
+                    client: $this->app->make(AskHttpSocketClient::class),
                     warmHost: $warmHost,
                     warmCount: $warmCount,
                     warmInterval: (float) ($pool['warm_interval'] ?? 30.0),
@@ -209,9 +209,9 @@ class TelegramBotServiceProvider extends ServiceProvider
         );
 
         // HttpTransport — selectable via TG_OUTBOUND_TRANSPORT env.
-        // Resolves through the ASKClient TransportRegistry so the transport type is a pure
+        // Resolves through the ASKClient HttpTransportRegistry so the transport type is a pure
         // configuration concern: "guzzle" / "curl-multi" / "ask-socket". The "ask-socket" variant
-        // wraps the singleton HttpsSocketClient (pool-enabled by config above), so daemons that
+        // wraps the singleton AskHttpSocketClient (pool-enabled by config above), so daemons that
         // warm the pool get reused connections in every outbound request.
         $this->app->singleton(
             HttpTransportContract::class,
@@ -225,23 +225,23 @@ class TelegramBotServiceProvider extends ServiceProvider
                     );
                 }
 
-                if ($type === ASKSocketTransport::TYPE) {
-                    return new ASKSocketTransport(
-                        client: $app->make(HttpsSocketClient::class),
+                if ($type === ASKSocketTransportAdapter::TYPE) {
+                    return new ASKSocketTransportAdapter(
+                        client: $app->make(AskHttpSocketClient::class),
                     );
                 }
 
-                return TransportRegistry::build()->make($type);
+                return HttpTransportRegistry::build()->make($type);
             },
         );
 
-        // ApiClient — rate-limited, resolver-aware wrapper over the HTTP transport.
+        // AskApiClient — rate-limited, resolver-aware wrapper over the HTTP transport.
         // Owns predictive pacing (ASKRateLimiter) and the promise resolver the async kernel
         // drives; the Telegram adapter sits on top of this, never on the raw transport.
         $this->app->singleton(
             ApiClientContract::class,
             function ($app): ApiClientContract {
-                return new ApiClient(
+                return new AskApiClient(
                     transport: $app->make(HttpTransportContract::class),
                     rateLimiter: new ASKRateLimiter(
                         $app->make(ASKCacheWrapper::class),

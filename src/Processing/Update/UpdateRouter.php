@@ -9,6 +9,7 @@ use BAGArt\AsyncKernel\Drivers\ASKFiberScheduler;
 use BAGArt\AsyncKernel\Exceptions\ASKInterruptException;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\UpdateRouterContract;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessingErrorConsumer;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessorErrorContext;
 use BAGArt\TelegramBot\Processing\Execution\OrderedExecutionCoordinator;
@@ -50,8 +51,7 @@ final class UpdateRouter implements UpdateRouterContract
     private function process(UpdateContext $updateContext): void
     {
         $processor = $updateContext->processor::build(
-            serviceConfig: $this->serviceConfig,
-            botSetup: $this->botSetup,
+            context: BotProcessorContext::fromBotSetup($this->botSetup),
         );
 
         try {

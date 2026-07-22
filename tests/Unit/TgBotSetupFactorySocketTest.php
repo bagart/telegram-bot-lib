@@ -1,6 +1,6 @@
 <?php
 
-use BAGArt\ASKClient\Transporting\HttpTransports\ASKSocketTransport;
+use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\ASKSocketTransportAdapter;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\EnvServiceConfigurator;
@@ -18,14 +18,14 @@ describe('EnvServiceConfigurator', function (): void {
         $configurator = new EnvServiceConfigurator([], ['TG_OUTBOUND_TRANSPORT' => '']);
         $config = $configurator->getServiceConfig();
 
-        expect($config->transport)->toBe(ASKSocketTransport::TYPE);
+        expect($config->transport)->toBe(ASKSocketTransportAdapter::TYPE);
     });
 
     it('keeps default transport when env is absent', function (): void {
         $configurator = new EnvServiceConfigurator([], []);
         $config = $configurator->getServiceConfig();
 
-        expect($config->transport)->toBe(ASKSocketTransport::TYPE);
+        expect($config->transport)->toBe(ASKSocketTransportAdapter::TYPE);
     });
 
     it('CLI option takes precedence over default but env overrides CLI', function (): void {
@@ -54,30 +54,30 @@ describe('EnvServiceConfigurator', function (): void {
 });
 
 describe('TgBotSetupFactory socket pool', function (): void {
-    $build = function (TgServiceConfig $config, array $env): ?ASKSocketTransport {
+    $build = function (TgServiceConfig $config, array $env): ?ASKSocketTransportAdapter {
         $method = new ReflectionMethod(TgBotSetupFactory::class, 'buildSocketTransport');
 
         return $method->invoke(null, $config, new ASKLogWrapper(), $env);
     };
 
-    it('builds an ASKSocketTransport when pool is enabled and transport is ask-socket', function () use ($build): void {
-        $config = new TgServiceConfig(transport: ASKSocketTransport::TYPE);
+    it('builds an ASKSocketTransportAdapter when pool is enabled and transport is ask-socket', function () use ($build): void {
+        $config = new TgServiceConfig(transport: ASKSocketTransportAdapter::TYPE);
         $env = ['TG_OUTBOUND_SOCKET_POOL' => '1'];
 
         $transport = $build($config, $env);
 
-        expect($transport)->toBeInstanceOf(ASKSocketTransport::class);
+        expect($transport)->toBeInstanceOf(ASKSocketTransportAdapter::class);
     });
 
     it('returns null when pool is disabled', function () use ($build): void {
-        $config = new TgServiceConfig(transport: ASKSocketTransport::TYPE);
+        $config = new TgServiceConfig(transport: ASKSocketTransportAdapter::TYPE);
         $env = ['TG_OUTBOUND_SOCKET_POOL' => '0'];
 
         expect($build($config, $env))->toBeNull();
     });
 
     it('returns null when pool flag is absent', function () use ($build): void {
-        $config = new TgServiceConfig(transport: ASKSocketTransport::TYPE);
+        $config = new TgServiceConfig(transport: ASKSocketTransportAdapter::TYPE);
 
         expect($build($config, []))->toBeNull();
     });
@@ -90,7 +90,7 @@ describe('TgBotSetupFactory socket pool', function (): void {
     });
 
     it('skips warmup when WARM_CONNECTIONS <= 0', function (): void {
-        $transport = new ASKSocketTransport();
+        $transport = new ASKSocketTransportAdapter();
 
         $warmed = TgBotSetupFactory::warmSocketPool(
             $transport,
@@ -102,7 +102,7 @@ describe('TgBotSetupFactory socket pool', function (): void {
     });
 
     it('skips warmup when WARM_HOST is empty', function (): void {
-        $transport = new ASKSocketTransport();
+        $transport = new ASKSocketTransportAdapter();
 
         $warmed = TgBotSetupFactory::warmSocketPool(
             $transport,
