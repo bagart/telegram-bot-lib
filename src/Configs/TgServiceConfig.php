@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Configs;
 
+use BAGArt\ASKClient\Dns\AskDnsRegistry;
 use BAGArt\ASKClient\Queue\Adapters\InMemoryQueueAdapter;
 use BAGArt\ASKClient\Transporting\HttpTransports\ASKSocketTransport;
 use BAGArt\AsyncKernel\Cache\InMemoryCache;
@@ -28,6 +29,7 @@ class TgServiceConfig
         public ?OutboundWorkerConfig $outboundWorkerConfig = null,
         public string $outboundQueueStore = InMemoryOutboundQueue::TYPE,
         public ?string $redisDsn = null,
+        public string $dns = AskDnsRegistry::DEFAULT_ADAPTER,
     ) {
     }
 }

@@ -37,6 +37,11 @@ final readonly class EnvServiceConfigurator
             ? $envTransport
             : ($options['transport'] ?? $config->transport);
 
+        $envDns = $env['TG_DNS_ADAPTER'] ?? null;
+        $config->dns = (!empty($envDns))
+            ? $envDns
+            : ($options['dns'] ?? $config->dns);
+
         $this->serviceConfig = $config;
     }
 
