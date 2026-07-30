@@ -23,7 +23,7 @@ class ReplyParametersTypeDTO implements TgApiTypeDTOContract
     public function __construct(
         #[Description('Identifier of the message that will be replied to in the current chat, or in the chat _chat\_id_ if it is specified')]
         public int $messageId,
-        #[Description('If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.')]
+        #[Description('If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account and messages from channel direct messages tg_chats.')]
         public ?string $chatId = null,
         #[Description('Pass _True_ if the message should be sent even if the specified message to be replied to is not found. Always _False_ for replies in another chat or forum topic. Always _True_ for messages sent on behalf of a business account.')]
         public ?bool $allowSendingWithoutReply = null,

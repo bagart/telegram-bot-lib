@@ -39,7 +39,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
                     'string', // createInvoiceLink, exportChatInviteLink
                     'int', // getChatMemberCount
                 ])
-                && ! is_a($returnType, TgApiTypeDTOContract::class)
+                && !is_a($returnType, TgApiTypeDTOContract::class)
             ) {
                 $this->logger?->warning(
                     'Unexpected api result or wrong code implementation: Not Expected return types of '
@@ -65,7 +65,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
             }
         }
 
-        if (! $isOk && isset($buildException)) {
+        if (!$isOk && isset($buildException)) {
             throw $buildException;
         }
 
@@ -100,7 +100,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
                     );
                 }
             } elseif (preg_match('/retry after (\d+)/i', $description, $matches)) {
-                $retryAfter = (int) $matches[1];
+                $retryAfter = (int)$matches[1];
             }
 
             throw new TgApiRateLimitException(
@@ -108,7 +108,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
                     ? $dto::tgApiEntity()->name
                     : $dto,
                 $description,
-                (int) $retryAfter,
+                (int)$retryAfter,
             );
         }
 
@@ -126,7 +126,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
     ): mixed {
         if (is_array($expectType)) {
             if (
-                ! is_array($returnLevel)
+                !is_array($returnLevel)
                 || is_string(array_key_first($returnLevel))
             ) {
                 throw new TgUnexpectedDataFormatException(
@@ -159,7 +159,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
             str_starts_with($expectType, 'BAGArt\\TelegramBot\\TgApi\\')
             || str_starts_with($expectType, '\\BAGArt\\TelegramBot\\TgApi\\')
         ) {
-            if (! is_array($returnLevel)) {
+            if (!is_array($returnLevel)) {
                 throw new TgUnexpectedDataFormatException(
                     $dto::tgApiEntity()->name,
                     $expectType,
@@ -181,7 +181,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
             case 'mixed':
                 return $returnLevel;
             case 'bool':
-                if (! is_bool($returnLevel)) {
+                if (!is_bool($returnLevel)) {
                     throw new TgUnexpectedDataFormatException(
                         $dto::tgApiEntity()->name,
                         $expectType,
@@ -191,7 +191,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
 
                 return $returnLevel;
             case 'string':
-                if (! is_string($returnLevel) && ! is_numeric($returnLevel)) {
+                if (!is_string($returnLevel) && !is_numeric($returnLevel)) {
                     throw new TgUnexpectedDataFormatException(
                         $dto::tgApiEntity()->name,
                         $expectType,
@@ -201,7 +201,7 @@ class TgResponseParser implements TgBotApiReturnParserContract
 
                 return $returnLevel;
             case 'int':
-                if (! is_numeric($returnLevel)) {
+                if (!is_numeric($returnLevel)) {
                     throw new TgUnexpectedDataFormatException(
                         $dto::tgApiEntity()->name,
                         $expectType,
@@ -224,11 +224,11 @@ class TgResponseParser implements TgBotApiReturnParserContract
         $unexpected = [];
         if (is_array($result)) {
             foreach ($result as $item) {
-                if (! $item instanceof TgApiTypeDTOContract) {
+                if (!$item instanceof TgApiTypeDTOContract) {
                     $unexpected[] = (is_object($result) ? $result::class : gettype($result)).'[]';
                 }
             }
-        } elseif (! ($result instanceof TgApiTypeDTOContract || is_bool($result))) {
+        } elseif (!($result instanceof TgApiTypeDTOContract || is_bool($result))) {
             $unexpected[] = is_object($result) ? $result::class : gettype($result);
         }
 

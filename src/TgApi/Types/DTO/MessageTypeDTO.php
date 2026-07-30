@@ -26,13 +26,13 @@ class MessageTypeDTO implements TgApiTypeDTOContract
         public int $date,
         #[Description('Chat the message belongs to')]
         public ChatTypeDTO $chat,
-        #[Description('Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only')]
+        #[Description('Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private tg_chats only')]
         public ?int $messageThreadId = null,
         #[Description('Information about the direct messages chat topic that contains the message')]
         public ?DirectMessagesTopicTypeDTO $directMessagesTopic = null,
-        #[Description('Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats')]
+        #[Description('Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel tg_chats')]
         public ?UserTypeDTO $from = null,
-        #[Description('Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel"s discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field _from_ contains a fake sender user in non-channel chats.')]
+        #[Description('Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel"s discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field _from_ contains a fake sender user in non-channel tg_chats.')]
         public ?ChatTypeDTO $senderChat = null,
         #[Description('If the sender of the message boosted the chat, the number of boosts added by the user')]
         public ?int $senderBoostCount = null,

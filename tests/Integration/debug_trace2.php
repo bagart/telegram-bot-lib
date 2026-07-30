@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../../../vendor/autoload.php';
+require_once __DIR__.'/../../../../../vendor/autoload.php';
 require_once __DIR__.'/Support/TestMessageCollectorProcessor.php';
 require_once __DIR__.'/Support/TestTypeDTOCollectorProcessor.php';
 
@@ -45,15 +45,18 @@ echo "Processors for UpdateTypeDTO:\n";
 $count = 0;
 foreach ($registry->get(UpdateTypeDTO::class, $serviceConfig) as $p) {
     $count++;
-    echo "  [$count] " . $p::class . "\n";
-    echo "      support(UpdateTypeDTO): " . ($p->support(new UpdateTypeDTO(0), new TgBotConfig(token: TOKEN)) ? 'yes' : 'no') . "\n";
+    echo "  [$count] ".$p::class."\n";
+    echo "      support(UpdateTypeDTO): ".($p->support(
+            new UpdateTypeDTO(0),
+            new TgBotConfig(token: TOKEN)
+        ) ? 'yes' : 'no')."\n";
 }
 
 echo "\nProcessors for MessageTypeDTO:\n";
 $count = 0;
 foreach ($registry->get(MessageTypeDTO::class, $serviceConfig) as $p) {
     $count++;
-    echo "  [$count] " . $p::class . "\n";
+    echo "  [$count] ".$p::class."\n";
 }
 
 // Now manually test the flow
@@ -76,9 +79,9 @@ $mapper = new TgApiDTOMapper(
 );
 
 $updateDTO = $mapper->fromArray(UpdateTypeDTO::class, $payload);
-echo "UpdateDTO class: " . $updateDTO::class . "\n";
-echo "Message class: " . ($updateDTO->message ? $updateDTO->message::class : "null") . "\n";
-echo "Message instanceof TgApiTypeDTOContract: " . ($updateDTO->message instanceof TgApiTypeDTOContract ? 'yes' : 'no') . "\n";
+echo "UpdateDTO class: ".$updateDTO::class."\n";
+echo "Message class: ".($updateDTO->message ? $updateDTO->message::class : "null")."\n";
+echo "Message instanceof TgApiTypeDTOContract: ".($updateDTO->message instanceof TgApiTypeDTOContract ? 'yes' : 'no')."\n";
 
 echo "\n=== Testing selectProcessors() ===\n";
 $botConfig = new TgBotConfig(token: TOKEN);
@@ -91,7 +94,7 @@ foreach ($selector->selectProcessors($updateDTO, $botConfig) as $property => $pr
     echo "  -> $property: ".$processor::class.($isStrictOrdered ? ' (strict)' : '')."\n";
 }
 
-echo "\nMessage collector count: " . $msgCollector->count() . "\n";
+echo "\nMessage collector count: ".$msgCollector->count()."\n";
 foreach ($msgCollector->collected as $item) {
-    echo "  Collected: " . $item['dto']::class . " text=" . $item['dto']->text . "\n";
+    echo "  Collected: ".$item['dto']::class." text=".$item['dto']->text."\n";
 }

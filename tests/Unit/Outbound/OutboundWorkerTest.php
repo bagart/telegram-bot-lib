@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\AsyncKernel\Drivers\ASKFiberScheduler;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
+use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
 use BAGArt\TelegramBot\Outbound\LeaseRenewer;
@@ -68,12 +68,14 @@ describe('OutboundWorker', function () {
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
-        $queue->push(new OutboundTask(
-            id: 't1',
-            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
-            dtoClass: 'App\\SendMessage',
-            dtoData: ['chat_id' => 1],
-        ));
+        $queue->push(
+            new OutboundTask(
+                id: 't1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'App\\SendMessage',
+                dtoData: ['chat_id' => 1],
+            )
+        );
 
         expect($queue->size())->toBe(1);
 
@@ -90,12 +92,14 @@ describe('OutboundWorker', function () {
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
-        $queue->push(new OutboundTask(
-            id: 't1',
-            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
-            dtoClass: 'D',
-            dtoData: [],
-        ));
+        $queue->push(
+            new OutboundTask(
+                id: 't1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: [],
+            )
+        );
 
         $worker->shutdown();
         $worker->tick(0);
@@ -119,12 +123,14 @@ describe('OutboundWorker', function () {
         $worker = makeWorker(queue: $queue, circuitBreaker: $cb);
         $worker->startup();
 
-        $queue->push(new OutboundTask(
-            id: 't1',
-            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
-            dtoClass: 'D',
-            dtoData: [],
-        ));
+        $queue->push(
+            new OutboundTask(
+                id: 't1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: [],
+            )
+        );
 
         $worker->tick(0);
 
@@ -143,12 +149,14 @@ describe('OutboundWorker', function () {
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
-        $queue->push(new OutboundTask(
-            id: 't1',
-            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
-            dtoClass: 'D',
-            dtoData: [],
-        ));
+        $queue->push(
+            new OutboundTask(
+                id: 't1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: [],
+            )
+        );
 
         $worker->tick(0);
 
@@ -160,12 +168,14 @@ describe('OutboundWorker', function () {
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
-        $queue->push(new OutboundTask(
-            id: 't1',
-            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
-            dtoClass: 'D',
-            dtoData: [],
-        ));
+        $queue->push(
+            new OutboundTask(
+                id: 't1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: [],
+            )
+        );
 
         $worker->tick(0);
 
@@ -215,6 +225,7 @@ describe('OutboundWorker', function () {
                 private readonly object $executed,
             ) {
             }
+
             public function handle(\BAGArt\TelegramBot\Outbound\OutboundEnvelope $envelope, \Closure $next): void
             {
                 $this->executed->called = true;
@@ -226,12 +237,14 @@ describe('OutboundWorker', function () {
         $worker = makeWorker(queue: $queue, pipeline: $pipeline);
         $worker->startup();
 
-        $queue->push(new OutboundTask(
-            id: 't1',
-            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
-            dtoClass: 'D',
-            dtoData: [],
-        ));
+        $queue->push(
+            new OutboundTask(
+                id: 't1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: [],
+            )
+        );
 
         $worker->tick(0);
         $worker->tickScheduler(0);
@@ -253,12 +266,14 @@ describe('OutboundWorker', function () {
         $worker = makeWorker(queue: $queue, pipeline: $pipeline);
         $worker->startup();
 
-        $queue->push(new OutboundTask(
-            id: 't1',
-            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
-            dtoClass: 'D',
-            dtoData: [],
-        ));
+        $queue->push(
+            new OutboundTask(
+                id: 't1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: [],
+            )
+        );
 
         $worker->tick(0);
         $worker->tickScheduler(0);
@@ -280,12 +295,14 @@ describe('OutboundWorker', function () {
         $worker = makeWorker(queue: $queue, pipeline: $pipeline);
         $worker->startup();
 
-        $queue->push(new OutboundTask(
-            id: 't1',
-            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
-            dtoClass: 'D',
-            dtoData: [],
-        ));
+        $queue->push(
+            new OutboundTask(
+                id: 't1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: [],
+            )
+        );
 
         $worker->tick(0);
         $worker->tickScheduler(0);
@@ -339,7 +356,12 @@ describe('OutboundWorker', function () {
             }
         };
 
-        $task = new OutboundTask(id: 't1', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: []);
+        $task = new OutboundTask(
+            id: 't1',
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+            dtoClass: 'D',
+            dtoData: []
+        );
         $bareQueue->next = new OutboundEnvelope($task, new \BAGArt\TelegramBot\Outbound\OutboundTaskState(), 'del1');
 
         $scheduler = new ASKFiberScheduler();

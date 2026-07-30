@@ -20,7 +20,7 @@ class BotCommandScopeChatAdministratorsTypeDTO implements TgApiTypeDTOContract
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren"t supported.')]
+        #[Description('Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages tg_chats and channel tg_chats aren"t supported.')]
         public string $chatId,
         #[Description('Scope type, must be _chat\_administrators_')]
         public string $type = 'chat_administrators',

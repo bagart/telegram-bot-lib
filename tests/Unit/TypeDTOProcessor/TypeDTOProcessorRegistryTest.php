@@ -5,8 +5,8 @@ declare(strict_types=1);
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
-use BAGArt\TelegramBot\TgBotSetupFactory;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
+use BAGArt\TelegramBot\TgBotSetupFactory;
 
 describe('TypeDTOProcessorRegistry', function () {
     $botSetup = TgBotSetupFactory::build()->create(serviceConfig: new TgServiceConfig());
@@ -29,7 +29,9 @@ describe('TypeDTOProcessorRegistry', function () {
             $registry->register(UpdateTypeDTO::class, $processor1);
             $registry->register(UpdateTypeDTO::class, $processor2);
 
-            $processors = iterator_to_array($registry->get(UpdateTypeDTO::class, new TgServiceConfig('test'), $botSetup));
+            $processors = iterator_to_array(
+                $registry->get(UpdateTypeDTO::class, new TgServiceConfig('test'), $botSetup)
+            );
 
             expect($processors)->toHaveCount(2);
         });

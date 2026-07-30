@@ -57,12 +57,18 @@ describe('OutboundPipeline', function () {
             recordingMiddleware('C', $log),
         ]);
 
-        $pipeline->execute(new OutboundEnvelope(makeTaskForPipeline(), new \BAGArt\TelegramBot\Outbound\OutboundTaskState()));
+        $pipeline->execute(
+            new OutboundEnvelope(makeTaskForPipeline(), new \BAGArt\TelegramBot\Outbound\OutboundTaskState())
+        );
 
         // Outer enters first, exits last (stack nesting).
         expect($log)->toBe([
-            'enter:A', 'enter:B', 'enter:C',
-            'exit:C', 'exit:B', 'exit:A',
+            'enter:A',
+            'enter:B',
+            'enter:C',
+            'exit:C',
+            'exit:B',
+            'exit:A',
         ]);
     });
 
@@ -117,7 +123,9 @@ describe('OutboundPipeline', function () {
         ]);
 
         try {
-            $pipeline->execute(new OutboundEnvelope(makeTaskForPipeline(), new \BAGArt\TelegramBot\Outbound\OutboundTaskState()));
+            $pipeline->execute(
+                new OutboundEnvelope(makeTaskForPipeline(), new \BAGArt\TelegramBot\Outbound\OutboundTaskState())
+            );
         } catch (OutboundSkipException) {
             // expected
         }

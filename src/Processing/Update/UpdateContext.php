@@ -12,7 +12,7 @@ final class UpdateContext
     public readonly int $receivedAt;
 
     /**
-     * @param class-string<\BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract> $processor
+     * @param  class-string<\BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract>  $processor
      */
     public function __construct(
         public readonly TgApiTypeDTOContract $dto,

@@ -11,7 +11,7 @@ use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Use this method to add a message to the list of pinned messages in a chat. In private chats and channel direct messages chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the "can\_pin\_messages" right or the "can\_edit\_messages" right to pin messages in groups and channels respectively. Returns _True_ on success.')]
+#[Description('Use this method to add a message to the list of pinned messages in a chat. In private tg_chats and channel direct messages tg_chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the "can\_pin\_messages" right or the "can\_edit\_messages" right to pin messages in groups and channels respectively. Returns _True_ on success.')]
 #[See('https://core.telegram.org/bots/api#pinchatmessage')]
 class PinChatMessageMethodDTO implements TgApiMethodDTOContract
 {
@@ -26,7 +26,7 @@ class PinChatMessageMethodDTO implements TgApiMethodDTOContract
         public int $messageId,
         #[Description('Unique identifier of the business connection on behalf of which the message will be pinned')]
         public ?string $businessConnectionId = null,
-        #[Description('Pass _True_ if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.')]
+        #[Description('Pass _True_ if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private tg_chats.')]
         public ?bool $disableNotification = null,
     ) {
         $this->dto = static::tgApiEntity();

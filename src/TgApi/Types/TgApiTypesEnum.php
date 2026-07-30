@@ -13,7 +13,7 @@ enum TgApiTypesEnum: string implements TgApiEntityEnumContract
 {
     #[Description('This [object](https://core.telegram.org/bots/api#available-types) represents an incoming update.; ; At most **one** of the optional parameters can be present in any given update.')]
     case Update = \BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO::class;
-    #[Description('Describes the current status of a webhook.')]
+    #[Description('Describes the current status of a tg_webhook.')]
     case WebhookInfo = \BAGArt\TelegramBot\TgApi\Types\DTO\WebhookInfoTypeDTO::class;
     #[Description('This object represents a Telegram user or bot.')]
     case User = \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO::class;
@@ -205,7 +205,7 @@ enum TgApiTypesEnum: string implements TgApiEntityEnumContract
     case KeyboardButton = \BAGArt\TelegramBot\TgApi\Types\DTO\KeyboardButtonTypeDTO::class;
     #[Description('This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. [More about requesting users »](https://core.telegram.org/bots/features#chat-and-user-selection)')]
     case KeyboardButtonRequestUsers = \BAGArt\TelegramBot\TgApi\Types\DTO\KeyboardButtonRequestUsersTypeDTO::class;
-    #[Description('This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. [More about requesting chats »](https://core.telegram.org/bots/features#chat-and-user-selection).')]
+    #[Description('This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. [More about requesting tg_chats »](https://core.telegram.org/bots/features#chat-and-user-selection).')]
     case KeyboardButtonRequestChat = \BAGArt\TelegramBot\TgApi\Types\DTO\KeyboardButtonRequestChatTypeDTO::class;
     #[Description('This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.')]
     case KeyboardButtonPollType = \BAGArt\TelegramBot\TgApi\Types\DTO\KeyboardButtonPollTypeTypeDTO::class;
@@ -339,9 +339,9 @@ enum TgApiTypesEnum: string implements TgApiEntityEnumContract
     case BotCommandScope = \BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeTypeDTO::class;
     #[Description('Represents the default [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands. Default commands are used if no commands with a [narrower scope](https://core.telegram.org/bots/api#determining-list-of-commands) are specified for the user.')]
     case BotCommandScopeDefault = \BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeDefaultTypeDTO::class;
-    #[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all private chats.')]
+    #[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all private tg_chats.')]
     case BotCommandScopeAllPrivateChats = \BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeAllPrivateChatsTypeDTO::class;
-    #[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chats.')]
+    #[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup tg_chats.')]
     case BotCommandScopeAllGroupChats = \BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeAllGroupChatsTypeDTO::class;
     #[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chat administrators.')]
     case BotCommandScopeAllChatAdministrators = \BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeAllChatAdministratorsTypeDTO::class;

@@ -35,13 +35,13 @@ final readonly class RedisQueueConfig implements QueueConfigContract
     public static function fromArray(array $data): self
     {
         return new self(
-            host: (string) ($data['host'] ?? '127.0.0.1'),
-            port: (int) ($data['port'] ?? 6379),
-            timeout: (float) ($data['timeout'] ?? 2.0),
-            prefix: (string) ($data['prefix'] ?? 'tg:'),
-            outboundQueue: (string) ($data['outbound_queue'] ?? 'tg-outbound-requests'),
-            processorQueue: (string) ($data['processor_queue'] ?? 'tg-processor-jobs'),
-            blockTimeout: (int) ($data['block_timeout'] ?? 2),
+            host: (string)($data['host'] ?? '127.0.0.1'),
+            port: (int)($data['port'] ?? 6379),
+            timeout: (float)($data['timeout'] ?? 2.0),
+            prefix: (string)($data['prefix'] ?? 'tg:'),
+            outboundQueue: (string)($data['outbound_queue'] ?? 'tg-outbound-requests'),
+            processorQueue: (string)($data['processor_queue'] ?? 'tg-processor-jobs'),
+            blockTimeout: (int)($data['block_timeout'] ?? 2),
         );
     }
 
@@ -65,8 +65,12 @@ final readonly class RedisQueueConfig implements QueueConfigContract
             port: (int)($options['redis-port'] ?? getenv('TG_LIB_REDIS_PORT') ?: 6379),
             timeout: (float)($options['redis-timeout'] ?? getenv('TG_LIB_REDIS_TIMEOUT') ?: 2.0),
             prefix: (string)($options['redis-prefix'] ?? getenv('TG_LIB_REDIS_PREFIX') ?: 'tg:'),
-            outboundQueue: (string)($options['outbound-queue'] ?? getenv('TG_LIB_REDIS_OUTBOUND_QUEUE') ?: 'tg-outbound-requests'),
-            processorQueue: (string)($options['processor-queue'] ?? getenv('TG_LIB_REDIS_PROCESSOR_QUEUE') ?: 'tg-processor-jobs'),
+            outboundQueue: (string)($options['outbound-queue'] ?? getenv(
+                'TG_LIB_REDIS_OUTBOUND_QUEUE'
+            ) ?: 'tg-outbound-requests'),
+            processorQueue: (string)($options['processor-queue'] ?? getenv(
+                'TG_LIB_REDIS_PROCESSOR_QUEUE'
+            ) ?: 'tg-processor-jobs'),
             blockTimeout: (int)($options['block-timeout'] ?? getenv('TG_LIB_REDIS_BLOCK_TIMEOUT') ?: 2),
         );
     }

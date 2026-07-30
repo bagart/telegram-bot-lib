@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\AskTransport;
 
-use BAGArt\ASKClient\ASKFuture;
-use BAGArt\ASKClient\Contracts\ASKContextContract;
-use BAGArt\ASKClient\Contracts\ASKFutureContract;
+use BAGArt\ASKClient\Client\ASKFuture;
 use BAGArt\ASKClient\Contracts\Client\ApiClientContract;
-use BAGArt\ASKClient\Contracts\Transporting\ASKTransportContract;
+use BAGArt\ASKClient\Contracts\Pipeline\ASKContextContract;
+use BAGArt\ASKClient\Contracts\Pipeline\ASKFutureContract;
+use BAGArt\ASKClient\Contracts\Transport\ASKTransportContract;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRequestFactory;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgResponseDecoder;
 
 /**
  * ASKClient transport that bridges TgApiAskOperation → {@see ApiClientContract}.
  *
- * Sits on top of the ASKClient AskApiClient, which already provides rate limiting,
+ * Sits on top of the ASKClient ApiClient, which already provides rate limiting,
  * promise resolution and tickable driving of the underlying network client. This
  * adapter owns only the Telegram-specific concern: turning the raw JSON response
  * body into the decoded array shape callers expect.

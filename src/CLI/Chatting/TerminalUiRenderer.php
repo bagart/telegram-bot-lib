@@ -123,8 +123,8 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
             2,
             $this->leftOffset,
             "\033[36m|\033[0m"
-            . $line
-            . "\033[36m|\033[0m"
+            .$line
+            ."\033[36m|\033[0m"
         );
 
         $this->renderBorderAtRow(3);
@@ -202,7 +202,7 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
         $start = 0;
 
         if ($bufferLength > $visibleWidth) {
-            $half = (int) floor($visibleWidth / 2);
+            $half = (int)floor($visibleWidth / 2);
 
             $start = max(
                 0,
@@ -243,8 +243,8 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
             $row,
             $this->leftOffset,
             "\033[36m+"
-            . str_repeat('-', $this->getInnerWidth())
-            . "+\033[0m"
+            .str_repeat('-', $this->getInnerWidth())
+            ."+\033[0m"
         );
     }
 
@@ -280,8 +280,8 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
 
         return
             "\033[36m|\033[0m "
-            . $text
-            . " \033[36m|\033[0m";
+            .$text
+            ." \033[36m|\033[0m";
     }
 
     private function buildInputLine(string $text): string
@@ -300,9 +300,9 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
 
         return
             "\033[36m|\033[0m "
-            . "\033[33m>\033[0m "
-            . $text
-            . " \033[36m|\033[0m";
+            ."\033[33m>\033[0m "
+            .$text
+            ." \033[36m|\033[0m";
     }
 
     private function prepareMessageLines(array $messages): array
@@ -312,11 +312,11 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
         foreach ($messages as $msg) {
             $raw = sprintf(
                 '[%s] #%d @%s: %s',
-                (string) ($msg['time'] ?? ''),
-                (int) ($msg['id'] ?? 0),
-                (string) ($msg['from'] ?? 'unknown'),
+                (string)($msg['time'] ?? ''),
+                (int)($msg['id'] ?? 0),
+                (string)($msg['from'] ?? 'unknown'),
                 $this->normalizeText(
-                    (string) ($msg['text'] ?? '')
+                    (string)($msg['text'] ?? '')
                 )
             );
 
@@ -368,7 +368,7 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
         foreach ($words as $word) {
             $candidate = $current === ''
                 ? $word
-                : $current . ' ' . $word;
+                : $current.' '.$word;
 
             if (mb_strlen($candidate, 'UTF-8') <= $width) {
                 $current = $candidate;
@@ -429,7 +429,7 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
             );
         }
 
-        $half = (int) floor($maxWidth / 2);
+        $half = (int)floor($maxWidth / 2);
 
         $start = max(
             0,
@@ -486,24 +486,24 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
 
         return match ($padType) {
             STR_PAD_LEFT => str_repeat(
-                $padString,
-                $padLength
-            ) . $string,
+                    $padString,
+                    $padLength
+                ).$string,
 
             STR_PAD_BOTH => str_repeat(
-                $padString,
-                (int) floor($padLength / 2)
-            )
-                . $string .
+                    $padString,
+                    (int)floor($padLength / 2)
+                )
+                .$string.
                 str_repeat(
                     $padString,
-                    (int) ceil($padLength / 2)
+                    (int)ceil($padLength / 2)
                 ),
 
-            default => $string . str_repeat(
-                $padString,
-                $padLength
-            ),
+            default => $string.str_repeat(
+                    $padString,
+                    $padLength
+                ),
         };
     }
 }

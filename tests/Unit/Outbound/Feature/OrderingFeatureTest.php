@@ -15,8 +15,24 @@ describe('OrderingFeature — strict FIFO per orderingKey via queue', function (
         $clock = new ControllableClock();
         $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue($clock);
 
-        $queue->push(new OutboundTask(id: 'a', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
-        $queue->push(new OutboundTask(id: 'b', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
+        $queue->push(
+            new OutboundTask(
+                id: 'a',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
+        $queue->push(
+            new OutboundTask(
+                id: 'b',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
 
         $first = $queue->pop();
         expect($first)->not->toBeNull()
@@ -29,8 +45,24 @@ describe('OrderingFeature — strict FIFO per orderingKey via queue', function (
     it('after ack, next task for same key becomes available', function () {
         $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue(new ControllableClock());
 
-        $queue->push(new OutboundTask(id: 'a', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
-        $queue->push(new OutboundTask(id: 'b', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
+        $queue->push(
+            new OutboundTask(
+                id: 'a',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
+        $queue->push(
+            new OutboundTask(
+                id: 'b',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
 
         $first = $queue->pop();
         expect($first)->not->toBeNull()
@@ -46,8 +78,24 @@ describe('OrderingFeature — strict FIFO per orderingKey via queue', function (
     it('different keys can be popped concurrently', function () {
         $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue(new ControllableClock());
 
-        $queue->push(new OutboundTask(id: 'a', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
-        $queue->push(new OutboundTask(id: 'b', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 2], orderingKey: 'chat:2'));
+        $queue->push(
+            new OutboundTask(
+                id: 'a',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
+        $queue->push(
+            new OutboundTask(
+                id: 'b',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 2],
+                orderingKey: 'chat:2'
+            )
+        );
 
         $first = $queue->pop();
         $second = $queue->pop();
@@ -61,8 +109,24 @@ describe('OrderingFeature — strict FIFO per orderingKey via queue', function (
     it('broadcast (null key) is always poppable', function () {
         $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue(new ControllableClock());
 
-        $queue->push(new OutboundTask(id: 'a', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['text' => 'broadcast'], orderingKey: null));
-        $queue->push(new OutboundTask(id: 'b', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
+        $queue->push(
+            new OutboundTask(
+                id: 'a',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['text' => 'broadcast'],
+                orderingKey: null
+            )
+        );
+        $queue->push(
+            new OutboundTask(
+                id: 'b',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
 
         // Ordered task pops first (lockNextReadyKey), then broadcast is always poppable
         $first = $queue->pop();
@@ -79,8 +143,24 @@ describe('OrderingFeature — strict FIFO per orderingKey via queue', function (
         $clock = new ControllableClock();
         $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue($clock);
 
-        $queue->push(new OutboundTask(id: 'a', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
-        $queue->push(new OutboundTask(id: 'b', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
+        $queue->push(
+            new OutboundTask(
+                id: 'a',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
+        $queue->push(
+            new OutboundTask(
+                id: 'b',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
 
         $first = $queue->pop();
         $queue->release($first, delaySec: 10);
@@ -99,8 +179,24 @@ describe('OrderingFeature — strict FIFO per orderingKey via queue', function (
     it('release with delay=0 puts task first and re-adds key', function () {
         $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue(new ControllableClock());
 
-        $queue->push(new OutboundTask(id: 'a', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
-        $queue->push(new OutboundTask(id: 'b', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
+        $queue->push(
+            new OutboundTask(
+                id: 'a',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
+        $queue->push(
+            new OutboundTask(
+                id: 'b',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
 
         $first = $queue->pop();
         expect($first->task->id)->toBe('a');
@@ -117,8 +213,24 @@ describe('OrderingFeature — strict FIFO per orderingKey via queue', function (
         $clock = new ControllableClock();
         $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue($clock);
 
-        $queue->push(new OutboundTask(id: 'a', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
-        $queue->push(new OutboundTask(id: 'b', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], orderingKey: 'chat:1'));
+        $queue->push(
+            new OutboundTask(
+                id: 'a',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
+        $queue->push(
+            new OutboundTask(
+                id: 'b',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                orderingKey: 'chat:1'
+            )
+        );
 
         $first = $queue->pop(60);
         expect($first->task->id)->toBe('a');
@@ -138,8 +250,26 @@ describe('OrderingFeature — strict FIFO per orderingKey via queue', function (
     it('priority across keys — higher priority key pops first', function () {
         $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue(new ControllableClock());
 
-        $queue->push(new OutboundTask(id: 'low', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 1], priority: TaskPriority::Low, orderingKey: 'chat:1'));
-        $queue->push(new OutboundTask(id: 'high', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: ['chat_id' => 2], priority: TaskPriority::High, orderingKey: 'chat:2'));
+        $queue->push(
+            new OutboundTask(
+                id: 'low',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 1],
+                priority: TaskPriority::Low,
+                orderingKey: 'chat:1'
+            )
+        );
+        $queue->push(
+            new OutboundTask(
+                id: 'high',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: ['chat_id' => 2],
+                priority: TaskPriority::High,
+                orderingKey: 'chat:2'
+            )
+        );
 
         $first = $queue->pop();
         expect($first)->not->toBeNull()

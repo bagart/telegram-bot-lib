@@ -63,7 +63,7 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
         $entityNameStr = $entityName ? $entityName->name : $dtoClassName::tgApiEntity()->name;
         $entityScopeStr = $entityScope ? $entityScope->name : $dtoClassName::tgEntityScope()->name;
         if (
-            ! $overwrite
+            !$overwrite
             && isset($this->entityToDTORegistry[$entityScopeStr][$entityNameStr])
         ) {
             $this->logger?->warning(
@@ -89,7 +89,7 @@ class TgEntityToDTORegistry implements TgApiDTORegistryContract
         }
 
         if ($tgEntityScope !== null) {
-            if (! isset($this->entityToDTORegistry[$tgEntityScope->name][$tgEntityName])) {
+            if (!isset($this->entityToDTORegistry[$tgEntityScope->name][$tgEntityName])) {
                 throw new TgUnregisteredEntityNameException($tgEntityName, $tgEntityScope->name);
             }
 

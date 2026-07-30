@@ -48,7 +48,7 @@ final class TgRateLimiterRegistry
      */
     public function get(string $type): string
     {
-        if (! $this->has($type)) {
+        if (!$this->has($type)) {
             throw new \RuntimeException("Rate limiter type not registered: {$type}");
         }
 
@@ -64,7 +64,7 @@ final class TgRateLimiterRegistry
         ?string $type,
         ?ASKCacheWrapper $cache = null,
     ): ?TgRateLimiterContract {
-        if ($type === null || ! $this->has($type)) {
+        if ($type === null || !$this->has($type)) {
             return null;
         }
 

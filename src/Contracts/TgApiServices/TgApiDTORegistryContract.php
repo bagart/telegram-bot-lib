@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 interface TgApiDTORegistryContract
 {
     /**
-     * @param TgApiEntityScopeEnum|TgApiEntityScopeEnumContract|class-string<TgApiEntityScopeEnumContract> $tgApiEntityScopeEnum
+     * @param  TgApiEntityScopeEnum|TgApiEntityScopeEnumContract|class-string<TgApiEntityScopeEnumContract>  $tgApiEntityScopeEnum
      */
     public static function build(
         TgApiEntityScopeEnumContract|string $tgApiEntityScopeEnum = TgApiEntityScopeEnum::class,

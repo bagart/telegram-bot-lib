@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\CLI\CommandActions;
-use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\ProcessorConfig;
+use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Processing\RegisteredUpdateProcessorSelector;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;

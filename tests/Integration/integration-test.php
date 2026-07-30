@@ -10,13 +10,13 @@ require_once __DIR__.'/../../../../../vendor/autoload.php';
 require_once __DIR__.'/Support/TestMessageCollectorProcessor.php';
 require_once __DIR__.'/Support/TestTypeDTOCollectorProcessor.php';
 
-use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
+use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
 use BAGArt\TelegramBot\Tests\Integration\Support\TestMessageCollectorProcessor;
 use BAGArt\TelegramBot\Tests\Integration\Support\TestTypeDTOCollectorProcessor;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
-use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
 use BAGArt\TelegramBot\TgBotSetupFactory;
+use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
 
 const TOKEN = '123456789:ABCdefGHIjklMNOpqrsTUVwxyz';
 

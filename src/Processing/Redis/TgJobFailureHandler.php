@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Processing\Redis;
 
+use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\ASKClient\Contracts\Queue\DeadLetterQueueContract;
 use BAGArt\ASKClient\Contracts\Queue\JobFailureHandlerContract;
 use BAGArt\ASKClient\Contracts\Queue\JobStateStoreContract;
-use BAGArt\ASKClient\Contracts\Queue\DeadLetterQueueContract;
-use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
 use BAGArt\AsyncKernel\Job\AsyncJob;
 use BAGArt\AsyncKernel\Job\JobLifetimePolicy;
 use BAGArt\TelegramBot\Contracts\Processing\Redis\TgProcessingErrorLoggerContract;

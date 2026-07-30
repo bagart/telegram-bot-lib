@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 /**
- * Synchronous webhook entry point.
-  */
+ * Synchronous tg_webhook entry point.
+ */
 
-use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
 use BAGArt\TelegramBot\Http\Pure\Validators\TelegramIpValidator;
 use BAGArt\TelegramBot\Processing\ProcessingDispatchers\SyncProcessingDispatcher;
 use BAGArt\TelegramBot\TgBotSetupFactory;
+use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
 
 extract(require __DIR__.'/config.php');
 

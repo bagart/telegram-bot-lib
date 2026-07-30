@@ -23,13 +23,13 @@ class SendGameMethodDTO implements TgApiMethodDTOContract
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('Unique identifier for the target chat. Games can"t be sent to channel direct messages chats and channel chats.')]
+        #[Description('Unique identifier for the target chat. Games can"t be sent to channel direct messages tg_chats and channel tg_chats.')]
         public int $chatId,
         #[Description('Short name of the game, serves as the unique identifier for the game. Set up your games via [@BotFather](https://t.me/botfather).')]
         public string $gameShortName,
         #[Description('Unique identifier of the business connection on behalf of which the message will be sent')]
         public ?string $businessConnectionId = null,
-        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only')]
+        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private tg_chats of bots with forum topic mode enabled only')]
         public ?int $messageThreadId = null,
         #[Description('Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound.')]
         public ?bool $disableNotification = null,
@@ -37,7 +37,7 @@ class SendGameMethodDTO implements TgApiMethodDTOContract
         public ?bool $protectContent = null,
         #[Description('Pass _True_ to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot"s balance')]
         public ?bool $allowPaidBroadcast = null,
-        #[Description('Unique identifier of the message effect to be added to the message; for private chats only')]
+        #[Description('Unique identifier of the message effect to be added to the message; for private tg_chats only')]
         public ?string $messageEffectId = null,
         #[Description('Description of the message to reply to')]
         public ?ReplyParametersTypeDTO $replyParameters = null,

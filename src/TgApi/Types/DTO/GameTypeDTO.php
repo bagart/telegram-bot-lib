@@ -24,13 +24,13 @@ class GameTypeDTO implements TgApiTypeDTOContract
         public string $title,
         #[Description('Description of the game')]
         public string $description,
-        #[Description('Photo that will be displayed in the game message in chats.')]
+        #[Description('Photo that will be displayed in the game message in tg_chats.')]
         public array $photo,
         #[Description('Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [setGameScore](https://core.telegram.org/bots/api#setgamescore), or manually edited using [editMessageText](https://core.telegram.org/bots/api#editmessagetext). 0-4096 characters.')]
         public ?string $text = null,
         #[Description('Special entities that appear in _text_, such as usernames, URLs, bot commands, etc.')]
         public ?array $textEntities = null,
-        #[Description('Animation that will be displayed in the game message in chats. Upload via [BotFather](https://t.me/botfather)')]
+        #[Description('Animation that will be displayed in the game message in tg_chats. Upload via [BotFather](https://t.me/botfather)')]
         public ?AnimationTypeDTO $animation = null,
     ) {
         $this->dto = static::tgApiEntity();

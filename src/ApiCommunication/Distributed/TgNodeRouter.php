@@ -11,7 +11,7 @@ final class TgNodeRouter
     public function route(TgOperation $op): string
     {
         return match ($op->method) {
-            'getUpdates' => 'poller-node',
+            'getUpdates' => 'tg_daemons-node',
             'sendMessage' => 'sender-node',
             default => 'default-node',
         };

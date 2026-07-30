@@ -40,7 +40,7 @@ final readonly class EnvServiceConfigurator
         $envDns = $env['TG_DNS_ADAPTER'] ?? null;
         $config->dns = (!empty($envDns))
             ? $envDns
-            : ($options['dns'] ?? $config->dns);
+            : ($options['dns-adapter'] ?? ($options['dns'] ?? $config->dns));
 
         $this->serviceConfig = $config;
     }

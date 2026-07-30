@@ -18,7 +18,7 @@ final class TgResponseNormalizer implements TgResponseNormalizerContract
 {
     public function normalizeResponse(\GuzzleHttp\Psr7\Response|array $response, string $tgMethodName): array
     {
-        $response = (array) $response;
+        $response = (array)$response;
         if (($response['ok'] ?? false) === true) {
             return $response;
         }
@@ -37,9 +37,9 @@ final class TgResponseNormalizer implements TgResponseNormalizerContract
             $retryAfter = null;
 
             if (isset($response['parameters']['retry_after'])) {
-                $retryAfter = (int) $response['parameters']['retry_after'];
+                $retryAfter = (int)$response['parameters']['retry_after'];
             } elseif (preg_match('/retry after (\d+)/i', $description, $matches)) {
-                $retryAfter = (int) $matches[1];
+                $retryAfter = (int)$matches[1];
             }
 
             throw new TgApiRateLimitException(
@@ -57,7 +57,7 @@ final class TgResponseNormalizer implements TgResponseNormalizerContract
                 result: $response['result'] ?? null,
                 errorCode: $errorCode !== 0 ? $errorCode : null,
                 retryAfter: isset($response['parameters']['retry_after'])
-                    ? (int) $response['parameters']['retry_after']
+                    ? (int)$response['parameters']['retry_after']
                     : null,
             ),
         );
@@ -69,7 +69,7 @@ final class TgResponseNormalizer implements TgResponseNormalizerContract
     ): Throwable {
         $msg = is_string($exception) ? $exception : $exception->getMessage();
         if ($exception instanceof Throwable && $exception->getPrevious() !== null) {
-            $msg .= ' ' . $exception->getPrevious()->getMessage();
+            $msg .= ' '.$exception->getPrevious()->getMessage();
         }
 
         if (

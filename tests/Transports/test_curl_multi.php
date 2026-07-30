@@ -25,7 +25,7 @@ while (!$completed && $iterations < 50) {
 
     $info = curl_multi_info_read($mh);
     if ($info !== false) {
-        echo "Completed! response: " . substr(curl_multi_getcontent($info['handle']), 0, 80) . "\n";
+        echo "Completed! response: ".substr(curl_multi_getcontent($info['handle']), 0, 80)."\n";
         $completed = true;
     }
 

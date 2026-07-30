@@ -22,21 +22,21 @@ class KeyboardButtonTypeDTO implements TgApiTypeDTOContract
     public function __construct(
         #[Description('Text of the button. If none of the fields other than _text_, _icon\_custom\_emoji\_id_, and _style_ are used, it will be sent as a message when the button is pressed')]
         public string $text,
-        #[Description('Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on [Fragment](https://fragment.com/) or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.')]
+        #[Description('Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on [Fragment](https://fragment.com/) or in the messages directly sent by the bot to private, group and supergroup tg_chats if the owner of the bot has a Telegram Premium subscription.')]
         public ?string $iconCustomEmojiId = null,
         #[Description('Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used.')]
         public ?\BAGArt\TelegramBot\TgApi\Types\Enum\StyleEnum $style = null,
-        #[Description('If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users\_shared” service message. Available in private chats only.')]
+        #[Description('If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users\_shared” service message. Available in private tg_chats only.')]
         public ?\BAGArt\TelegramBot\TgApi\Types\DTO\KeyboardButtonRequestUsersTypeDTO $requestUsers = null,
-        #[Description('If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a “chat\_shared” service message. Available in private chats only.')]
+        #[Description('If specified, pressing the button will open a list of suitable tg_chats. Tapping on a chat will send its identifier to the bot in a “chat\_shared” service message. Available in private tg_chats only.')]
         public ?\BAGArt\TelegramBot\TgApi\Types\DTO\KeyboardButtonRequestChatTypeDTO $requestChat = null,
-        #[Description('If _True_, the user"s phone number will be sent as a contact when the button is pressed. Available in private chats only.')]
+        #[Description('If _True_, the user"s phone number will be sent as a contact when the button is pressed. Available in private tg_chats only.')]
         public ?bool $requestContact = null,
-        #[Description('If _True_, the user"s current location will be sent when the button is pressed. Available in private chats only.')]
+        #[Description('If _True_, the user"s current location will be sent when the button is pressed. Available in private tg_chats only.')]
         public ?bool $requestLocation = null,
-        #[Description('If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private chats only.')]
+        #[Description('If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private tg_chats only.')]
         public ?\BAGArt\TelegramBot\TgApi\Types\DTO\KeyboardButtonPollTypeTypeDTO $requestPoll = null,
-        #[Description('If specified, the described [Web App](https://core.telegram.org/bots/webapps) will be launched when the button is pressed. The Web App will be able to send a “web\_app\_data” service message. Available in private chats only.')]
+        #[Description('If specified, the described [Web App](https://core.telegram.org/bots/webapps) will be launched when the button is pressed. The Web App will be able to send a “web\_app\_data” service message. Available in private tg_chats only.')]
         public ?\BAGArt\TelegramBot\TgApi\Types\DTO\WebAppInfoTypeDTO $webApp = null,
     ) {
         $this->dto = static::tgApiEntity();

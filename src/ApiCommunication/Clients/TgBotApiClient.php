@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\Clients;
 
-use BAGArt\ASKClient\Contracts\ASKFutureContract;
-use BAGArt\ASKClient\Contracts\Transporting\HttpTransportContract;
+use BAGArt\ASKClient\Contracts\Pipeline\ASKFutureContract;
+use BAGArt\ASKClient\Contracts\Transport\HttpTransportContract;
 use BAGArt\TelegramBot\ApiCommunication\Transports\TgBotApiTransport;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiClientContract;

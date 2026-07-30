@@ -86,7 +86,7 @@ describe('RateLimitMiddleware', function () {
             expect('should have thrown')->toBe('threw');
         } catch (OutboundRetryException $e) {
             expect($e->delaySec)->toBe(8) // ceil(7.4)
-                ->and($e->reason)->toBe('rate_limit');
+            ->and($e->reason)->toBe('rate_limit');
         }
 
         expect($box->called)->toBeFalse();
@@ -125,7 +125,10 @@ describe('RateLimitMiddleware', function () {
         $middleware = new RateLimitMiddleware($fake);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeRateLimitTask(), new OutboundTaskState()), makeRateLimitSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeRateLimitTask(), new OutboundTaskState()),
+                makeRateLimitSpy()[0]
+            );
         } catch (OutboundRetryException $e) {
             expect($e->delaySec)->toBe(1);
         }

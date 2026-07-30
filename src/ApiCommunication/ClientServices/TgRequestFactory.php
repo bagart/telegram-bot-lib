@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\ClientServices;
 
-use BAGArt\ASKClient\Request\ASKHttpRequest;
+use BAGArt\ASKClient\Dto\ASKHttpRequest;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 
 final class TgRequestFactory

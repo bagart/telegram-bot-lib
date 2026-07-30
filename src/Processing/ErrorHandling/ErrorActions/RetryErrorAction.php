@@ -28,7 +28,7 @@ final class RetryErrorAction implements ProcessingErrorActionContract
             return;
         }
 
-        $delaySeconds = (int) ($this->delayMs / 1000);
+        $delaySeconds = (int)($this->delayMs / 1000);
 
         $nextCtx = $ctx->nextAttempt();
 

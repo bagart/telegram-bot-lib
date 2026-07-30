@@ -183,7 +183,6 @@ final class AsyncFiberProcessingDispatcher implements ProcessingDispatcherContra
                     TgTypeDTOProcessorContract::class,
                 )
             ) {
-
                 /**
                  * Important:
                  * processor build stays sync,

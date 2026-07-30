@@ -8,7 +8,7 @@ echo "Promise constructor params:\n";
 $ctor = $ref->getConstructor();
 if ($ctor) {
     foreach ($ctor->getParameters() as $p) {
-        echo "  - " . $p->getName() . "\n";
+        echo "  - ".$p->getName()."\n";
     }
 }
 

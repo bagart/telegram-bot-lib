@@ -29,11 +29,11 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         public int $accentColorId,
         #[Description('The maximum number of reactions that can be set on a message in the chat')]
         public int $maxReactionCount,
-        #[Description('Information about types of gifts that are accepted by the chat or by the corresponding user for private chats')]
+        #[Description('Information about types of gifts that are accepted by the chat or by the corresponding user for private tg_chats')]
         public AcceptedGiftTypesTypeDTO $acceptedGiftTypes,
-        #[Description('Title, for supergroups, channels and group chats')]
+        #[Description('Title, for supergroups, channels and group tg_chats')]
         public ?string $title = null,
-        #[Description('Username, for private chats, supergroups and channels if available')]
+        #[Description('Username, for private tg_chats, supergroups and channels if available')]
         public ?string $username = null,
         #[Description('First name of the other party in a private chat')]
         public ?string $firstName = null,
@@ -45,19 +45,19 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         public ?bool $isDirectMessages = true,
         #[Description('Chat photo')]
         public ?ChatPhotoTypeDTO $photo = null,
-        #[Description('If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames); for private chats, supergroups and channels')]
+        #[Description('If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames); for private tg_chats, supergroups and channels')]
         public ?array $activeUsernames = null,
-        #[Description('For private chats, the date of birth of the user')]
+        #[Description('For private tg_chats, the date of birth of the user')]
         public ?BirthdateTypeDTO $birthdate = null,
-        #[Description('For private chats with business accounts, the intro of the business')]
+        #[Description('For private tg_chats with business accounts, the intro of the business')]
         public ?BusinessIntroTypeDTO $businessIntro = null,
-        #[Description('For private chats with business accounts, the location of the business')]
+        #[Description('For private tg_chats with business accounts, the location of the business')]
         public ?BusinessLocationTypeDTO $businessLocation = null,
-        #[Description('For private chats with business accounts, the opening hours of the business')]
+        #[Description('For private tg_chats with business accounts, the opening hours of the business')]
         public ?BusinessOpeningHoursTypeDTO $businessOpeningHours = null,
-        #[Description('For private chats, the personal channel of the user')]
+        #[Description('For private tg_chats, the personal channel of the user')]
         public ?ChatTypeDTO $personalChat = null,
-        #[Description('Information about the corresponding channel chat; for direct messages chats only')]
+        #[Description('Information about the corresponding channel chat; for direct messages tg_chats only')]
         public ?ChatTypeDTO $parentChat = null,
         #[Description('List of available reactions allowed in the chat. If omitted, then all [emoji reactions](https://core.telegram.org/bots/api#reactiontypeemoji) are allowed.')]
         public ?array $availableReactions = null,
@@ -73,7 +73,7 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         public ?int $emojiStatusExpirationDate = null,
         #[Description('Bio of the other party in a private chat')]
         public ?string $bio = null,
-        #[Description('_True_, if privacy settings of the other party in the private chat allows to use `tg://user?id=<user_id>` links only in chats with the user')]
+        #[Description('_True_, if privacy settings of the other party in the private chat allows to use `tg://user?id=<user_id>` links only in tg_chats with the user')]
         public ?bool $hasPrivateForwards = true,
         #[Description('_True_, if the privacy settings of the other party restrict sending voice and video note messages in the private chat')]
         public ?bool $hasRestrictedVoiceAndVideoMessages = true,
@@ -81,15 +81,15 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         public ?bool $joinToSendMessages = true,
         #[Description('_True_, if all users directly joining the supergroup without using an invite link need to be approved by supergroup administrators')]
         public ?bool $joinByRequest = true,
-        #[Description('Description, for groups, supergroups and channel chats')]
+        #[Description('Description, for groups, supergroups and channel tg_chats')]
         public ?string $description = null,
-        #[Description('Primary invite link, for groups, supergroups and channel chats')]
+        #[Description('Primary invite link, for groups, supergroups and channel tg_chats')]
         public ?string $inviteLink = null,
         #[Description('The most recent pinned message (by sending date)')]
         public ?MessageTypeDTO $pinnedMessage = null,
         #[Description('Default chat member permissions, for groups and supergroups')]
         public ?ChatPermissionsTypeDTO $permissions = null,
-        #[Description('_True_, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats.')]
+        #[Description('_True_, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel tg_chats.')]
         public ?bool $canSendPaidMedia = true,
         #[Description('For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds')]
         public ?int $slowModeDelay = null,
@@ -101,7 +101,7 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         public ?bool $hasAggressiveAntiSpamEnabled = true,
         #[Description('_True_, if non-administrators can only get the list of bots and administrators in the chat')]
         public ?bool $hasHiddenMembers = true,
-        #[Description('_True_, if messages from the chat can"t be forwarded to other chats')]
+        #[Description('_True_, if messages from the chat can"t be forwarded to other tg_chats')]
         public ?bool $hasProtectedContent = true,
         #[Description('_True_, if new chat members will have access to old messages; available only to chat administrators')]
         public ?bool $hasVisibleHistory = true,
@@ -111,13 +111,13 @@ class ChatFullInfoTypeDTO implements TgApiTypeDTOContract
         public ?bool $canSetStickerSet = true,
         #[Description('For supergroups, the name of the group"s custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group.')]
         public ?string $customEmojiStickerSetName = null,
-        #[Description('Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats.')]
+        #[Description('Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel tg_chats.')]
         public ?string $linkedChatId = null,
         #[Description('For supergroups, the location to which the supergroup is connected')]
         public ?ChatLocationTypeDTO $location = null,
-        #[Description('For private chats, the rating of the user if any')]
+        #[Description('For private tg_chats, the rating of the user if any')]
         public ?UserRatingTypeDTO $rating = null,
-        #[Description('For private chats, the first audio added to the profile of the user')]
+        #[Description('For private tg_chats, the first audio added to the profile of the user')]
         public ?AudioTypeDTO $firstProfileAudio = null,
         #[Description('The color scheme based on a unique gift that must be used for the chat"s name, message replies and link previews')]
         public ?UniqueGiftColorsTypeDTO $uniqueGiftColors = null,

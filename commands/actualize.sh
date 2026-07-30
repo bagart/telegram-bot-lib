@@ -2,7 +2,7 @@
 set -e
 
 # Telegram Bot API DTO Actualizer
-# Usage: ./commands/actualize.sh [--full]
+# Usage: ./commands/tg_actualize.sh [--full]
 #
 # Steps:
 #   1. npm update @grom.js/bot-api-spec

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Universal webhook entry point.
+ * Universal tg_webhook entry point.
  *
  * Dispatcher is resolved by priority:
  *   1. ?dispatcher= query parameter (highest)

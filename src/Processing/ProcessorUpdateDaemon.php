@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Processing;
 
+use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
 use BAGArt\AsyncKernel\ASKShutdownContext;
 use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\ASKDaemonContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\ASKTickableContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\WithASKTickableContract;
-use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Contracts\Processing\UpdateRouterContract;
 use BAGArt\TelegramBot\Processing\Update\UpdateContext;
@@ -52,7 +52,7 @@ final class ProcessorUpdateDaemon implements
             return 0;
         }
 
-        return (int) round(($size / 256) * 100);
+        return (int)round(($size / 256) * 100);
     }
 
     public function isIdle(): bool
@@ -67,7 +67,9 @@ final class ProcessorUpdateDaemon implements
 
     public function onError(Throwable $e): void
     {
-        throw $e;
+        $this->logger->error('[Processor] error: '.$e->getMessage(), [
+            'exception' => $e::class,
+        ]);
     }
 
     public function startup(): void

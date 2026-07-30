@@ -53,7 +53,11 @@ describe('OutboundSetup', function () {
         $workerConfig = new OutboundWorkerConfig();
         $parts = $factory->createOutboundDaemonParts(workerConfig: $workerConfig);
 
-        $sender = new TgSender($parts['queue'], $factory->dtoMapper(new \BAGArt\TelegramBot\Configs\TgServiceConfig()), new DefaultOrderingStrategy());
+        $sender = new TgSender(
+            $parts['queue'],
+            $factory->dtoMapper(new \BAGArt\TelegramBot\Configs\TgServiceConfig()),
+            new DefaultOrderingStrategy()
+        );
 
         $botConfig = new \BAGArt\TelegramBot\Configs\TgBotConfig(token: 'test:token', botId: 'sender_test');
         $dto = new class () implements \BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract {
@@ -61,14 +65,17 @@ describe('OutboundSetup', function () {
             {
                 return [];
             }
+
             public static function tgApiEntity(): \BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract
             {
                 throw new \RuntimeException('not used');
             }
+
             public static function tgEntityScope(): \BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityScopeEnumContract
             {
                 throw new \RuntimeException('not used');
             }
+
             public static function tgPropertyMetas(): array
             {
                 return [];

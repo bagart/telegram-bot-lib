@@ -33,7 +33,7 @@ class TelegramIpValidator
             return false;
         }
 
-        $maskLong = -1 << (32 - (int) $mask);
+        $maskLong = -1 << (32 - (int)$mask);
 
         return ($ipLong & $maskLong) === ($subnetLong & $maskLong);
     }

@@ -16,7 +16,7 @@ class TgApiReturnException extends TgApiCommunicationException
         parent::__construct(
             tgMethodName: $tgMethodName,
             message: ($message ?? "Telegram Api Return Problem with $tgMethodName")
-            . ($response ? '; Response: '.json_encode($response) : null)
+            .($response ? '; Response: '.json_encode($response) : null)
         );
     }
 }

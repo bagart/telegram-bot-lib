@@ -26,7 +26,7 @@ class ChatAdministratorRightsTypeDTO implements TgApiTypeDTOContract
         public bool $canManageChat,
         #[Description('_True_, if the administrator can delete messages of other users')]
         public bool $canDeleteMessages,
-        #[Description('_True_, if the administrator can manage video chats')]
+        #[Description('_True_, if the administrator can manage video tg_chats')]
         public bool $canManageVideoChats,
         #[Description('_True_, if the administrator can restrict, ban or unban chat members, or access supergroup statistics')]
         public bool $canRestrictMembers,

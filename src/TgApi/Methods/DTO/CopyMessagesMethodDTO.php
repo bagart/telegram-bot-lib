@@ -27,7 +27,7 @@ class CopyMessagesMethodDTO implements TgApiMethodDTOContract
         public string $fromChatId,
         #[Description('An array of 1-100 identifiers of messages in the chat _from\_chat\_id_ to copy. The identifiers must be specified in a strictly increasing order.')]
         public array $messageIds,
-        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only')]
+        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private tg_chats of bots with forum topic mode enabled only')]
         public ?int $messageThreadId = null,
         #[Description('Identifier of the direct messages topic to which the messages will be sent; required if the messages are sent to a direct messages chat')]
         public ?int $directMessagesTopicId = null,

@@ -32,7 +32,12 @@ describe('DeadLetterEntry', function () {
 
     it('records failedAt as a parseable ISO 8601 timestamp', function () {
         $envelope = new OutboundEnvelope(
-            new OutboundTask(id: 't', botConfig: new TgBotConfig(token: 'test:token', botId: 'b'), dtoClass: 'D', dtoData: []),
+            new OutboundTask(
+                id: 't',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'b'),
+                dtoClass: 'D',
+                dtoData: []
+            ),
             new OutboundTaskState(),
         );
         $entry = DeadLetterEntry::fromEnvelope($envelope, 'expired');
@@ -43,7 +48,12 @@ describe('DeadLetterEntry', function () {
     });
 
     it('restoreEnvelope resets attempt to 0 and status to pending', function () {
-        $task = new OutboundTask(id: 't', botConfig: new TgBotConfig(token: 'test:token', botId: 'b'), dtoClass: 'D', dtoData: []);
+        $task = new OutboundTask(
+            id: 't',
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'b'),
+            dtoClass: 'D',
+            dtoData: []
+        );
         $state = new OutboundTaskState(status: OutboundTaskState::STATUS_BUSINESS_ERROR, attempt: 5);
         $envelope = new OutboundEnvelope($task, $state);
 
@@ -62,7 +72,16 @@ describe('DeadLetterEntry', function () {
             id: 'e',
             reason: 'r',
             failedAt: '2026-07-08T12:00:00+00:00',
-            originalTask: ['id' => 't', 'botConfig' => ['token' => 'test:token', 'botId' => 'b'], 'dtoClass' => 'D', 'dtoData' => [], 'priority' => 1, 'orderingKey' => null, 'createdAt' => '2026-07-08T12:00:00+00:00', 'schemaVersion' => 1],
+            originalTask: [
+                'id' => 't',
+                'botConfig' => ['token' => 'test:token', 'botId' => 'b'],
+                'dtoClass' => 'D',
+                'dtoData' => [],
+                'priority' => 1,
+                'orderingKey' => null,
+                'createdAt' => '2026-07-08T12:00:00+00:00',
+                'schemaVersion' => 1
+            ],
             originalState: ['status' => 'business_error', 'attempt' => 3, 'lastError' => null, 'errorContext' => null],
             redeliveryCount: 0,
         );
@@ -79,8 +98,22 @@ describe('DeadLetterEntry', function () {
             id: 'e-2',
             reason: 'expired',
             failedAt: '2026-07-08T12:00:00+00:00',
-            originalTask: ['id' => 't', 'botConfig' => ['token' => 'test:token', 'botId' => 'b'], 'dtoClass' => 'D', 'dtoData' => [], 'priority' => 1, 'orderingKey' => null, 'createdAt' => '2026-07-08T12:00:00+00:00', 'schemaVersion' => 1],
-            originalState: ['status' => 'business_error', 'attempt' => 3, 'lastError' => 'expired', 'errorContext' => null],
+            originalTask: [
+                'id' => 't',
+                'botConfig' => ['token' => 'test:token', 'botId' => 'b'],
+                'dtoClass' => 'D',
+                'dtoData' => [],
+                'priority' => 1,
+                'orderingKey' => null,
+                'createdAt' => '2026-07-08T12:00:00+00:00',
+                'schemaVersion' => 1
+            ],
+            originalState: [
+                'status' => 'business_error',
+                'attempt' => 3,
+                'lastError' => 'expired',
+                'errorContext' => null
+            ],
             redeliveryCount: 2,
         );
 
@@ -98,8 +131,22 @@ describe('DeadLetterEntry', function () {
             'id' => 'e-3',
             'reason' => 'r',
             'failedAt' => '2026-07-08T12:00:00+00:00',
-            'originalTask' => ['id' => 't', 'botId' => 'b', 'dtoClass' => 'D', 'dtoData' => [], 'priority' => 1, 'orderingKey' => null, 'createdAt' => '2026-07-08T12:00:00+00:00', 'schemaVersion' => 1],
-            'originalState' => ['status' => 'business_error', 'attempt' => 1, 'lastError' => null, 'errorContext' => null],
+            'originalTask' => [
+                'id' => 't',
+                'botId' => 'b',
+                'dtoClass' => 'D',
+                'dtoData' => [],
+                'priority' => 1,
+                'orderingKey' => null,
+                'createdAt' => '2026-07-08T12:00:00+00:00',
+                'schemaVersion' => 1
+            ],
+            'originalState' => [
+                'status' => 'business_error',
+                'attempt' => 1,
+                'lastError' => null,
+                'errorContext' => null
+            ],
         ]);
 
         expect($restored->redeliveryCount)->toBe(0);

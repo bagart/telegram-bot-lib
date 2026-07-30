@@ -10,7 +10,7 @@ use BAGArt\TelegramBot\Processing\Update\UpdateContext;
 final class TgAsyncJob extends AsyncJob
 {
     /**
-     * @param class-string<\BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract> $processor
+     * @param  class-string<\BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract>  $processor
      */
     public function __construct(
         string $jobId,

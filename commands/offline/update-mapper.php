@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\CLI\CommandActions;
+use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\TgApi;
 use BAGArt\TelegramBot\TgBotSetupFactory;
 
@@ -20,7 +20,7 @@ $options = CommandActions::parseOptions(getopt('', [
 
 if (isset($options['help'])) {
     echo "Usage:
-php commands/offline/update-mapper.php         # map webhook payloads to DTOs
+php commands/offline/update-mapper.php         # map tg_webhook payloads to DTOs
 
 Options:
   --help
@@ -32,8 +32,9 @@ Options:
 echo "\n=== Example: Webhook Mode (with DTO) ===\n";
 
 $factory = TgBotSetupFactory::build();
-$tgApiDTOMapper = $factory->dtoMapper(new TgServiceConfig(
-));
+$tgApiDTOMapper = $factory->dtoMapper(
+    new TgServiceConfig()
+);
 
 foreach (getWebhookPayloads() as $updateRaw) {
     $update = $tgApiDTOMapper->fromArray(

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\Transports;
 
-use BAGArt\ASKClient\ASKFuture;
-use BAGArt\ASKClient\Contracts\ASKFutureContract;
-use BAGArt\ASKClient\Contracts\Transporting\HttpTransportContract;
+use BAGArt\ASKClient\Client\ASKFuture;
+use BAGArt\ASKClient\Contracts\Pipeline\ASKFutureContract;
+use BAGArt\ASKClient\Contracts\Transport\HttpTransportContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\ASKTickableContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\WithASKTickableContract;
 use BAGArt\AsyncKernel\Contracts\Promise\ASKPromiseResolverContract;

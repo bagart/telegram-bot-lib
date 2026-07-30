@@ -22,7 +22,12 @@ describe('DLQ Retry Feature — end-to-end', function () {
 
         expect($queue instanceof AtomicDlqQueueContract)->toBeTrue();
 
-        $task = new OutboundTask(id: 'dlq-test-1', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'App\\SendMessage', dtoData: ['chat_id' => 1]);
+        $task = new OutboundTask(
+            id: 'dlq-test-1',
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+            dtoClass: 'App\\SendMessage',
+            dtoData: ['chat_id' => 1]
+        );
         $envelope = new OutboundEnvelope(task: $task, state: new OutboundTaskState());
 
         $queue->pushToDeadLetter($envelope, 'business_error');
@@ -53,9 +58,16 @@ describe('DLQ Retry Feature — end-to-end', function () {
         $clock = new ControllableClock();
         $queue = new InMemoryOutboundQueue($clock);
 
-        expect($queue instanceof AtomicDlqQueueContract && $queue instanceof ChannelDiscoverableQueueContract)->toBeTrue();
+        expect(
+            $queue instanceof AtomicDlqQueueContract && $queue instanceof ChannelDiscoverableQueueContract
+        )->toBeTrue();
 
-        $task = new OutboundTask(id: 'fetch-me', botConfig: new TgBotConfig(token: 'test:token', botId: 'botX'), dtoClass: 'Test', dtoData: []);
+        $task = new OutboundTask(
+            id: 'fetch-me',
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'botX'),
+            dtoClass: 'Test',
+            dtoData: []
+        );
         $envelope = new OutboundEnvelope(task: $task, state: new OutboundTaskState());
         $queue->pushToDeadLetter($envelope, 'expired');
 
@@ -84,7 +96,12 @@ describe('DLQ Retry Feature — end-to-end', function () {
         $clock = new ControllableClock();
         $queue = new InMemoryOutboundQueue($clock);
 
-        $task = new OutboundTask(id: 'exhausted', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: []);
+        $task = new OutboundTask(
+            id: 'exhausted',
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+            dtoClass: 'D',
+            dtoData: []
+        );
         $envelope = new OutboundEnvelope(task: $task, state: new OutboundTaskState());
         $queue->pushToDeadLetter($envelope, 'permanent_failure');
 
@@ -99,7 +116,12 @@ describe('DLQ Retry Feature — end-to-end', function () {
         $queue = new InMemoryOutboundQueue($clock);
 
         $recent = new OutboundEnvelope(
-            new OutboundTask(id: 'recent', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: []),
+            new OutboundTask(
+                id: 'recent',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: []
+            ),
             new OutboundTaskState(),
         );
         $queue->pushToDeadLetter($recent, 'error');

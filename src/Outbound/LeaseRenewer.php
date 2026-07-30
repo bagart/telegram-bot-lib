@@ -38,7 +38,7 @@ final class LeaseRenewer implements ASKTickableContract
 
     public function tick(int $systemPressure): void
     {
-        if (! ($this->queue instanceof LeaseRenewableQueueContract)) {
+        if (!($this->queue instanceof LeaseRenewableQueueContract)) {
             return;
         }
 
@@ -55,7 +55,7 @@ final class LeaseRenewer implements ASKTickableContract
 
             $ok = $this->queue->renewLease($entry['envelope'], 60);
 
-            if (! $ok) {
+            if (!$ok) {
                 throw new OutboundBusinessErrorException('lease_lost', ['deliveryId' => $id]);
             }
 
@@ -68,7 +68,7 @@ final class LeaseRenewer implements ASKTickableContract
 
     public function pressure(): int
     {
-        return count($this->tracked) > 0 ? (int) round((count($this->tracked) / 100) * 100) : 0;
+        return count($this->tracked) > 0 ? (int)round((count($this->tracked) / 100) * 100) : 0;
     }
 
     public function isIdle(): bool

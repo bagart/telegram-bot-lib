@@ -59,7 +59,7 @@ if (isset($options['help'])) {
     echo 'Usage:
 export TELEGRAM_BOT_TOKEN=xxx:xxx                    # Default Telegram Token
 
-php commands/all-in-one-daemon.php                   # All-in-one daemon (poller + processor + outbound)
+php commands/all-in-one-daemon.php                   # All-in-one daemon (tg_daemons + processor + outbound)
 
 Options:
   --token=xxx:xxx                                    # use custom token
@@ -105,7 +105,7 @@ CommandActions::verifyBot(
 );
 
 $kernel = new AsyncKernel(
-    logger:$botSetup->logger,
+    logger: $botSetup->logger,
     shutdownTimeout: 60 * 60,
 );
 

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Processing\Redis;
 
-use BAGArt\AsyncKernel\Config\PartitionConfig;
 use BAGArt\ASKClient\Contracts\Queue\ActivePartitionsContract;
-use BAGArt\ASKClient\Contracts\Queue\JobDeduplicatorContract;
-use BAGArt\AsyncKernel\Contracts\MetricsContract;
-use BAGArt\ASKClient\Contracts\Queue\PartitionStreamContract;
 use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\ASKClient\Contracts\Queue\JobDeduplicatorContract;
+use BAGArt\ASKClient\Contracts\Queue\PartitionStreamContract;
+use BAGArt\AsyncKernel\Config\PartitionConfig;
+use BAGArt\AsyncKernel\Contracts\MetricsContract;
 use BAGArt\TelegramBot\Contracts\Processing\Redis\TgPartitionSchedulerContract;
 use BAGArt\TelegramBot\Processing\Update\UpdateContext;
 use Psr\Log\LoggerInterface;
@@ -108,7 +108,7 @@ final class TgRedisPartitionScheduler implements TgPartitionSchedulerContract
 
     private function normalizePartitionKey(string $executionKey, string $processor): string
     {
-        return $processor . '::' . $executionKey;
+        return $processor.'::'.$executionKey;
     }
 
     private function backpressureEnqueue(TgAsyncJob $job): void

@@ -18,7 +18,7 @@ class TgIpValidatorMiddleware
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $this->validator->validate($request->ip())) {
+        if (!$this->validator->validate($request->ip())) {
             abort(403, 'Forbidden: invalid IP');
         }
 

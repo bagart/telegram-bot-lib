@@ -10,7 +10,12 @@ use BAGArt\TelegramBot\Outbound\TaskPriority;
 
 describe('OutboundEnvelope', function () {
     it('carries task and state, with deliveryId null by default', function () {
-        $task = new OutboundTask(id: 't1', botConfig: new TgBotConfig(token: 'test:token', botId: 'b'), dtoClass: 'D', dtoData: []);
+        $task = new OutboundTask(
+            id: 't1',
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'b'),
+            dtoClass: 'D',
+            dtoData: []
+        );
         $state = new OutboundTaskState();
         $envelope = new OutboundEnvelope($task, $state);
 
@@ -20,7 +25,12 @@ describe('OutboundEnvelope', function () {
     });
 
     it('allows setting deliveryId (filled at pop time by the adapter)', function () {
-        $task = new OutboundTask(id: 't1', botConfig: new TgBotConfig(token: 'test:token', botId: 'b'), dtoClass: 'D', dtoData: []);
+        $task = new OutboundTask(
+            id: 't1',
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'b'),
+            dtoClass: 'D',
+            dtoData: []
+        );
         $envelope = new OutboundEnvelope($task, new OutboundTaskState());
         $envelope->deliveryId = 'delivery-xyz';
 
@@ -28,7 +38,12 @@ describe('OutboundEnvelope', function () {
     });
 
     it('state is mutable through the envelope reference', function () {
-        $task = new OutboundTask(id: 't1', botConfig: new TgBotConfig(token: 'test:token', botId: 'b'), dtoClass: 'D', dtoData: []);
+        $task = new OutboundTask(
+            id: 't1',
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'b'),
+            dtoClass: 'D',
+            dtoData: []
+        );
         $state = new OutboundTaskState();
         $envelope = new OutboundEnvelope($task, $state);
 
@@ -39,7 +54,12 @@ describe('OutboundEnvelope', function () {
     });
 
     it('does NOT serialize deliveryId (it is regenerated per pop)', function () {
-        $task = new OutboundTask(id: 't1', botConfig: new TgBotConfig(token: 'test:token', botId: 'b'), dtoClass: 'D', dtoData: []);
+        $task = new OutboundTask(
+            id: 't1',
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'b'),
+            dtoClass: 'D',
+            dtoData: []
+        );
         $envelope = new OutboundEnvelope($task, new OutboundTaskState(), 'should-not-serialize');
 
         $json = $envelope->jsonSerialize();

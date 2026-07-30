@@ -127,7 +127,12 @@ describe('Outbound CLI', function () {
             $queue = $components['queue'];
             expect($queue instanceof AtomicDlqQueueContract)->toBeTrue();
 
-            $task = new OutboundTask(id: 'dlq_test_1', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'Test', dtoData: []);
+            $task = new OutboundTask(
+                id: 'dlq_test_1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'Test',
+                dtoData: []
+            );
             $envelope = new OutboundEnvelope(task: $task, state: new OutboundTaskState());
             $entryId = $queue->pushToDeadLetter($envelope, 'test_reason');
 
@@ -150,9 +155,16 @@ describe('Outbound CLI', function () {
         it('atomicFetchAndRemoveFromDlq works with channel', function () {
             $components = makeOutboundComponentsForCli();
             $queue = $components['queue'];
-            expect($queue instanceof AtomicDlqQueueContract && $queue instanceof ChannelDiscoverableQueueContract)->toBeTrue();
+            expect(
+                $queue instanceof AtomicDlqQueueContract && $queue instanceof ChannelDiscoverableQueueContract
+            )->toBeTrue();
 
-            $task = new OutboundTask(id: 'fetch_test', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot2'), dtoClass: 'Test', dtoData: []);
+            $task = new OutboundTask(
+                id: 'fetch_test',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot2'),
+                dtoClass: 'Test',
+                dtoData: []
+            );
             $envelope = new OutboundEnvelope(task: $task, state: new OutboundTaskState());
             $entryId = $queue->pushToDeadLetter($envelope, 'error');
 
@@ -186,7 +198,14 @@ describe('Outbound CLI', function () {
             $components = makeOutboundComponentsForCli();
             $queue = $components['queue'];
 
-            $queue->push(new OutboundTask(id: 't1', botConfig: new TgBotConfig(token: 'test:token', botId: 'b1'), dtoClass: 'C', dtoData: []));
+            $queue->push(
+                new OutboundTask(
+                    id: 't1',
+                    botConfig: new TgBotConfig(token: 'test:token', botId: 'b1'),
+                    dtoClass: 'C',
+                    dtoData: []
+                )
+            );
 
             expect($queue->size())->toBe(1);
 
@@ -232,7 +251,12 @@ describe('Outbound CLI', function () {
 
     describe('DeadLetterEntry JSON', function () {
         it('serializes and deserializes correctly', function () {
-            $task = new OutboundTask(id: 'json_test', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot'), dtoClass: 'Test', dtoData: ['key' => 'val']);
+            $task = new OutboundTask(
+                id: 'json_test',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot'),
+                dtoClass: 'Test',
+                dtoData: ['key' => 'val']
+            );
             $state = new OutboundTaskState(status: 'pending', attempt: 1, lastError: 'err');
             $envelope = new OutboundEnvelope(task: $task, state: $state);
 
@@ -254,7 +278,12 @@ describe('Outbound CLI', function () {
         });
 
         it('restoreEnvelope creates valid envelope', function () {
-            $task = new OutboundTask(id: 'restore_test', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'SendMsg', dtoData: []);
+            $task = new OutboundTask(
+                id: 'restore_test',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'SendMsg',
+                dtoData: []
+            );
             $state = new OutboundTaskState(status: 'business_error', attempt: 2, lastError: '400');
             $envelope = new OutboundEnvelope(task: $task, state: $state);
 

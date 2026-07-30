@@ -109,7 +109,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
 
         foreach ($phpTypes as $phpType) {
             if (is_array($phpType)) {
-                if (! is_array($propValue)) {
+                if (!is_array($propValue)) {
                     continue;
                 }
 
@@ -142,9 +142,9 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
                         $propValue,
                     );
             }
-            if ($phpType === 'string' && ! is_string($propValue) && is_numeric($propValue)) {
+            if ($phpType === 'string' && !is_string($propValue) && is_numeric($propValue)) {
                 // int52|float
-                $propValue = (string) $propValue;
+                $propValue = (string)$propValue;
             }
 
             if ($this->matchPrimitiveType($phpType, $propValue)) {

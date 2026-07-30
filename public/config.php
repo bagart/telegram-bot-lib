@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Shared webhook configuration bootstrap.
+ * Shared tg_webhook configuration bootstrap.
  *
  * Returns a bare TgServiceConfig with the bot token from
  * the query string. Each index entry point includes this,
@@ -14,8 +14,9 @@ declare(strict_types=1);
  *   $config = require __DIR__.'/config.php';
  *   $config->dispatcher = SyncDtoPipelineDispatcher::TYPE;
  */
-use BAGArt\TelegramBot\Configs\TgBotConfig;
+
 use BAGArt\TelegramBot\Configs\ProcessorConfig;
+use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 
 require_once __DIR__.'/../../../../vendor/autoload.php';

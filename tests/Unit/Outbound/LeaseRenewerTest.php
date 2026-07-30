@@ -17,7 +17,12 @@ if (!class_exists('ControllableClock')) {
 function leaseEnvelope(string $id = 't1'): OutboundEnvelope
 {
     $envelope = new OutboundEnvelope(
-        new OutboundTask(id: $id, botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: []),
+        new OutboundTask(
+            id: $id,
+            botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+            dtoClass: 'D',
+            dtoData: []
+        ),
         new OutboundTaskState(),
     );
     $envelope->deliveryId = "delivery-{$id}";
@@ -70,7 +75,14 @@ describe('LeaseRenewer', function () {
         $queue = new InMemoryOutboundQueue($clock);
         $renewer = new LeaseRenewer($queue, $clock, renewIntervalSec: 1, maxRenewals: 2);
 
-        $queue->push(new OutboundTask(id: 't1', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: []));
+        $queue->push(
+            new OutboundTask(
+                id: 't1',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: []
+            )
+        );
         $envelope = $queue->pop(60);
         expect($envelope)->not->toBeNull();
         $renewer->track($envelope);

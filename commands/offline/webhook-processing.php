@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Configs\ProcessorConfig;
-use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\CLI\CommandActions;
-use BAGArt\TelegramBot\TgBotSetupFactory;
-use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
+use BAGArt\TelegramBot\Configs\ProcessorConfig;
+use BAGArt\TelegramBot\Configs\TgBotConfig;
+use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Processing\Processors\UpdateDTOInitProcessor;
+use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
+use BAGArt\TelegramBot\TgBotSetupFactory;
 
 require_once __DIR__.'/../../../../../vendor/autoload.php';
 require_once __DIR__.'/examples/webhook-payloads.php';
@@ -42,7 +42,7 @@ $options = CommandActions::parseOptions(getopt('', [
 if (isset($options['help'])) {
     echo "Usage:
 
-php commands/offline/webhook-processing.php      # simulate webhook processing with example payloads
+php commands/offline/tg_webhook-processing.php      # simulate tg_webhook processing with example payloads
   --help
   --echo                                         # echo reply to messages
   --show                                         # dump update objects
@@ -67,8 +67,7 @@ $initProcConfig = new ProcessorConfig(
 );
 
 $factory = TgBotSetupFactory::build();
-$tgConfig = new TgServiceConfig(
-);
+$tgConfig = new TgServiceConfig();
 
 CommandActions::makePollerConfig(options: $options, serviceConfig: $tgConfig);
 CommandActions::configInfo($tgConfig, $initProcConfig);

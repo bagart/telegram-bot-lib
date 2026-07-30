@@ -119,12 +119,12 @@ final class DeadLetterEntry implements JsonSerializable
     private static function fromJsonV1(array $data): self
     {
         return new self(
-            id: (string) $data['id'],
-            reason: (string) $data['reason'],
-            failedAt: (string) ($data['failedAt'] ?? (new DateTimeImmutable())->format(DateTimeImmutable::ATOM)),
-            originalTask: (array) $data['originalTask'],
-            originalState: (array) $data['originalState'],
-            redeliveryCount: (int) ($data['redeliveryCount'] ?? 0),
+            id: (string)$data['id'],
+            reason: (string)$data['reason'],
+            failedAt: (string)($data['failedAt'] ?? (new DateTimeImmutable())->format(DateTimeImmutable::ATOM)),
+            originalTask: (array)$data['originalTask'],
+            originalState: (array)$data['originalState'],
+            redeliveryCount: (int)($data['redeliveryCount'] ?? 0),
         );
     }
 }

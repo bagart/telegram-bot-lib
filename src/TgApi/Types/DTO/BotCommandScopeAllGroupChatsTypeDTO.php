@@ -11,7 +11,7 @@ use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chats.')]
+#[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup tg_chats.')]
 #[See('https://core.telegram.org/bots/api#botcommandscopeallgroupchats')]
 class BotCommandScopeAllGroupChatsTypeDTO implements TgApiTypeDTOContract
 {

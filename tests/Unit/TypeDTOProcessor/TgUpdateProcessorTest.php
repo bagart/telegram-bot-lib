@@ -6,11 +6,11 @@ use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Processing\RegisteredUpdateProcessorSelector;
 use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
-use BAGArt\TelegramBot\TgBotSetupFactory;
 use BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\Enum\ChatPropTypeEnum;
+use BAGArt\TelegramBot\TgBotSetupFactory;
 
 function createTestSelectorWithRegistry(TypeDTOProcessorRegistry $registry): RegisteredUpdateProcessorSelector
 {
@@ -43,7 +43,9 @@ describe('RegisteredUpdateProcessorSelector', function () {
 
         it('returns processor for UpdateTypeDTO message property when registered', function () {
             $registry = TypeDTOProcessorRegistry::build();
-            $processor = Mockery::mock(\BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract::class);
+            $processor = Mockery::mock(
+                \BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract::class
+            );
             $processor->shouldReceive('support')->andReturn(true);
 
             $registry->register(MessageTypeDTO::class, $processor);
@@ -64,7 +66,9 @@ describe('RegisteredUpdateProcessorSelector', function () {
 
         it('skips null properties', function () {
             $registry = TypeDTOProcessorRegistry::build();
-            $processor = Mockery::mock(\BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract::class);
+            $processor = Mockery::mock(
+                \BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract::class
+            );
 
             $registry->register(MessageTypeDTO::class, $processor);
 
@@ -81,51 +85,63 @@ describe('RegisteredUpdateProcessorSelector', function () {
 
         it('only includes processors that support the DTO', function () {
             $registry = TypeDTOProcessorRegistry::build();
-            $supporting = new class () implements \BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract {
+            $supporting = new class () implements
+                \BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract {
                 public function support(...$a): bool
                 {
                     return true;
                 }
+
                 public function process(...$a): void
                 {
                 }
+
                 public static function build(...$a): static
                 {
                     throw new \RuntimeException('not impl');
                 }
+
                 public function isStrictOrdered(...$a): bool
                 {
                     return false;
                 }
+
                 public function isNeedUpdateDTO(): bool
                 {
                     return false;
                 }
+
                 public function executionKey(...$a): ?string
                 {
                     return null;
                 }
             };
-            $notSupporting = new class () implements \BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract {
+            $notSupporting = new class () implements
+                \BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract {
                 public function support(...$a): bool
                 {
                     return false;
                 }
+
                 public function process(...$a): void
                 {
                 }
+
                 public static function build(...$a): static
                 {
                     throw new \RuntimeException('not impl');
                 }
+
                 public function isStrictOrdered(...$a): bool
                 {
                     return false;
                 }
+
                 public function isNeedUpdateDTO(): bool
                 {
                     return false;
                 }
+
                 public function executionKey(...$a): ?string
                 {
                     return null;

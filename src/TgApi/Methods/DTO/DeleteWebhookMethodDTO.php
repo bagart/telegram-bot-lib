@@ -11,7 +11,7 @@ use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Use this method to remove webhook integration if you decide to switch back to [getUpdates](https://core.telegram.org/bots/api#getupdates). Returns _True_ on success.')]
+#[Description('Use this method to remove tg_webhook integration if you decide to switch back to [getUpdates](https://core.telegram.org/bots/api#getupdates). Returns _True_ on success.')]
 #[See('https://core.telegram.org/bots/api#deletewebhook')]
 class DeleteWebhookMethodDTO implements TgApiMethodDTOContract
 {

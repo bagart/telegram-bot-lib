@@ -29,7 +29,7 @@ class MessageValidatorProcessor implements TgTypeDTOProcessorContract
             ruleRegistry: $ruleRegistry,
             executor: new MessageVerdictExecutor(
                 sender: $botSetup->tgSender
-                    ?? $botSetup->tgApiCaller,
+                ?? $botSetup->tgApiCaller,
                 logger: $botSetup->logger,
             ),
             antiSpamLogger: new AntiSpamLogger(),
@@ -115,6 +115,7 @@ class MessageValidatorProcessor implements TgTypeDTOProcessorContract
 
         return $bestVerdict;
     }
+
     public function onException(
         ProcessorErrorContext $context,
     ): void {

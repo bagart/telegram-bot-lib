@@ -1,6 +1,6 @@
 <?php
 
-use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\ASKSocketTransportAdapter;
+use BAGArt\ASKClient\Transport\Adapters\ASKSocketTransportAdapter;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\EnvServiceConfigurator;
@@ -60,14 +60,17 @@ describe('TgBotSetupFactory socket pool', function (): void {
         return $method->invoke(null, $config, new ASKLogWrapper(), $env);
     };
 
-    it('builds an ASKSocketTransportAdapter when pool is enabled and transport is ask-socket', function () use ($build): void {
-        $config = new TgServiceConfig(transport: ASKSocketTransportAdapter::TYPE);
-        $env = ['TG_OUTBOUND_SOCKET_POOL' => '1'];
+    it(
+        'builds an ASKSocketTransportAdapter when pool is enabled and transport is ask-socket',
+        function () use ($build): void {
+            $config = new TgServiceConfig(transport: ASKSocketTransportAdapter::TYPE);
+            $env = ['TG_OUTBOUND_SOCKET_POOL' => '1'];
 
-        $transport = $build($config, $env);
+            $transport = $build($config, $env);
 
-        expect($transport)->toBeInstanceOf(ASKSocketTransportAdapter::class);
-    });
+            expect($transport)->toBeInstanceOf(ASKSocketTransportAdapter::class);
+        }
+    );
 
     it('returns null when pool is disabled', function () use ($build): void {
         $config = new TgServiceConfig(transport: ASKSocketTransportAdapter::TYPE);

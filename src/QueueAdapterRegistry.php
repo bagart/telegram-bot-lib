@@ -32,7 +32,7 @@ final class QueueAdapterRegistry
     }
 
     /**
-     * @param class-string<ASKQueueAdapterContract> $adapterClass
+     * @param  class-string<ASKQueueAdapterContract>  $adapterClass
      */
     public function register(
         string $adapterClass,

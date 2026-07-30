@@ -20,7 +20,7 @@ class LeaveChatMethodDTO implements TgApiMethodDTOContract
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`). Channel direct messages chats aren"t supported; leave the corresponding channel instead.')]
+        #[Description('Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`). Channel direct messages tg_chats aren"t supported; leave the corresponding channel instead.')]
         public string $chatId,
     ) {
         $this->dto = static::tgApiEntity();

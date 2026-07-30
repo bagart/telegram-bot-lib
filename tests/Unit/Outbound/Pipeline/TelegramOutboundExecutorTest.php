@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use BAGArt\ASKClient\Contracts\ASKFutureContract;
+use BAGArt\ASKClient\Contracts\Pipeline\ASKFutureContract;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundRateLimiterContract;
@@ -39,8 +39,11 @@ class ExecutorDtoClient implements TgBotApiDTOClientContract
         return ($this->requestHandler)($botConfig, $dto);
     }
 
-    public function requestAsync(TgBotConfig $botConfig, TgApiMethodDTOContract $dto, ?int $timeout = null): ASKFutureContract
-    {
+    public function requestAsync(
+        TgBotConfig $botConfig,
+        TgApiMethodDTOContract $dto,
+        ?int $timeout = null
+    ): ASKFutureContract {
         throw new RuntimeException('not used in executor tests');
     }
 
@@ -56,8 +59,10 @@ class ExecutorMapper implements TgApiDTOMapperContract
 
     public ?array $lastData = null;
 
-    public function fromArray(string|BAGArt\TelegramBot\Contracts\TgApi\TgApiDTOContract|BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract $entity, array $data): BAGArt\TelegramBot\Contracts\TgApi\TgApiDTOContract
-    {
+    public function fromArray(
+        string|BAGArt\TelegramBot\Contracts\TgApi\TgApiDTOContract|BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract $entity,
+        array $data
+    ): BAGArt\TelegramBot\Contracts\TgApi\TgApiDTOContract {
         $this->lastDtoClass = is_string($entity) ? $entity : $entity::class;
         $this->lastData = $data;
 
@@ -163,7 +168,7 @@ describe('TelegramOutboundExecutor', function () {
         $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), $spy);
 
         expect($box->called)->toBeFalse() // executor is final — $next is NOT called.
-            ->and($mapper->lastDtoClass)->toBe('App\\SendMessageDTO')
+        ->and($mapper->lastDtoClass)->toBe('App\\SendMessageDTO')
             ->and($mapper->lastData)->toBe(['chat_id' => 123, 'text' => 'hi'])
             ->and($client->lastBotConfig->token)->toBe('test:token');
     });
@@ -175,7 +180,10 @@ describe('TelegramOutboundExecutor', function () {
         $middleware = makeExecutor($client, limiter: $limiter);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), makeExecutorSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
+                makeExecutorSpy()[0]
+            );
             expect('should have thrown')->toBe('threw');
         } catch (OutboundRetryException $e) {
             expect($e->reason)->toBe('telegram_rate_limit')
@@ -190,7 +198,10 @@ describe('TelegramOutboundExecutor', function () {
         $middleware = makeExecutor($client, limiter: $limiter);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), makeExecutorSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
+                makeExecutorSpy()[0]
+            );
         } catch (OutboundRetryException) {
             // expected
         }
@@ -206,7 +217,10 @@ describe('TelegramOutboundExecutor', function () {
         $middleware = makeExecutor($client);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), makeExecutorSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
+                makeExecutorSpy()[0]
+            );
         } catch (OutboundRetryException $e) {
             expect($e->delaySec)->toBe(30);
         }
@@ -218,7 +232,10 @@ describe('TelegramOutboundExecutor', function () {
         $middleware = makeExecutor($client);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), makeExecutorSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
+                makeExecutorSpy()[0]
+            );
         } catch (OutboundRetryException $e) {
             expect($e->reason)->toBe('telegram_conflict')
                 ->and($e->delaySec)->toBe(5);
@@ -231,7 +248,10 @@ describe('TelegramOutboundExecutor', function () {
         $middleware = makeExecutor($client);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), makeExecutorSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
+                makeExecutorSpy()[0]
+            );
         } catch (OutboundRetryException $e) {
             expect($e->reason)->toBe('network_timeout')
                 ->and($e->delaySec)->toBe(10);
@@ -244,7 +264,10 @@ describe('TelegramOutboundExecutor', function () {
         $middleware = makeExecutor($client);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), makeExecutorSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
+                makeExecutorSpy()[0]
+            );
         } catch (OutboundBusinessErrorException $e) {
             expect($e->reason)->toBe('bad_request')
                 ->and($e->context['msg'])->toBe('Chat not found');
@@ -257,7 +280,10 @@ describe('TelegramOutboundExecutor', function () {
         $middleware = makeExecutor($client);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), makeExecutorSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
+                makeExecutorSpy()[0]
+            );
         } catch (OutboundRetryException $e) {
             expect($e->reason)->toBe('unknown_transport_error')
                 ->and($e->delaySec)->toBe(10);
@@ -271,7 +297,10 @@ describe('TelegramOutboundExecutor', function () {
         $middleware = makeExecutor($client);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), makeExecutorSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
+                makeExecutorSpy()[0]
+            );
         } catch (OutboundRetryException $e) {
             expect($e->getPrevious())->toBe($original);
         }
@@ -286,7 +315,10 @@ describe('TelegramOutboundExecutor', function () {
         $middleware = makeExecutor($client, limiter: $limiter);
 
         try {
-            $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), makeExecutorSpy()[0]);
+            $middleware->handle(
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
+                makeExecutorSpy()[0]
+            );
         } catch (OutboundRetryException) {
             // expected
         }

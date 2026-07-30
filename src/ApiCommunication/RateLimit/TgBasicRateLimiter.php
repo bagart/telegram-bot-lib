@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\RateLimit;
 
-use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRateLimiterContract;
 use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;
+use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRateLimiterContract;
 
 final class TgBasicRateLimiter implements TgRateLimiterContract
 {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\ClientServices;
 
-use BAGArt\ASKClient\Retry\RetryPolicy;
+use BAGArt\ASKClient\Pipeline\Retry\RetryPolicy;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\ClientServices\TgRetryPolicyContract;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiNetworkException;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiRateLimitException;

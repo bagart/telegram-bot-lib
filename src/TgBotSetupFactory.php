@@ -4,19 +4,23 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot;
 
-use BAGArt\ASKClient\AskClient\Adapters\AskCurlMultiClientAdapter;
-use BAGArt\ASKClient\AskClient\Adapters\AskGuzzleClientAdapter;
-use BAGArt\ASKClient\AskClient\AskApiClient;
 use BAGArt\ASKClient\Contracts\Client\AskNetworkClientContract;
-use BAGArt\ASKClient\Contracts\Transporting\HttpTransportContract;
-use BAGArt\ASKClient\AskHttpSocketClient\AskHttpSocketClient;
-use BAGArt\ASKClient\AskHttpSocketClient\HttpsSocketClientConfig;
+use BAGArt\ASKClient\Contracts\Dns\AskDnsAdapterContract;
+use BAGArt\ASKClient\Contracts\Transport\HttpTransportContract;
+use BAGArt\ASKClient\Dns\AskDnsConfigFactory;
+use BAGArt\ASKClient\Dns\AskDnsRegistry;
+use BAGArt\ASKClient\HttpClient\Adapters\AskCurlMultiClientAdapter;
+use BAGArt\ASKClient\HttpClient\Adapters\AskGuzzleClientAdapter;
+use BAGArt\ASKClient\HttpClient\ApiClient;
 use BAGArt\ASKClient\Lockers\InMemoryLocker;
+use BAGArt\ASKClient\Queue\Adapters\InMemoryQueueAdapter;
 use BAGArt\ASKClient\RateLimiter\ASKRateLimiter;
-use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\ASKSocketTransportAdapter;
-use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\CurlMultiTransportAdapter;
-use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\GuzzleTransportAdapter;
-use BAGArt\ASKClient\HttpTransporting\HttpTransportRegistry;
+use BAGArt\ASKClient\SocketClient\AskHttpSocketClient;
+use BAGArt\ASKClient\SocketClient\HttpsSocketClientConfig;
+use BAGArt\ASKClient\Transport\Adapters\ASKSocketTransportAdapter;
+use BAGArt\ASKClient\Transport\Adapters\CurlMultiTransportAdapter;
+use BAGArt\ASKClient\Transport\Adapters\GuzzleTransportAdapter;
+use BAGArt\ASKClient\Transport\HttpTransportRegistry;
 use BAGArt\ASKClientRedis\Connection\FiberRedisConnection;
 use BAGArt\ASKClientRedis\Redis\Client\AsyncFiberRedisClient;
 use BAGArt\ASKClientRedis\Redis\Client\PhpRedisAdapter;
@@ -24,6 +28,7 @@ use BAGArt\ASKClientRedis\Redis\Connector\PhpRedisConnector;
 use BAGArt\ASKClientRedis\Redis\Contract\RedisClientContract;
 use BAGArt\ASKClientRedis\Redis\RedisDsn;
 use BAGArt\AsyncKernel\ASKClock;
+use BAGArt\AsyncKernel\Cache\InMemoryCache;
 use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\AsyncKernel\Drivers\ASKFiberScheduler;
 use BAGArt\AsyncKernel\Promise\ASKPromiseResolver;
@@ -113,7 +118,17 @@ final readonly class TgBotSetupFactory
         $configurator = new EnvServiceConfigurator($options, $env);
         $serviceConfig = $configurator->getServiceConfig();
 
-        $transport = self::buildSocketTransport($serviceConfig, $this->logger, $env);
+        $dnsResolver = AskDnsRegistry::build()->make(
+            $serviceConfig->dns,
+            $serviceConfig->dnsConfig ?? AskDnsConfigFactory::fromEnv(),
+        );
+
+        $transport = self::buildSocketTransport(
+            $serviceConfig,
+            $this->logger,
+            $env,
+            $dnsResolver
+        );
 
         if ($transport instanceof ASKSocketTransportAdapter) {
             self::warmSocketPool($transport, $this->logger, $env);
@@ -132,6 +147,7 @@ final readonly class TgBotSetupFactory
             ->createAllInOne(
                 serviceConfig: $serviceConfig,
                 transport: $transport,
+                dnsResolver: $dnsResolver,
             );
     }
 
@@ -139,6 +155,7 @@ final readonly class TgBotSetupFactory
         TgServiceConfig $config,
         ASKLogWrapper $logger,
         array $env,
+        AskDnsAdapterContract $dnsResolver,
     ): ?ASKSocketTransportAdapter {
         $isPoolEnabled = ($env['TG_OUTBOUND_SOCKET_POOL'] ?? null) === '1';
 
@@ -146,16 +163,18 @@ final readonly class TgBotSetupFactory
             return null;
         }
 
-        $transport = ASKSocketTransportAdapter::withConfig(
+        $client = new AskHttpSocketClient(
             new HttpsSocketClientConfig(
                 keepAlive: true,
                 maxIdlePerHost: (int)($env['TG_OUTBOUND_MAX_IDLE_PER_HOST'] ?? 8),
                 maxIdleTotal: (int)($env['TG_OUTBOUND_MAX_IDLE_TOTAL'] ?? 32),
                 idleTimeout: (float)($env['TG_OUTBOUND_IDLE_TIMEOUT'] ?? 60.0),
             ),
+            null,
+            $dnsResolver,
         );
 
-        return $transport;
+        return new ASKSocketTransportAdapter($client);
     }
 
     /**
@@ -213,17 +232,19 @@ final readonly class TgBotSetupFactory
     public function createAllInOne(
         ?TgServiceConfig $serviceConfig = null,
         ?HttpTransportContract $transport = null,
+        ?AskDnsAdapterContract $dnsResolver = null,
     ): TgBotSetup {
         $serviceConfig ??= new TgServiceConfig();
         $serviceConfig->daemonRuntime = new DaemonRuntime(
             scheduler: DaemonRuntime::MODE_ASYNC,
         );
-        $serviceConfig->processingEngine = 'in_memory';
-        $serviceConfig->cacheDriver = 'memory';
+        $serviceConfig->processingEngine = InMemoryQueueAdapter::TYPE;
+        $serviceConfig->cacheDriver = InMemoryCache::TYPE;
 
         return $this->create(
             serviceConfig: $serviceConfig,
             transport: $transport,
+            dnsResolver: $dnsResolver,
         );
     }
 
@@ -238,7 +259,7 @@ final readonly class TgBotSetupFactory
             scheduler: DaemonRuntime::MODE_QUEUE,
             queue: $queueConfig,
         );
-        $serviceConfig->processingEngine = 'redis';
+        $serviceConfig->processingEngine = InMemoryQueueAdapter::TYPE;
 
         return $this->create(
             $serviceConfig,
@@ -252,13 +273,23 @@ final readonly class TgBotSetupFactory
         ?ProcessorConfig $initProcConfig = null,
         ?ASKSchedulerContract $scheduler = null,
         ?HttpTransportContract $transport = null,
+        ?AskDnsAdapterContract $dnsResolver = null,
         ?TypeDTOProcessorRegistry $processorRegistryOverride = null,
     ): TgBotSetup {
         $serviceConfig ??= new TgServiceConfig();
         $logger = $this->logger;
         $cache = $this->cache ?? self::createCache($serviceConfig);
 
-        $transport ??= HttpTransportRegistry::build()->make($serviceConfig->transport);
+        // One DNS resolver per setup — shared by every transport the setup creates
+        // so the DNS cache and in-flight query sockets are not fragmented per client.
+        // Transports with adapter=null resolve their own fallback via the registry's
+        // DEFAULT_TYPE; this resolver honors an explicit $serviceConfig->dns.
+        $dnsResolver ??= AskDnsRegistry::build()->make(
+            $serviceConfig->dns,
+            $serviceConfig->dnsConfig ?? AskDnsConfigFactory::fromEnv(),
+        );
+
+        $transport ??= self::resolveTransport($serviceConfig, $dnsResolver);
 
         $tgTransport = new TgBotApiTransport($transport);
 
@@ -308,8 +339,8 @@ final readonly class TgBotSetupFactory
             redis: $redisClient,
         );
 
-        $apiClient = new AskApiClient(
-            transport: self::resolveNetworkClient($transport),
+        $apiClient = new ApiClient(
+            transport: self::resolveNetworkClient($transport, $dnsResolver),
             rateLimiter: new ASKRateLimiter($cache, new ASKClock()),
             promiseResolver: new ASKPromiseResolver(),
         );
@@ -424,12 +455,34 @@ final readonly class TgBotSetupFactory
         );
     }
 
-    private static function resolveNetworkClient(HttpTransportContract $transport): AskNetworkClientContract
-    {
+    /**
+     * Build the transport for a service config, injecting the shared DNS
+     * resolver into the socket transport's client so an explicit adapter from
+     * $serviceConfig->dns is honored. curl/guzzle keep libcurl's resolver.
+     */
+    private static function resolveTransport(
+        TgServiceConfig $serviceConfig,
+        AskDnsAdapterContract $dnsResolver,
+    ): HttpTransportContract {
+        $transport = HttpTransportRegistry::build()->make($serviceConfig->transport);
+
+        if ($transport instanceof ASKSocketTransportAdapter) {
+            $transport = new ASKSocketTransportAdapter(
+                self::resolveNetworkClient($transport, $dnsResolver),
+            );
+        }
+
+        return $transport;
+    }
+
+    private static function resolveNetworkClient(
+        HttpTransportContract $transport,
+        AskDnsAdapterContract $dnsResolver,
+    ): AskNetworkClientContract {
         return match ($transport::class) {
             GuzzleTransportAdapter::class => new AskGuzzleClientAdapter(),
             CurlMultiTransportAdapter::class => new AskCurlMultiClientAdapter(),
-            ASKSocketTransportAdapter::class => new AskHttpSocketClient(),
+            ASKSocketTransportAdapter::class => self::socketClientFrom($transport, $dnsResolver),
             default => throw new \RuntimeException(
                 sprintf(
                     'Cannot resolve network client for transport class: %s',
@@ -437,6 +490,24 @@ final readonly class TgBotSetupFactory
                 )
             ),
         };
+    }
+
+    /**
+     * Extract the HttpsSocketClientConfig from an existing socket transport and
+     * rebuild its client with the shared DNS resolver injected.
+     */
+    private static function socketClientFrom(
+        ASKSocketTransportAdapter $transport,
+        AskDnsAdapterContract $dnsResolver,
+    ): AskHttpSocketClient {
+        // Rebuild the socket transport's client with the shared DNS resolver
+        // injected, keeping the default socket config (no connection pool),
+        // matching the previous standalone default of `new AskHttpSocketClient()`.
+        return new AskHttpSocketClient(
+            new HttpsSocketClientConfig(),
+            null,
+            $dnsResolver,
+        );
     }
 
     private function needsScheduler(TgServiceConfig $config): bool
@@ -470,7 +541,7 @@ final readonly class TgBotSetupFactory
     {
         $clock = new ASKClock();
 
-        $driverType = $serviceConfig?->cacheDriver ?? 'file';
+        $driverType = $serviceConfig?->cacheDriver ?? InMemoryQueueAdapter::TYPE;
 
         return new ASKCacheWrapper(
             CacheDriverRegistry::build()->make($driverType, $clock),
@@ -517,7 +588,7 @@ final readonly class TgBotSetupFactory
 
         $rateLimiter = new OutboundRateLimiterAdapter($rateLimiterImpl);
 
-        // dtoClient/dtoMapper may be passed from outside (shared transport with poller,
+        // dtoClient/dtoMapper may be passed from outside (shared transport with tg_daemons,
         // which ticks the kernel). Otherwise we build a fresh one — but then the executor
         // is not suitable for async-fiber use (I/O will stall without a ticking transport).
         $dtoClient ??= $this->getDtoClient(new TgServiceConfig());

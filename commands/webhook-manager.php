@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
-use BAGArt\TelegramBot\TgIntegration\WebhookManager;
+use BAGArt\TelegramBot\CLI\CommandActions;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
-use BAGArt\TelegramBot\CLI\CommandActions;
 use BAGArt\TelegramBot\TgBotSetupFactory;
+use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
+use BAGArt\TelegramBot\TgIntegration\WebhookManager;
 
 require_once __DIR__.'/../../../../vendor/autoload.php';
 
@@ -32,16 +32,16 @@ if (isset($options['help'])) {
 Usage:
 export TELEGRAM_BOT_TOKEN=xxx:xxx
 
-php commands/webhook-manager.php                                     # show current webhook + auto-secret
-php commands/webhook-manager.php --help                              # showe help
-php commands/webhook-manager.php --url=https://example.com/tg        # set webhook with auto-generated secret
-php commands/webhook-manager.php --url=... --secret=custom-secret    # set webhook with custom secret
-php commands/webhook-manager.php --url=... --secret                  # set webhook with empty secret
-php commands/webhook-manager.php --delete                            # delete webhook
+php commands/tg_webhook-manager.php                                     # show current tg_webhook + auto-secret
+php commands/tg_webhook-manager.php --help                              # showe help
+php commands/tg_webhook-manager.php --url=https://example.com/tg        # set tg_webhook with auto-generated secret
+php commands/tg_webhook-manager.php --url=... --secret=custom-secret    # set tg_webhook with custom secret
+php commands/tg_webhook-manager.php --url=... --secret                  # set tg_webhook with empty secret
+php commands/tg_webhook-manager.php --delete                            # delete tg_webhook
 
 Options:
-  --url=https://example.com/tg                                       # set webhook (secret auto-generated)
-  --secret                                                           # use webhook secret. Empty is empty secret. Not provided is auto-generated
+  --url=https://example.com/tg                                       # set tg_webhook (secret auto-generated)
+  --secret                                                           # use tg_webhook secret. Empty is empty secret. Not provided is auto-generated
 
   --token=xxx:xxx                                                    # use custom token
   --log-level=debug|info|warning|error                               # minimum log level (default: info)
@@ -55,8 +55,7 @@ $botConfig = new TgBotConfig(token: $token);
 $secretService = new AutoSecretByTokenService();
 $secret = $options['secret'] ?? $secretService->secret($token) ?: null;
 $botSetup = TgBotSetupFactory::build()->create(
-    serviceConfig: new TgServiceConfig(
-    )
+    serviceConfig: new TgServiceConfig()
 );
 CommandActions::verifyBot($botSetup->dtoClient, $token);
 

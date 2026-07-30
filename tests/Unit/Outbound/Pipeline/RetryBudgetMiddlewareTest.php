@@ -11,7 +11,12 @@ use BAGArt\TelegramBot\Outbound\RetryBudgetMiddleware;
 
 function makeBudgetTask(): OutboundTask
 {
-    return new OutboundTask(id: 't1', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'App\\SendMessage', dtoData: []);
+    return new OutboundTask(
+        id: 't1',
+        botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+        dtoClass: 'App\\SendMessage',
+        dtoData: []
+    );
 }
 
 function makeBudgetSpy(): array

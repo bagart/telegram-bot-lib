@@ -91,7 +91,7 @@ final class ChatSelector
                 continue;
             }
 
-            $chatKey = (string) $chat->id;
+            $chatKey = (string)$chat->id;
 
             if (!isset($chats[$chatKey])) {
                 $chats[$chatKey] = [
@@ -120,14 +120,14 @@ final class ChatSelector
         }
 
         if ($chats === []) {
-            echo "No active chats found.\n";
+            echo "No active tg_chats found.\n";
             exit(0);
         }
 
         usort($chats, fn ($a, $b) => $b['lastTime'] <=> $a['lastTime']);
 
         $indexedChats = array_values($chats);
-        $logger?->debug('Chat selector found chats', ['count' => count($indexedChats)]);
+        $logger?->debug('Chat selector found tg_chats', ['count' => count($indexedChats)]);
 
         echo "=== Active Chats ===\n\n";
         echo mb_str_pad('#', 4)
@@ -143,11 +143,11 @@ final class ChatSelector
             $num = $i + 1;
             $lastTime = $c['lastTime'] > 0 ? date('H:i', $c['lastTime']) : '-';
             $action = mb_substr($c['lastAction'], 0, 40);
-            echo mb_str_pad((string) $num, 4)
-                .mb_str_pad((string) $c['chatId'], 14)
+            echo mb_str_pad((string)$num, 4)
+                .mb_str_pad((string)$c['chatId'], 14)
                 .mb_str_pad($c['chatType'], 12)
                 .mb_str_pad(mb_substr($c['chatTitle'], 0, 26), 28)
-                .mb_str_pad((string) count($c['users']), 7)
+                .mb_str_pad((string)count($c['users']), 7)
                 .mb_str_pad("[{$lastTime}] {$action}", 48)
                 ."\n";
         }
@@ -170,7 +170,7 @@ final class ChatSelector
                 continue;
             }
 
-            $idx = (int) $line;
+            $idx = (int)$line;
             if ($idx < 1 || $idx > count($indexedChats)) {
                 echo "Out of range. Enter 1-".count($indexedChats).".\n";
                 continue;
@@ -179,7 +179,7 @@ final class ChatSelector
             $selectedIndex = $idx - 1;
         }
 
-        $chatId = (string) $indexedChats[$selectedIndex]['chatId'];
+        $chatId = (string)$indexedChats[$selectedIndex]['chatId'];
         echo "Selected chat: {$chatId}\n\n";
 
         $logger?->info('Chat selected', ['chatId' => $chatId]);

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot;
 
-use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Contracts\Processing\ProcessingDispatcherContract;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\Registry\TgDispatcherNotRegistryException;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\Registry\TgWrongDispatcherRegisteredException;
 use BAGArt\TelegramBot\Exceptions\TgAsyncException;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ProcessingDispatchers\AsyncFiberProcessingDispatcher;
 use BAGArt\TelegramBot\Processing\ProcessingDispatchers\LaravelQueueDispatcher\LaravelProcessingDispatcher;
 use BAGArt\TelegramBot\Processing\ProcessingDispatchers\PcntlGrokProcessingDispatcher;
@@ -67,7 +68,7 @@ final class ProcessingDispatcherRegistry
     }
 
     /**
-     * @param class-string<ProcessingDispatcherContract>|ProcessingDispatcherContract $dispatcherClass
+     * @param  class-string<ProcessingDispatcherContract>|ProcessingDispatcherContract  $dispatcherClass
      */
     public function register(
         string|ProcessingDispatcherContract $dispatcherClass,
@@ -108,7 +109,7 @@ final class ProcessingDispatcherRegistry
     /**
      * Critical:
      *
-     * Shared scheduler must be injected from poller layer.
+     * Shared scheduler must be injected from tg_daemons layer.
      *
      * No dispatcher may own its own async runtime.
      */
@@ -157,10 +158,12 @@ final class ProcessingDispatcherRegistry
                 );
             }
 
+            $processorContext = $botSetup !== null ? BotProcessorContext::fromBotSetup($botSetup) : null;
+
             $instance = new $dispatcher(
                 scheduler: $scheduler,
                 logger: $logger,
-                botSetup: $botSetup,
+                processorContext: $processorContext,
             );
 
             $this->dispatchers[$type] = $instance;
@@ -191,9 +194,11 @@ final class ProcessingDispatcherRegistry
          * Sync dispatcher receives optional logger for error reporting.
          */
         if ($dispatcher === SyncProcessingDispatcher::class) {
+            $processorContext = $botSetup !== null ? BotProcessorContext::fromBotSetup($botSetup) : null;
+
             $instance = new $dispatcher(
                 logger: $logger,
-                botSetup: $botSetup,
+                processorContext: $processorContext,
             );
 
             $this->dispatchers[$type] = $instance;

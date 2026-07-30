@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Return sample webhook payloads for testing.
+ * Return sample tg_webhook payloads for testing.
  *
  * @return array<int, array<string, mixed>>  list of raw Telegram update arrays
  */

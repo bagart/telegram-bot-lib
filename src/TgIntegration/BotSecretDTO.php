@@ -54,7 +54,7 @@ class BotSecretDTO
 
     private function validate(string $token): void
     {
-        if (! preg_match('/^\d{5,20}:[A-Za-z0-9_-]+$/', $token)) {
+        if (!preg_match('/^\d{5,20}:[A-Za-z0-9_-]+$/', $token)) {
             throw new InvalidArgumentException(
                 'Invalid token format. Expected: {numeric_id}:{secret}'
             );

@@ -68,7 +68,7 @@ function out(mixed $data, bool $json): void
     if ($json) {
         echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)."\n";
     } else {
-        echo (string) $data;
+        echo (string)$data;
     }
 }
 
@@ -144,7 +144,7 @@ if (isset($options['workers'])) {
 
     if (!$jsonOutput) {
         echo "=== Workers ===\n";
-        echo "Alive (" . count($alive) . "):\n";
+        echo "Alive (".count($alive)."):\n";
         foreach ($alive as $w) {
             $processed = $w['processed'] ?? 0;
             echo "  {$w['id']}: processed={$processed}";
@@ -154,7 +154,7 @@ if (isset($options['workers'])) {
             echo "\n";
         }
         if ($stale !== []) {
-            echo "Stale (" . count($stale) . "):\n";
+            echo "Stale (".count($stale)."):\n";
             foreach ($stale as $w) {
                 echo "  {$w['id']}: age={$w['age_sec']}s\n";
             }
@@ -175,9 +175,9 @@ if (isset($options['ready-keys'])) {
     $readyKeys = $redis->zRange('tg_outbound:ready_keys', 0, -1, true);
 
     if (!$jsonOutput) {
-        echo "=== Ready Keys (" . count($readyKeys) . ") ===\n";
+        echo "=== Ready Keys (".count($readyKeys).") ===\n";
         foreach ($readyKeys as $orderingKey => $priority) {
-            $qSize = (int)$redis->lLen('tg_outbound:q:' . $orderingKey);
+            $qSize = (int)$redis->lLen('tg_outbound:q:'.$orderingKey);
             echo "  {$orderingKey}: priority={$priority}, queue_size={$qSize}\n";
         }
         if ($readyKeys === []) {
@@ -189,7 +189,7 @@ if (isset($options['ready-keys'])) {
             $items[] = [
                 'ordering_key' => $orderingKey,
                 'priority' => $priority,
-                'queue_size' => (int)$redis->lLen('tg_outbound:q:' . $orderingKey),
+                'queue_size' => (int)$redis->lLen('tg_outbound:q:'.$orderingKey),
             ];
         }
         out($items, true);
@@ -205,7 +205,7 @@ if (isset($options['trace-task'])) {
     // Check ready (iterate ready_keys, then scan per-key queues)
     $readyKeys = $redis->zRange('tg_outbound:ready_keys', 0, -1);
     foreach ($readyKeys as $orderingKey) {
-        $qKey = 'tg_outbound:q:' . $orderingKey;
+        $qKey = 'tg_outbound:q:'.$orderingKey;
         $tasks = $redis->lRange($qKey, 0, -1);
         if (!is_array($tasks)) {
             continue;
@@ -221,7 +221,7 @@ if (isset($options['trace-task'])) {
     // Check delayed (members are deliveryIds, data in delayed:data:{id})
     $delayedIds = $redis->zRange('tg_outbound:delayed', 0, -1);
     foreach ($delayedIds as $deliveryId) {
-        $envelopeJson = $redis->get('tg_outbound:delayed:data:' . $deliveryId);
+        $envelopeJson = $redis->get('tg_outbound:delayed:data:'.$deliveryId);
         if ($envelopeJson === false || $envelopeJson === null) {
             continue;
         }
@@ -274,7 +274,7 @@ if (isset($options['trace-task'])) {
         if ($found === []) {
             echo "Task {$taskId} not found\n";
         } else {
-            echo "Task {$taskId} found in " . count($found) . " location(s):\n";
+            echo "Task {$taskId} found in ".count($found)." location(s):\n";
             foreach ($found as $f) {
                 echo "  {$f['location']}\n";
             }
@@ -294,7 +294,7 @@ if (isset($options['peek'])) {
         if (count($tasks) >= $limit) {
             break;
         }
-        $qKey = 'tg_outbound:q:' . $orderingKey;
+        $qKey = 'tg_outbound:q:'.$orderingKey;
         $queueTasks = $redis->lRange($qKey, 0, $limit - count($tasks) - 1);
         if (!is_array($queueTasks)) {
             continue;
@@ -313,7 +313,7 @@ if (isset($options['peek'])) {
         echo "=== Queue Peek (ready, limit={$limit}) ===\n";
         foreach ($tasks as $i => $t) {
             $task = $t['task'] ?? [];
-            echo ($i + 1) . ". {$task['dtoClass']} [{$task['id']}] bot={$task['botId']}";
+            echo ($i + 1).". {$task['dtoClass']} [{$task['id']}] bot={$task['botId']}";
             if (isset($task['orderingKey'])) {
                 echo " order={$task['orderingKey']}";
             }
@@ -338,12 +338,12 @@ if (isset($options['delayed'])) {
     if (!$jsonOutput) {
         echo "=== Delayed Tasks ({$totalItems}) ===\n";
         if (count($delayedIdsWithScores) > 0) {
-            echo "--- Per-key delayed (" . count($delayedIdsWithScores) . ") ---\n";
+            echo "--- Per-key delayed (".count($delayedIdsWithScores).") ---\n";
         }
         $minDelay = PHP_INT_MAX;
         $maxDelay = 0;
         foreach ($delayedIdsWithScores as $deliveryId => $score) {
-            $envelopeJson = $redis->get('tg_outbound:delayed:data:' . $deliveryId);
+            $envelopeJson = $redis->get('tg_outbound:delayed:data:'.$deliveryId);
             if ($envelopeJson === false || $envelopeJson === null) {
                 continue;
             }
@@ -361,7 +361,7 @@ if (isset($options['delayed'])) {
         }
         echo "\n";
         if (count($globalDelayed) > 0) {
-            echo "--- Broadcast delayed (" . count($globalDelayed) . ") ---\n";
+            echo "--- Broadcast delayed (".count($globalDelayed).") ---\n";
             foreach ($globalDelayed as $envelopeJson => $score) {
                 $data = json_decode((string)$envelopeJson, true);
                 $task = $data['task'] ?? [];
@@ -375,7 +375,7 @@ if (isset($options['delayed'])) {
     } else {
         $items = [];
         foreach ($delayedIdsWithScores as $deliveryId => $score) {
-            $envelopeJson = $redis->get('tg_outbound:delayed:data:' . $deliveryId);
+            $envelopeJson = $redis->get('tg_outbound:delayed:data:'.$deliveryId);
             if ($envelopeJson === false || $envelopeJson === null) {
                 continue;
             }
