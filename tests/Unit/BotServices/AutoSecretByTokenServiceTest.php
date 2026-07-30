@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
 use BAGArt\TelegramBot\Exceptions\TgBotInvalidSecretException;
+use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
 
 const TOKEN = '123456789:ABCdefGHIjklMNOpqrsTUVwxyz';
 

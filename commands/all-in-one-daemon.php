@@ -46,7 +46,6 @@ $allowedOptions = [
     'no-ack',
     'help',
     'turbo',
-    'antispam',
     'dispatcher::',
     'transport::',
     'log-level::',
@@ -59,7 +58,7 @@ if (isset($options['help'])) {
     echo 'Usage:
 export TELEGRAM_BOT_TOKEN=xxx:xxx                    # Default Telegram Token
 
-php commands/all-in-one-daemon.php                   # All-in-one daemon (poller + processor + outbound)
+php commands/all-in-one-daemon.php                   # All-in-one daemon (tg_daemons + processor + outbound)
 
 Options:
   --token=xxx:xxx                                    # use custom token
@@ -69,7 +68,6 @@ Options:
   --log                                              # processor: log messages to stderr
   --show                                             # processor: dump update objects
   --dbg                                              # processor: dump DTO to stdout (any type)
-  --antispam                                         # processor: validate messages for spam/advertising
 
   --no-ack                                           # read without acknowledging updates
   --turbo                                            # Fast mode: Ack before process (work only with async mode)
@@ -105,7 +103,7 @@ CommandActions::verifyBot(
 );
 
 $kernel = new AsyncKernel(
-    logger:$botSetup->logger,
+    logger: $botSetup->logger,
     shutdownTimeout: 60 * 60,
 );
 

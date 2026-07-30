@@ -105,7 +105,9 @@ function makeRedisTask(
 uses()->beforeEach(function () {
     $redis = connectTestRedis();
     if ($redis === null) {
-        test()->skip('Redis not available — skipping RedisOutboundQueueContractContractContractContract integration test');
+        test()->skip(
+            'Redis not available — skipping RedisOutboundQueueContractContractContractContract integration test'
+        );
 
         return;
     }
@@ -214,8 +216,14 @@ describe('RedisOutboundQueueContractContractContractContract — Dead Letter Que
     it('getDlqChannels discovers DLQ channels by pattern', function () {
         $queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock);
 
-        $queue->pushToDeadLetter(new OutboundEnvelope(makeRedisTask('t1', botId: 'bot1'), new OutboundTaskState()), 'r');
-        $queue->pushToDeadLetter(new OutboundEnvelope(makeRedisTask('t2', botId: 'bot2'), new OutboundTaskState()), 'r');
+        $queue->pushToDeadLetter(
+            new OutboundEnvelope(makeRedisTask('t1', botId: 'bot1'), new OutboundTaskState()),
+            'r'
+        );
+        $queue->pushToDeadLetter(
+            new OutboundEnvelope(makeRedisTask('t2', botId: 'bot2'), new OutboundTaskState()),
+            'r'
+        );
 
         $channels = $queue->getDlqChannels('tg-dlq:*');
 
@@ -232,7 +240,11 @@ describe('RedisOutboundQueueContractContractContractContract — ordering (Outbo
             $useLua ? 'with Lua optimization' : 'without Lua optimization (PHP native)',
             function () use ($useLua): void {
                 beforeEach(function () use ($useLua): void {
-                    $this->queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock, $useLua);
+                    $this->queue = new RedisOutboundQueueContractContractContractContract(
+                        $this->redis,
+                        $this->clock,
+                        $useLua
+                    );
                 });
 
                 it('lockNextReadyKey returns null when no keys are ready', function (): void {

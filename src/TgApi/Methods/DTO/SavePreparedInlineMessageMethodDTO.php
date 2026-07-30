@@ -26,13 +26,13 @@ class SavePreparedInlineMessageMethodDTO implements TgApiMethodDTOContract
         public int $userId,
         #[Description('An object describing the message to be sent')]
         public InlineQueryResultTypeDTO $result,
-        #[Description('Pass _True_ if the message can be sent to private chats with users')]
+        #[Description('Pass _True_ if the message can be sent to private tg_chats with users')]
         public ?bool $allowUserChats = null,
-        #[Description('Pass _True_ if the message can be sent to private chats with bots')]
+        #[Description('Pass _True_ if the message can be sent to private tg_chats with bots')]
         public ?bool $allowBotChats = null,
-        #[Description('Pass _True_ if the message can be sent to group and supergroup chats')]
+        #[Description('Pass _True_ if the message can be sent to group and supergroup tg_chats')]
         public ?bool $allowGroupChats = null,
-        #[Description('Pass _True_ if the message can be sent to channel chats')]
+        #[Description('Pass _True_ if the message can be sent to channel tg_chats')]
         public ?bool $allowChannelChats = null,
     ) {
         $this->dto = static::tgApiEntity();

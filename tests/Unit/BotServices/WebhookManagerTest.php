@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\TgIntegration\WebhookManager;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
 use BAGArt\TelegramBot\TgApi\Types\DTO\WebhookInfoTypeDTO;
+use BAGArt\TelegramBot\TgIntegration\WebhookManager;
 
 describe('WebhookManager', function () {
     describe('buildTextInfo()', function () {
-        it('formats webhook info with all fields', function () {
+        it('formats tg_webhook info with all fields', function () {
             $dtoClient = Mockery::mock(TgBotApiDTOClientContract::class);
             $manager = new WebhookManager($dtoClient);
 
@@ -31,7 +31,7 @@ describe('WebhookManager', function () {
                 ->toContain('IP address:        1.2.3.4');
         });
 
-        it('formats webhook info with custom certificate', function () {
+        it('formats tg_webhook info with custom certificate', function () {
             $dtoClient = Mockery::mock(TgBotApiDTOClientContract::class);
             $manager = new WebhookManager($dtoClient);
 
@@ -46,7 +46,7 @@ describe('WebhookManager', function () {
             expect($text)->toContain('Secret:            custom cert');
         });
 
-        it('formats webhook info with no URL', function () {
+        it('formats tg_webhook info with no URL', function () {
             $dtoClient = Mockery::mock(TgBotApiDTOClientContract::class);
             $manager = new WebhookManager($dtoClient);
 
@@ -62,7 +62,7 @@ describe('WebhookManager', function () {
                 ->toContain('Secret:            -');
         });
 
-        it('formats webhook info with error message', function () {
+        it('formats tg_webhook info with error message', function () {
             $dtoClient = Mockery::mock(TgBotApiDTOClientContract::class);
             $manager = new WebhookManager($dtoClient);
 

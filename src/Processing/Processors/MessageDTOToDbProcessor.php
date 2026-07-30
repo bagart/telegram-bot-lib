@@ -77,6 +77,7 @@ class MessageDTOToDbProcessor implements TgTypeDTOProcessorContract
             $this->logger->warning('[MessageDTOToDbProcessor] dbLogger not initialized');
         }
     }
+
     public function onException(
         ProcessorErrorContext $context,
     ): void {

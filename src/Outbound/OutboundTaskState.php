@@ -138,10 +138,10 @@ final class OutboundTaskState implements JsonSerializable
     private static function fromArrayV1(array $data): self
     {
         return new self(
-            status: (string) ($data['status'] ?? self::STATUS_PENDING),
-            attempt: (int) ($data['attempt'] ?? 0),
-            lastError: isset($data['lastError']) ? (string) $data['lastError'] : null,
-            errorContext: isset($data['errorContext']) ? (array) $data['errorContext'] : null,
+            status: (string)($data['status'] ?? self::STATUS_PENDING),
+            attempt: (int)($data['attempt'] ?? 0),
+            lastError: isset($data['lastError']) ? (string)$data['lastError'] : null,
+            errorContext: isset($data['errorContext']) ? (array)$data['errorContext'] : null,
         );
     }
 }

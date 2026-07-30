@@ -46,14 +46,14 @@ final class KernelCacheAdapter implements OutboundCacheContract
         $owner = bin2hex(random_bytes(8));
 
         // acquireWithTtl with a short TTL — in case the caller crashes between lock and unlock.
-        if (! $this->locker->acquireWithTtl($lockKey, 5, $owner)) {
+        if (!$this->locker->acquireWithTtl($lockKey, 5, $owner)) {
             // Concurrent increment should not happen in single-process; if it does —
             // return the current value without incrementing (best-effort, don't block pipeline).
-            return (int) $this->cache->get($key, 0);
+            return (int)$this->cache->get($key, 0);
         }
 
         try {
-            $current = (int) $this->cache->get($key, 0);
+            $current = (int)$this->cache->get($key, 0);
             $next = $current + $value;
 
             // put = setex under the hood (TTL is applied). On each increment — TTL

@@ -108,20 +108,20 @@ final class MetricsViewerDaemon implements ASKDaemonContract, ASKTickableContrac
 
         if ($this->jsonOutput) {
             echo json_encode([
-                'ts' => time(),
-                'queue' => ['ready' => $ready, 'delayed' => $delayed, 'inflight' => $inflight, 'dlq' => $dlqTotal],
-                'current_hour' => ['sent' => $sent, 'retry' => $retry, 'failed' => $failed],
-            ])."\n";
+                    'ts' => time(),
+                    'queue' => ['ready' => $ready, 'delayed' => $delayed, 'inflight' => $inflight, 'dlq' => $dlqTotal],
+                    'current_hour' => ['sent' => $sent, 'retry' => $retry, 'failed' => $failed],
+                ])."\n";
         } else {
             echo "\033[2J\033[H"; // Clear screen
             echo "=== Outbound Metrics (refreshing every {$this->interval}s) ===\n";
-            echo "Time: " . date('Y-m-d H:i:s') . "\n\n";
+            echo "Time: ".date('Y-m-d H:i:s')."\n\n";
             echo "Queue:\n";
             echo "  Ready:   {$ready}\n";
             echo "  Delayed: {$delayed}\n";
             echo "  Inflight: {$inflight}\n";
-            echo "  DLQ:     {$dlqTotal} (channels: " . count($dlqChannels) . ")\n";
-            echo "  Total:   " . ($ready + $delayed + $inflight + $dlqTotal) . "\n\n";
+            echo "  DLQ:     {$dlqTotal} (channels: ".count($dlqChannels).")\n";
+            echo "  Total:   ".($ready + $delayed + $inflight + $dlqTotal)."\n\n";
             echo "Current Hour ({$hourKey}):\n";
             echo "  Sent:   {$sent}\n";
             echo "  Retry:  {$retry}\n";

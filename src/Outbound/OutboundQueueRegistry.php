@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Outbound;
 
-use BAGArt\AsyncKernel\Contracts\ASKClockContract;
 use BAGArt\ASKClientRedis\Redis\Contract\RedisClientContract;
+use BAGArt\AsyncKernel\Contracts\ASKClockContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundOrderingQueueContract;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
 use BAGArt\TelegramBot\Outbound\Adapters\RedisOutboundQueueContractContractContractContract;
@@ -33,7 +33,7 @@ final class OutboundQueueRegistry
     }
 
     /**
-     * @param class-string<OutboundOrderingQueueContract> $queueClass
+     * @param  class-string<OutboundOrderingQueueContract>  $queueClass
      */
     public function register(
         string $queueClass,

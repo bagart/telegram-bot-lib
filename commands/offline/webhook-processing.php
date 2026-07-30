@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Configs\ProcessorConfig;
-use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\CLI\CommandActions;
-use BAGArt\TelegramBot\TgBotSetupFactory;
-use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
+use BAGArt\TelegramBot\Configs\ProcessorConfig;
+use BAGArt\TelegramBot\Configs\TgBotConfig;
+use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Processing\Processors\UpdateDTOInitProcessor;
+use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
+use BAGArt\TelegramBot\TgBotSetupFactory;
 
 require_once __DIR__.'/../../../../../vendor/autoload.php';
 require_once __DIR__.'/examples/webhook-payloads.php';
@@ -21,7 +21,6 @@ $options = CommandActions::parseOptions(getopt('', [
     'store',
     'log',
     'dbg',
-    'antispam',
 
     'log-level::',
     'help',
@@ -33,7 +32,6 @@ $options = CommandActions::parseOptions(getopt('', [
     'store',
     'log',
     'dbg',
-    'antispam',
 
     'log-level::',
     'help',
@@ -42,14 +40,13 @@ $options = CommandActions::parseOptions(getopt('', [
 if (isset($options['help'])) {
     echo "Usage:
 
-php commands/offline/webhook-processing.php      # simulate webhook processing with example payloads
+php commands/offline/tg_webhook-processing.php      # simulate tg_webhook processing with example payloads
   --help
   --echo                                         # echo reply to messages
   --show                                         # dump update objects
   --store                                        # store messages to database
   --log                                          # log messages to stderr
   --dbg                                          # dump DTO to stdout (any type)
-  --antispam                                     # validate messages for spam/advertising
   --log-level=debug|info|warning|error           # minimum log level (default: info)
 ";
     exit(0);
@@ -63,17 +60,15 @@ $initProcConfig = new ProcessorConfig(
     log: array_key_exists('log', $options),
     store: array_key_exists('store', $options),
     dbg: array_key_exists('dbg', $options),
-    antispam: array_key_exists('antispam', $options),
 );
 
 $factory = TgBotSetupFactory::build();
-$tgConfig = new TgServiceConfig(
-);
+$tgConfig = new TgServiceConfig();
 
 CommandActions::makePollerConfig(options: $options, serviceConfig: $tgConfig);
 CommandActions::configInfo($tgConfig, $initProcConfig);
 
-$botSetup = $factory->create(serviceConfig: $tgConfig);
+$botSetup = $factory->create(serviceConfig: $tgConfig, initProcConfig: $initProcConfig);
 
 $processor = UpdateDTOInitProcessor::build(
     serviceConfig: $tgConfig,

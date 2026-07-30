@@ -48,8 +48,9 @@ Options:
 $token = CommandActions::resolveToken($options);
 $botConfig = new TgBotConfig(token: $token);
 $factory = TgBotSetupFactory::build();
-$tgDTOClient = $factory->getDtoClient(new TgServiceConfig(
-));
+$tgDTOClient = $factory->getDtoClient(
+    new TgServiceConfig()
+);
 
 // --- Chat selection ---
 $chatId = $options['chat'] ?? null;
@@ -74,8 +75,9 @@ $sendMessageDTO = new SendMessageMethodDTO(
 );
 
 // --- Direct mode ---
-$tgDTOClient = $factory->getDtoClient(new TgServiceConfig(
-));
+$tgDTOClient = $factory->getDtoClient(
+    new TgServiceConfig()
+);
 
 $user = CommandActions::verifyBot($tgDTOClient, $token);
 

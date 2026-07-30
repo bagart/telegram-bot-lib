@@ -58,7 +58,7 @@ final class LaravelQueueAdapter implements OutboundQueueContract
         $data = json_decode($raw, true);
         $command = unserialize($data['data']['command'], ['allowed_classes' => [OutboundLaravelJob::class]]);
 
-        if (! $command instanceof OutboundLaravelJob) {
+        if (!$command instanceof OutboundLaravelJob) {
             // Foreign job in the queue — skip (ack via delete).
             $job->delete();
 
@@ -66,7 +66,7 @@ final class LaravelQueueAdapter implements OutboundQueueContract
         }
 
         $envelopeData = json_decode($command->payload, true);
-        $envelope = OutboundEnvelope::fromJson((array) $envelopeData);
+        $envelope = OutboundEnvelope::fromJson((array)$envelopeData);
         $envelope->deliveryId = $job->getJobId();
 
         // Destructive pop: delete immediately (ack). Laravel does not provide a separate ack —
@@ -105,6 +105,6 @@ final class LaravelQueueAdapter implements OutboundQueueContract
 
     public function size(): int
     {
-        return (int) $this->queue->size(self::QUEUE_NAME);
+        return (int)$this->queue->size(self::QUEUE_NAME);
     }
 }

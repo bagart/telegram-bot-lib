@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\AskTransport;
 
-use BAGArt\ASKClient\Contracts\ASKFutureContract;
+use BAGArt\ASKClient\Contracts\Pipeline\ASKFutureContract;
 
 final class TgFuture implements TgFutureContract
 {

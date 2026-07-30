@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../../../vendor/autoload.php';
+require_once __DIR__.'/../../../../../vendor/autoload.php';
 require_once __DIR__.'/Support/TestMessageCollectorProcessor.php';
 require_once __DIR__.'/Support/TestTypeDTOCollectorProcessor.php';
 
@@ -60,14 +60,14 @@ $updateDTO = $mapper->fromArray(UpdateTypeDTO::class, $payload);
 echo "=== Simulating processDto manually ===\n";
 
 $dto = $updateDTO->message;
-echo "DTO class: " . $dto::class . "\n";
-echo "Is TgApiTypeDTOContract: " . ($dto instanceof TgApiTypeDTOContract ? 'yes' : 'no') . "\n";
+echo "DTO class: ".$dto::class."\n";
+echo "Is TgApiTypeDTOContract: ".($dto instanceof TgApiTypeDTOContract ? 'yes' : 'no')."\n";
 
 // Simulate processDto for MessageTypeDTO
 echo "\n=== registry->get(MessageTypeDTO::class) ===\n";
 foreach ($registry->get(MessageTypeDTO::class, new TgServiceConfig(TOKEN)) as $processor) {
-    echo "Processor: " . $processor::class . "\n";
-    echo "  support(dto, null): " . ($processor->support($dto, null) ? 'yes' : 'no') . "\n";
+    echo "Processor: ".$processor::class."\n";
+    echo "  support(dto, null): ".($processor->support($dto, null) ? 'yes' : 'no')."\n";
     if ($processor->support($dto, null)) {
         echo "  Calling process()...\n";
         $processor->process($dto, null);
@@ -75,9 +75,9 @@ foreach ($registry->get(MessageTypeDTO::class, new TgServiceConfig(TOKEN)) as $p
     }
 }
 
-echo "\nMessage collector count: " . $msgCollector->count() . "\n";
+echo "\nMessage collector count: ".$msgCollector->count()."\n";
 foreach ($msgCollector->collected as $item) {
-    echo "  Collected: " . $item['dto']::class . " text=" . $item['dto']->text . "\n";
+    echo "  Collected: ".$item['dto']::class." text=".$item['dto']->text."\n";
 }
 
 // Now test with the actual process() method
@@ -99,7 +99,7 @@ $updateInit2 = new RegisteredUpdateProcessorSelector(
 $updateDTO2 = $mapper->fromArray(UpdateTypeDTO::class, $payload);
 $updateInit2->process($updateDTO2);
 
-echo "Message collector count after process(): " . $msgCollector2->count() . "\n";
+echo "Message collector count after process(): ".$msgCollector2->count()."\n";
 foreach ($msgCollector2->collected as $item) {
-    echo "  Collected: " . $item['dto']::class . " text=" . $item['dto']->text . "\n";
+    echo "  Collected: ".$item['dto']::class." text=".$item['dto']->text."\n";
 }

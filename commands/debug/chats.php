@@ -43,9 +43,9 @@ $options = CommandActions::parseOptions(getopt('', [
 
 if (isset($options['help'])) {
     echo "Usage:
-  php commands/debug/chats.php                       # list active chats, select one to chat
-  php commands/debug/chats.php --chat=123456          # open chat directly
-  php commands/debug/chats.php --chat=123456 --user-id=789  # filter by user
+  php commands/debug/tg_chats.php                       # list active tg_chats, select one to chat
+  php commands/debug/tg_chats.php --chat=123456          # open chat directly
+  php commands/debug/tg_chats.php --chat=123456 --user-id=789  # filter by user
 
 Options:
   --chat=ID              Target chat ID (if omitted, shows chat list with selector)
@@ -61,14 +61,13 @@ Options:
 }
 
 echo "\033[33mWARNING: This interactive chat uses getUpdates polling which conflicts\n"
-    ."with webhook-based services processing this bot in parallel.\n"
+    ."with tg_webhook-based services processing this bot in parallel.\n"
     ."Use only for debugging.\033[0m\n\n";
 
 $token = CommandActions::resolveToken($options);
 $botConfig = new TgBotConfig(token: $token);
 
-$config = new TgServiceConfig(
-);
+$config = new TgServiceConfig();
 $factory = TgBotSetupFactory::build();
 $dtoClient = $factory->getDtoClient($config);
 
@@ -81,14 +80,14 @@ $chatId = $options['chat'] ?? null;
 // --- If no chat specified, show list and let user select ---
 if ($chatId === null) {
     echo "Tip: use --chat=CHAT_ID to skip chat selection.\n\n";
-    $limit = (int) ($options['limit'] ?? 100);
+    $limit = (int)($options['limit'] ?? 100);
     $chatId = ChatSelector::select($dtoClient, $botConfig, $limit);
 }
 
 // --- Common options ---
 $userId = $options['user-id'] ?? null;
 $username = $options['username'] ?? null;
-$width = isset($options['width']) ? (int) $options['width'] : 120;
+$width = isset($options['width']) ? (int)$options['width'] : 120;
 
 echo "Chat: {$chatId}\n";
 if ($userId) {
@@ -183,7 +182,7 @@ while ($running) {
     } catch (\Throwable $e) {
         ++$errorCount;
         if ($errorCount === 1) {
-            fwrite(STDERR, "[chats] Poll error: {$e->getMessage()}\n");
+            fwrite(STDERR, "[tg_chats] Poll error: {$e->getMessage()}\n");
         }
         usleep(min($errorCount * 2_000_000, 30_000_000));
         continue;
@@ -230,7 +229,7 @@ function processInput(
                     );
                     $chatSession->addOutgoingMessage($text);
                 } catch (\Throwable $e) {
-                    fwrite(STDERR, "[chats] Send error: {$e->getMessage()}\n");
+                    fwrite(STDERR, "[tg_chats] Send error: {$e->getMessage()}\n");
                 }
                 $needsRender = true;
             }

@@ -55,7 +55,7 @@ class TgWebhookRequestParser
 
             $updateDTO = $this->makeDTO($data);
             $result = $this->process($updateDTO, $config, $botConfig);
-            if (! $result) {
+            if (!$result) {
                 $this->logger->info('TgWebhook: Response is true, but processing error', [
                     'botId' => $botId,
                     'update' => $data,

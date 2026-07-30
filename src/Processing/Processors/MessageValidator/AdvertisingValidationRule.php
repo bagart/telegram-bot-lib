@@ -195,10 +195,10 @@ class AdvertisingValidationRule implements MessageValidationRule
         if ($dto->entities !== null) {
             foreach ($dto->entities as $entity) {
                 if (in_array(
-                    $entity->type,
-                    [MessageEntityPropTypeEnum::URL, MessageEntityPropTypeEnum::TEXT_LINK],
-                    true
-                )
+                        $entity->type,
+                        [MessageEntityPropTypeEnum::URL, MessageEntityPropTypeEnum::TEXT_LINK],
+                        true
+                    )
                     && $entity->url !== null) {
                     $parts[] = $entity->url;
                 }
@@ -208,10 +208,10 @@ class AdvertisingValidationRule implements MessageValidationRule
         if ($dto->captionEntities !== null) {
             foreach ($dto->captionEntities as $entity) {
                 if (in_array(
-                    $entity->type,
-                    [MessageEntityPropTypeEnum::URL, MessageEntityPropTypeEnum::TEXT_LINK],
-                    true
-                )
+                        $entity->type,
+                        [MessageEntityPropTypeEnum::URL, MessageEntityPropTypeEnum::TEXT_LINK],
+                        true
+                    )
                     && $entity->url !== null) {
                     $parts[] = $entity->url;
                 }

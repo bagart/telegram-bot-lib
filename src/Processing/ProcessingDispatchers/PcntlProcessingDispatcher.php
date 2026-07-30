@@ -90,7 +90,7 @@ class PcntlProcessingDispatcher implements ProcessingDispatcherContract, ASKTick
             return 0;
         }
 
-        return (int) round(($total / $this->maxProcesses) * 100);
+        return (int)round(($total / $this->maxProcesses) * 100);
     }
 
     public function isIdle(): bool

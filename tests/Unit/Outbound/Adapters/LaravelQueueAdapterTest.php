@@ -57,35 +57,44 @@ class FakeLaravelQueue implements LaravelQueueContract
     public function pushOn($queue, $job, $data = '')
     {
     }
+
     public function pushRaw($payload, $queue = null, array $options = [])
     {
     }
+
     public function laterOn($queue, $delay, $job, $data = '')
     {
     }
+
     public function bulk($jobs, $data = '', $queue = null)
     {
     }
+
     public function getConnectionName()
     {
         return 'default';
     }
+
     public function setConnectionName($name)
     {
         return $this;
     }
+
     public function pendingSize($queue = null)
     {
         return 0;
     }
+
     public function delayedSize($queue = null)
     {
         return 0;
     }
+
     public function reservedSize($queue = null)
     {
         return 0;
     }
+
     public function creationTimeOfOldestPendingJob($queue = null)
     {
         return null;
@@ -116,78 +125,98 @@ class FakeLaravelJob implements LaravelJobContract
     public function delete()
     {
     }
+
     public function release($delay = 0)
     {
     }
+
     public function attempts()
     {
         return 1;
     }
+
     public function uuid()
     {
         return $this->jobId;
     }
+
     public function payload()
     {
         return [];
     }
+
     public function fire()
     {
     }
+
     public function isReleased()
     {
         return false;
     }
+
     public function isDeleted()
     {
         return false;
     }
+
     public function isDeletedOrReleased()
     {
         return false;
     }
+
     public function hasFailed()
     {
         return false;
     }
+
     public function markAsFailed()
     {
     }
+
     public function fail($e = null)
     {
     }
+
     public function maxTries()
     {
         return null;
     }
+
     public function maxExceptions()
     {
         return null;
     }
+
     public function timeout()
     {
         return null;
     }
+
     public function retryUntil()
     {
         return null;
     }
+
     public function getName()
     {
         return 'FakeLaravelJob';
     }
+
     public function resolveName()
     {
         return 'FakeLaravelJob';
     }
+
     public function resolveQueuedJobClass()
     {
         return FakeLaravelJob::class;
     }
+
     public function getConnectionName()
     {
         return 'default';
     }
+
     public function getQueue()
     {
         return 'tg-outbound';
@@ -247,7 +276,9 @@ describe('LaravelQueueAdapter', function () {
         $adapter = new LaravelQueueAdapter(new FakeLaravelQueue());
 
         expect($adapter)->toBeInstanceOf(BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract::class)
-            ->and($adapter)->not->toBeInstanceOf(BAGArt\TelegramBot\Contracts\Outbound\LeaseRenewableQueueContract::class)
+            ->and($adapter)->not->toBeInstanceOf(
+                BAGArt\TelegramBot\Contracts\Outbound\LeaseRenewableQueueContract::class
+            )
             ->and($adapter)->not->toBeInstanceOf(BAGArt\TelegramBot\Contracts\Outbound\AtomicDlqQueueContract::class);
     });
 

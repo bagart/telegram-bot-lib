@@ -53,10 +53,13 @@ class MessageVerdictExecutor
     private function deleteMessage(MessageTypeDTO $dto, TgBotConfig $botConfig): void
     {
         try {
-            $this->sender->send($botConfig, new DeleteMessageMethodDTO(
-                chatId: $dto->chat->id,
-                messageId: $dto->messageId,
-            ));
+            $this->sender->send(
+                $botConfig,
+                new DeleteMessageMethodDTO(
+                    chatId: $dto->chat->id,
+                    messageId: $dto->messageId,
+                )
+            );
         } catch (Throwable $e) {
             $this->logger->error('MessageValidatorProcessor: failed to delete message', [
                 'chatId' => $dto->chat->id,
@@ -96,38 +99,44 @@ class MessageVerdictExecutor
         ?int $restrictDuration,
         TgBotConfig $botConfig
     ): void {
-        $this->sender->send($botConfig, new RestrictChatMemberMethodDTO(
-            chatId: $dto->chat->id,
-            userId: $userId,
-            permissions: new ChatPermissionsTypeDTO(
-                canSendMessages: false,
-                canSendAudios: false,
-                canSendDocuments: false,
-                canSendPhotos: false,
-                canSendVideos: false,
-                canSendVideoNotes: false,
-                canSendVoiceNotes: false,
-                canSendPolls: false,
-                canSendOtherMessages: false,
-                canAddWebPagePreviews: false,
-                canChangeInfo: false,
-                canInviteUsers: false,
-                canPinMessages: false,
-                canManageTopics: false,
-            ),
-            untilDate: $restrictDuration !== null
-                ? time() + $restrictDuration
-                : null,
-        ));
+        $this->sender->send(
+            $botConfig,
+            new RestrictChatMemberMethodDTO(
+                chatId: $dto->chat->id,
+                userId: $userId,
+                permissions: new ChatPermissionsTypeDTO(
+                    canSendMessages: false,
+                    canSendAudios: false,
+                    canSendDocuments: false,
+                    canSendPhotos: false,
+                    canSendVideos: false,
+                    canSendVideoNotes: false,
+                    canSendVoiceNotes: false,
+                    canSendPolls: false,
+                    canSendOtherMessages: false,
+                    canAddWebPagePreviews: false,
+                    canChangeInfo: false,
+                    canInviteUsers: false,
+                    canPinMessages: false,
+                    canManageTopics: false,
+                ),
+                untilDate: $restrictDuration !== null
+                    ? time() + $restrictDuration
+                    : null,
+            )
+        );
     }
 
     private function banUser(MessageTypeDTO $dto, int $userId, TgBotConfig $botConfig): void
     {
-        $this->sender->send($botConfig, new BanChatMemberMethodDTO(
-            chatId: $dto->chat->id,
-            userId: $userId,
-            revokeMessages: true,
-        ));
+        $this->sender->send(
+            $botConfig,
+            new BanChatMemberMethodDTO(
+                chatId: $dto->chat->id,
+                userId: $userId,
+                revokeMessages: true,
+            )
+        );
     }
 
     private function sendWarning(MessageTypeDTO $dto, MessageValidationVerdict $verdict, TgBotConfig $botConfig): void
@@ -152,10 +161,13 @@ class MessageVerdictExecutor
         }
 
         try {
-            $this->sender->send($botConfig, new SendMessageMethodDTO(
-                chatId: $dto->chat->id,
-                text: $message,
-            ));
+            $this->sender->send(
+                $botConfig,
+                new SendMessageMethodDTO(
+                    chatId: $dto->chat->id,
+                    text: $message,
+                )
+            );
         } catch (Throwable $e) {
             $this->logger->error('MessageValidatorProcessor: failed to send warning', [
                 'chatId' => $dto->chat->id,

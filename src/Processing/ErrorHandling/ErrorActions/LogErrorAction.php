@@ -23,7 +23,7 @@ final class LogErrorAction implements ProcessingErrorActionContract
     public function execute(ProcessorErrorContext $ctx): void
     {
         $this->logger->error(
-            '[' . $ctx->processor::class . '] ' . $ctx->exception->getMessage(),
+            '['.$ctx->processor::class.'] '.$ctx->exception->getMessage(),
             ['exception' => $ctx->exception],
         );
     }

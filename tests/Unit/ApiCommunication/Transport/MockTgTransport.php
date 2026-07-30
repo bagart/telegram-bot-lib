@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Tests\Unit\ApiCommunication\Transport;
 
-use BAGArt\ASKClient\Contracts\Transporting\HttpTransportContract;
-use BAGArt\ASKClient\AskHttpSocketClient\MemoryStreamFactory;
-use BAGArt\ASKClient\Request\ASKHttpRequest;
-use BAGArt\ASKClient\Response\ASKHttpResponse;
+use BAGArt\ASKClient\Contracts\Transport\HttpTransportContract;
+use BAGArt\ASKClient\Dto\ASKHttpRequest;
+use BAGArt\ASKClient\Dto\ASKHttpResponse;
 use BAGArt\AsyncKernel\Contracts\ASKPromiseContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\ASKTickableContract;
 use BAGArt\AsyncKernel\Promise\ASKPromise;
@@ -53,7 +52,7 @@ class MockTgTransport implements HttpTransportContract
 
         $response = $this->responses[$methodName] ?? ['ok' => false, 'description' => 'Method not mocked'];
 
-        return ASKPromise::resolved($this->toHttpResponse($response));
+        return ASKPromise::resolved(ASKHttpResponse::fromJson($response));
     }
 
     /**
@@ -64,18 +63,5 @@ class MockTgTransport implements HttpTransportContract
     public function tickable(): array
     {
         return [];
-    }
-
-    private function toHttpResponse(array $payload): ASKHttpResponse
-    {
-        return new ASKHttpResponse(
-            protocolVersion: '1.1',
-            statusCode: 200,
-            reasonPhrase: 'OK',
-            headers: ['content-type' => ['application/json']],
-            body: MemoryStreamFactory::createFromString(
-                json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
-            ),
-        );
     }
 }

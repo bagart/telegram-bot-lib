@@ -20,7 +20,7 @@ class VerifyChatMethodDTO implements TgApiMethodDTOContract
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). Channel direct messages chats can"t be verified.')]
+        #[Description('Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). Channel direct messages tg_chats can"t be verified.')]
         public string $chatId,
         #[Description('Custom description for the verification; 0-70 characters. Must be empty if the organization isn"t allowed to provide a custom verification description.')]
         public ?string $customDescription = null,

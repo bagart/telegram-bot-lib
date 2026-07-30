@@ -27,11 +27,15 @@ describe('TgRetryPolicy', function () {
         });
 
         it('returns true for TgApiRateLimitException', function () use ($policy) {
-            expect($policy->shouldRetry('sendMessage', 1, new TgApiRateLimitException('rate limit exceeded')))->toBeTrue();
+            expect(
+                $policy->shouldRetry('sendMessage', 1, new TgApiRateLimitException('rate limit exceeded'))
+            )->toBeTrue();
         });
 
         it('returns true for 429 status code', function () use ($policy) {
-            expect($policy->shouldRetry('sendMessage', 1, new TgApiNetworkException('HTTP 429 Too Many Requests')))->toBeTrue();
+            expect(
+                $policy->shouldRetry('sendMessage', 1, new TgApiNetworkException('HTTP 429 Too Many Requests'))
+            )->toBeTrue();
         });
 
         it('returns false for plain Exception', function () use ($policy) {

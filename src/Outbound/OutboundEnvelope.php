@@ -57,8 +57,8 @@ final class OutboundEnvelope implements JsonSerializable
     private static function fromJsonV1(array $data): self
     {
         return new self(
-            task: OutboundTask::fromJson((array) $data['task']),
-            state: OutboundTaskState::fromArray((array) $data['state']),
+            task: OutboundTask::fromJson((array)$data['task']),
+            state: OutboundTaskState::fromArray((array)$data['state']),
         );
     }
 }

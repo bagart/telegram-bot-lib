@@ -27,7 +27,7 @@ class TgIpValidatorListener
     {
         $ip = $event->getRequest()->getClientIp();
 
-        if ($ip !== null && ! $this->validator->validate($ip)) {
+        if ($ip !== null && !$this->validator->validate($ip)) {
             $event->setResponse(new Response('Forbidden: invalid IP', 403));
         }
     }

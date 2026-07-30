@@ -29,9 +29,9 @@ final class TgAdvancedRateLimiter implements TgRateLimiterContract
         $chatId = $parts[2] ?? null;
 
         $keys = [
-            'flood_key'    => "tg_limit:{$botId}:flood:{$key}",
+            'flood_key' => "tg_limit:{$botId}:flood:{$key}",
             'flood_global' => "tg_limit:{$botId}:flood:global",
-            'global_last'  => "tg_limit:{$botId}:global:last",
+            'global_last' => "tg_limit:{$botId}:global:last",
         ];
 
         if ($chatId !== null) {

@@ -20,13 +20,13 @@ class BusinessBotRightsTypeDTO implements TgApiTypeDTOContract
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('_True_, if the bot can send and edit messages in the private chats that had incoming messages in the last 24 hours')]
+        #[Description('_True_, if the bot can send and edit messages in the private tg_chats that had incoming messages in the last 24 hours')]
         public ?bool $canReply = true,
         #[Description('_True_, if the bot can mark incoming private messages as read')]
         public ?bool $canReadMessages = true,
         #[Description('_True_, if the bot can delete messages sent by the bot')]
         public ?bool $canDeleteSentMessages = true,
-        #[Description('_True_, if the bot can delete all private messages in managed chats')]
+        #[Description('_True_, if the bot can delete all private messages in managed tg_chats')]
         public ?bool $canDeleteAllMessages = true,
         #[Description('_True_, if the bot can edit the first and last name of the business account')]
         public ?bool $canEditName = true,

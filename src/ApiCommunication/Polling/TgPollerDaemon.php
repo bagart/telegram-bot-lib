@@ -282,7 +282,9 @@ final readonly class TgPollerDaemon implements
 
     public function onError(Throwable $e): void
     {
-        throw $e;
+        $this->logger->error('[TgPoller] error: '.$e->getMessage(), [
+            'exception' => $e::class,
+        ]);
     }
 
     public function startup(): void

@@ -11,7 +11,7 @@ use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Use this method to delete a chat photo. Photos can"t be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns _True_ on success.')]
+#[Description('Use this method to delete a chat photo. Photos can"t be changed for private tg_chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns _True_ on success.')]
 #[See('https://core.telegram.org/bots/api#deletechatphoto')]
 class DeleteChatPhotoMethodDTO implements TgApiMethodDTOContract
 {

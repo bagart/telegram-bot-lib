@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Tests;
 
-use BAGArt\ASKClient\Contracts\ASKFutureContract;
+use BAGArt\ASKClient\Contracts\Pipeline\ASKFutureContract;
 use BAGArt\TelegramBot\ApiCommunication\Clients\TgBotApiClient;
 use BAGArt\TelegramBot\ApiCommunication\Transports\TgBotApiTransport;
 use BAGArt\TelegramBot\Configs\TgBotConfig;

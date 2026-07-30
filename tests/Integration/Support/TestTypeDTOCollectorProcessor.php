@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\Tests\Integration\Support;
 
 use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
-use BAGArt\TelegramBot\TgBotSetup;
 
 class TestTypeDTOCollectorProcessor implements TgTypeDTOProcessorContract
 {
     public static function build(
-        TgServiceConfig $serviceConfig,
-        TgBotSetup $botSetup,
+        BotProcessorContext $context,
     ): self {
         return new static();
     }

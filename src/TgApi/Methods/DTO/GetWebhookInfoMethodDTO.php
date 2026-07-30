@@ -10,7 +10,7 @@ use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\DTO\WebhookInfoTypeDTO;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Use this method to get current webhook status. Requires no parameters. On success, returns a [WebhookInfo](https://core.telegram.org/bots/api#webhookinfo) object. If the bot is using [getUpdates](https://core.telegram.org/bots/api#getupdates), will return an object with the _url_ field empty.')]
+#[Description('Use this method to get current tg_webhook status. Requires no parameters. On success, returns a [WebhookInfo](https://core.telegram.org/bots/api#webhookinfo) object. If the bot is using [getUpdates](https://core.telegram.org/bots/api#getupdates), will return an object with the _url_ field empty.')]
 #[See('https://core.telegram.org/bots/api#getwebhookinfo')]
 class GetWebhookInfoMethodDTO implements TgApiMethodDTOContract
 {

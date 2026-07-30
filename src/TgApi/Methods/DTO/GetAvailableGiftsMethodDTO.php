@@ -10,7 +10,7 @@ use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\DTO\GiftsTypeDTO;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a [Gifts](https://core.telegram.org/bots/api#gifts) object.')]
+#[Description('Returns the list of gifts that can be sent by the bot to users and channel tg_chats. Requires no parameters. Returns a [Gifts](https://core.telegram.org/bots/api#gifts) object.')]
 #[See('https://core.telegram.org/bots/api#getavailablegifts')]
 class GetAvailableGiftsMethodDTO implements TgApiMethodDTOContract
 {

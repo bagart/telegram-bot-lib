@@ -10,7 +10,7 @@ use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContrac
 interface TgProcessorFactoryContract
 {
     /**
-     * @param class-string<TgTypeDTOProcessorContract> $processorClass
+     * @param  class-string<TgTypeDTOProcessorContract>  $processorClass
      */
     public function create(string $processorClass, TgServiceConfig $serviceConfig): TgTypeDTOProcessorContract;
 }

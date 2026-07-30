@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\AsyncKernel\Contracts\ASKClockContract;
+use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
 use BAGArt\TelegramBot\Outbound\DeadLetterEntry;
 use BAGArt\TelegramBot\Outbound\OutboundBackpressureException;
@@ -243,58 +243,61 @@ describe('InMemoryOutboundQueueContractContractContractContract — renewLease',
     });
 });
 
-describe('InMemoryOutboundQueueContractContractContractContract — ordering (OutboundOrderingQueueContract)', function () {
-    it('lockNextReadyKey returns null when no keys are ready', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
+describe(
+    'InMemoryOutboundQueueContractContractContractContract — ordering (OutboundOrderingQueueContract)',
+    function () {
+        it('lockNextReadyKey returns null when no keys are ready', function () {
+            $queue = new InMemoryOutboundQueue(new ControllableClock());
 
-        expect($queue->lockNextReadyKey())->toBeNull();
-    });
+            expect($queue->lockNextReadyKey())->toBeNull();
+        });
 
-    it('lockNextReadyKey returns a key after push with orderingKey', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        it('lockNextReadyKey returns a key after push with orderingKey', function () {
+            $queue = new InMemoryOutboundQueue(new ControllableClock());
 
-        $queue->push(makeTask('t1', orderingKey: 'chat:1'));
+            $queue->push(makeTask('t1', orderingKey: 'chat:1'));
 
-        $key = $queue->lockNextReadyKey();
-        expect($key)->toBe('chat:1');
-    });
+            $key = $queue->lockNextReadyKey();
+            expect($key)->toBe('chat:1');
+        });
 
-    it('lockNextReadyKey returns null after key is consumed by pop', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        it('lockNextReadyKey returns null after key is consumed by pop', function () {
+            $queue = new InMemoryOutboundQueue(new ControllableClock());
 
-        $queue->push(makeTask('t1', orderingKey: 'chat:1'));
-        $queue->pop();
+            $queue->push(makeTask('t1', orderingKey: 'chat:1'));
+            $queue->pop();
 
-        expect($queue->lockNextReadyKey())->toBeNull();
-    });
+            expect($queue->lockNextReadyKey())->toBeNull();
+        });
 
-    it('refreshKeyState returns key to ready_keys when queue has more tasks', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        it('refreshKeyState returns key to ready_keys when queue has more tasks', function () {
+            $queue = new InMemoryOutboundQueue(new ControllableClock());
 
-        $queue->push(makeTask('t1', orderingKey: 'chat:1'));
-        $queue->push(makeTask('t2', orderingKey: 'chat:1'));
+            $queue->push(makeTask('t1', orderingKey: 'chat:1'));
+            $queue->push(makeTask('t2', orderingKey: 'chat:1'));
 
-        $first = $queue->pop();
-        expect($first->task->id)->toBe('t1');
+            $first = $queue->pop();
+            expect($first->task->id)->toBe('t1');
 
-        // After ack, key should be refreshed
-        $queue->ack($first);
+            // After ack, key should be refreshed
+            $queue->ack($first);
 
-        $key = $queue->lockNextReadyKey();
-        expect($key)->toBe('chat:1');
-    });
+            $key = $queue->lockNextReadyKey();
+            expect($key)->toBe('chat:1');
+        });
 
-    it('refreshKeyState does not return key when queue is empty', function () {
-        $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue(new ControllableClock());
+        it('refreshKeyState does not return key when queue is empty', function () {
+            $queue = new \BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue(new ControllableClock());
 
-        $queue->push(makeTask('t1', orderingKey: 'chat:1'));
-        $first = $queue->pop();
-        $queue->ack($first);
+            $queue->push(makeTask('t1', orderingKey: 'chat:1'));
+            $first = $queue->pop();
+            $queue->ack($first);
 
-        // No more tasks for this key
-        expect($queue->lockNextReadyKey())->toBeNull();
-    });
-});
+            // No more tasks for this key
+            expect($queue->lockNextReadyKey())->toBeNull();
+        });
+    }
+);
 
 describe('InMemoryOutboundQueueContractContractContractContract — backpressure', function () {
     it('push throws when maxSize is reached', function () {
@@ -371,7 +374,12 @@ describe('InMemoryOutboundQueueContractContractContractContract — purgeExpired
             id: 'old',
             reason: 'expired',
             failedAt: (new DateTimeImmutable('-2 hours'))->format(DateTimeInterface::ATOM),
-            originalTask: (new OutboundTask(id: 'old', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: []))->jsonSerialize(),
+            originalTask: (new OutboundTask(
+                id: 'old',
+                botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
+                dtoClass: 'D',
+                dtoData: []
+            ))->jsonSerialize(),
             originalState: (new OutboundTaskState())->jsonSerialize(),
         );
         $recentEnvelope = new OutboundEnvelope(makeTask('recent'), new OutboundTaskState());

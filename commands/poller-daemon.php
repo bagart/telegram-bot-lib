@@ -6,9 +6,9 @@ use BAGArt\AsyncKernel\AsyncKernel;
 use BAGArt\TelegramBot\ApiCommunication\Polling\PollerState;
 use BAGArt\TelegramBot\ApiCommunication\Polling\TgPollerDaemon;
 use BAGArt\TelegramBot\CLI\CommandActions;
+use BAGArt\TelegramBot\Configs\ProcessorConfig;
 use BAGArt\TelegramBot\Configs\RedisQueueConfig;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Configs\ProcessorConfig;
 use BAGArt\TelegramBot\Configs\TgPollerConfig;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ErrorActions\LogErrorAction;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessingErrorConsumer;
@@ -33,8 +33,7 @@ $allowedOptions = [
     'no-ack',
     'help',
     'turbo',
-    'antispam',
-    'poller::',
+    'tg_daemons::',
     'dispatcher::',
     'transport::',
     'log-level::',
@@ -53,7 +52,7 @@ if (isset($options['help'])) {
     echo 'Usage:
 export TELEGRAM_BOT_TOKEN=xxx:xxx                    # Default Telegram Token
 
-php commands/poller-daemon.php                       # Telegram poller daemon (queued mode)
+php commands/tg_daemons-daemon.php                       # Telegram tg_daemons daemon (queued mode)
 
 Options:
   --token=xxx:xxx                                    # use custom token
@@ -63,7 +62,6 @@ Options:
   --log                                              # processor: log messages to stderr
   --show                                             # processor: dump update objects
   --dbg                                              # processor: dump DTO to stdout (any type)
-  --antispam                                         # processor: validate messages for spam/advertising
 
   --sync                                             # sync long-poll mode
   --async                                            # async fiber-based polling mode
@@ -72,7 +70,7 @@ Options:
   --no-ack                                           # read without acknowledging updates
   --turbo                                            # Fast mode: Ack before process (work only with async mode)
 
-  --poller=                                          # poller selection (sync|async|custom)
+  --tg_daemons=                                          # tg_daemons selection (sync|async|custom)
   --transport=guzzle|curl-multi|ask-socket          # transport selection (default: ask-socket)
   --dispatcher=sync|async|queue                      # processors dispatcher
 
@@ -100,7 +98,6 @@ $processorRegistry = TgBotSetupFactory::processorRegistry(
         log: array_key_exists('log', $options),
         store: array_key_exists('store', $options),
         dbg: array_key_exists('dbg', $options),
-        antispam: array_key_exists('antispam', $options),
     )
 );
 $pollerConfig = new TgPollerConfig(
@@ -117,6 +114,7 @@ $queueConfig = RedisQueueConfig::fromOptions($options);
 $botSetup = $factory->createQueued(
     queueConfig: $queueConfig,
     serviceConfig: $serviceConfig,
+    processorRegistryOverride: $processorRegistry,
 );
 
 CommandActions::verifyBot($botSetup->dtoClient, $token);

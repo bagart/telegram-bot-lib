@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\CLI\CommandActions;
-use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\ProcessorConfig;
+use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Processing\RegisteredUpdateProcessorSelector;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
@@ -21,7 +21,6 @@ $options = CommandActions::parseOptions(getopt('', [
     'store',
     'log',
     'dbg',
-    'antispam',
     'help',
     'log-level::',
 ]), [
@@ -31,7 +30,6 @@ $options = CommandActions::parseOptions(getopt('', [
     'store',
     'log',
     'dbg',
-    'antispam',
     'help',
     'log-level::',
 ]);
@@ -46,7 +44,6 @@ Options:
   --store                                          # store messages to database
   --log                                            # log messages to stderr
   --dbg                                            # dump DTO to stdout (any type)
-  --antispam                                       # validate messages for spam/advertising
 
   --log-level=debug|info|warning|error             # minimum log level (default: info)
   --help
@@ -62,7 +59,6 @@ $initProcConfig = new ProcessorConfig(
     log: array_key_exists('log', $options),
     store: array_key_exists('store', $options),
     dbg: array_key_exists('dbg', $options),
-    antispam: array_key_exists('antispam', $options),
 );
 
 $factory = TgBotSetupFactory::build();

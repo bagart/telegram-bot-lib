@@ -57,11 +57,11 @@ LUA;
     {
         $result = $this->redis->eval(
             self::LUA_INCREMENT_WITH_TTL,
-            [$key, (string) $value, (string) $ttlSec],
+            [$key, (string)$value, (string)$ttlSec],
             1,
         );
 
-        return (int) $result;
+        return (int)$result;
     }
 
     public function lock(string $key, int $ttlSec, ?string $owner = null): bool
@@ -84,7 +84,7 @@ LUA;
     public function put(string $key, mixed $value, int $ttlSec): void
     {
         // SETEX with TTL. Value — scalar (string/int); for arrays the caller serializes.
-        $this->redis->setex($key, max(1, $ttlSec), (string) $value);
+        $this->redis->setex($key, max(1, $ttlSec), (string)$value);
     }
 
     public function forget(string $key): void

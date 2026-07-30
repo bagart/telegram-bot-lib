@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use BAGArt\TelegramBot\CLI\CommandActions;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
-use BAGArt\TelegramBot\CLI\CommandActions;
 use BAGArt\TelegramBot\TgBotSetupFactory;
 
 require_once __DIR__.'/../../../../../vendor/autoload.php';
@@ -21,7 +21,7 @@ $options = CommandActions::parseOptions(getopt('', [
 
 if (isset($options['help'])) {
     echo "Usage:
-php commands/debug/get_me.php                   # show bot info
+php commands/debug/tg_get_me.php                   # show bot info
 
 Options:
   --help
@@ -35,8 +35,7 @@ $token = CommandActions::resolveToken($options);
 $botConfig = new TgBotConfig(token: $token);
 echo "\ncalling...\n";
 $botSetup = TgBotSetupFactory::build()->create(
-    serviceConfig: new TgServiceConfig(
-    )
+    serviceConfig: new TgServiceConfig()
 );
 $user = CommandActions::verifyBot($botSetup->dtoClient, $token);
 

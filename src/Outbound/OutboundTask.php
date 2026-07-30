@@ -90,16 +90,16 @@ final class OutboundTask implements JsonSerializable
     private static function fromJsonV1(array $data): self
     {
         return new self(
-            id: (string) $data['id'],
+            id: (string)$data['id'],
             botConfig: new TgBotConfig(
-                token: (string) ($data['botConfig']['token'] ?? ''),
-                botId: isset($data['botConfig']['botId']) ? (string) $data['botConfig']['botId'] : null,
+                token: (string)($data['botConfig']['token'] ?? ''),
+                botId: isset($data['botConfig']['botId']) ? (string)$data['botConfig']['botId'] : null,
             ),
-            dtoClass: (string) $data['dtoClass'],
-            dtoData: (array) ($data['dtoData'] ?? []),
-            priority: TaskPriority::from((int) ($data['priority'] ?? TaskPriority::Normal->value)),
-            orderingKey: isset($data['orderingKey']) ? (string) $data['orderingKey'] : null,
-            createdAt: new DateTimeImmutable((string) ($data['createdAt'] ?? 'now')),
+            dtoClass: (string)$data['dtoClass'],
+            dtoData: (array)($data['dtoData'] ?? []),
+            priority: TaskPriority::from((int)($data['priority'] ?? TaskPriority::Normal->value)),
+            orderingKey: isset($data['orderingKey']) ? (string)$data['orderingKey'] : null,
+            createdAt: new DateTimeImmutable((string)($data['createdAt'] ?? 'now')),
             schemaVersion: 1,
         );
     }

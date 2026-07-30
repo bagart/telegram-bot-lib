@@ -42,7 +42,9 @@ describe('OutboundTask', function () {
             ->and($restored->dtoData)->toBe(['chat_id' => 99, 'text' => 'hello'])
             ->and($restored->priority)->toBe(TaskPriority::High)
             ->and($restored->orderingKey)->toBe('99:session-1')
-            ->and($restored->createdAt->format(DateTimeInterface::ATOM))->toBe($createdAt->format(DateTimeInterface::ATOM))
+            ->and($restored->createdAt->format(DateTimeInterface::ATOM))->toBe(
+                $createdAt->format(DateTimeInterface::ATOM)
+            )
             ->and($restored->schemaVersion)->toBe(1);
     });
 

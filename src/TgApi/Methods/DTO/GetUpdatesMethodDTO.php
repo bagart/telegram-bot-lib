@@ -12,7 +12,7 @@ use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Use this method to receive incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)). Returns an Array of [Update](https://core.telegram.org/bots/api#update) objects.; ; > **Notes**; > ; > **1.** This method will not work if an outgoing webhook is set up.; > ; > **2.** In order to avoid getting duplicate updates, recalculate _offset_ after each server response.')]
+#[Description('Use this method to receive incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)). Returns an Array of [Update](https://core.telegram.org/bots/api#update) objects.; ; > **Notes**; > ; > **1.** This method will not work if an outgoing tg_webhook is set up.; > ; > **2.** In order to avoid getting duplicate updates, recalculate _offset_ after each server response.')]
 #[See('https://core.telegram.org/bots/api#getupdates')]
 class GetUpdatesMethodDTO implements TgApiMethodDTOContract
 {

@@ -36,7 +36,7 @@ final class RateLimitMiddleware implements OutboundMiddleware
 
         if ($delay > 0.0) {
             throw new OutboundRetryException(
-                delaySec: (int) ceil($delay),
+                delaySec: (int)ceil($delay),
                 reason: 'rate_limit',
             );
         }

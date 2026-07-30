@@ -77,7 +77,7 @@ echo "\n=== Offline Integration Tests: Commands & Webhook ===\n\n";
 // =====================================================
 // SECTION 1: public/index-sync.php flow
 // =====================================================
-echo "=== Section 1: public/index-sync.php webhook flow ===\n\n";
+echo "=== Section 1: public/index-sync.php tg_webhook flow ===\n\n";
 
 $secretService = new AutoSecretByTokenService();
 
@@ -127,14 +127,14 @@ $registry->register(UpdateTypeDTO::class, $updateCollector);
 $webhook = TgBotSetupFactory::webhook($registry);
 $result = $webhook->parse(telegram_webhook_payload(), $expectedSecret);
 
-assert_test('webhook parse succeeds', $result === true);
+assert_test('tg_webhook parse succeeds', $result === true);
 assert_test('message collected', $messageCollector->count() === 1);
 assert_test('update collected', $updateCollector->count() === 1);
 assert_test('message text', $messageCollector->last()['dto']->text === 'Hello from Telegram!');
 assert_test('botId from collector', $messageCollector->last()['botId'] === '123456789');
 
-// Test 1.4: Invalid webhook secret (public/index-sync.php validation)
-echo "\nTest 1.4: Invalid webhook secret\n";
+// Test 1.4: Invalid tg_webhook secret (public/index-sync.php validation)
+echo "\nTest 1.4: Invalid tg_webhook secret\n";
 $registry2 = TypeDTOProcessorRegistry::build();
 $messageCollector2 = new TestMessageCollectorProcessor();
 $registry2->register(MessageTypeDTO::class, $messageCollector2);
@@ -150,11 +150,11 @@ $nullResult = $webhook2->parse(telegram_webhook_payload(), null);
 assert_test('null secret returns false', $nullResult === false);
 
 // =====================================================
-// SECTION 2: commands/poller-sync.php flow
+// SECTION 2: commands/tg_daemons-sync.php flow
 // =====================================================
-echo "\n=== Section 2: commands/poller-sync.php flow ===\n\n";
+echo "\n=== Section 2: commands/tg_daemons-sync.php flow ===\n\n";
 
-// Test 2.1: BotSecretDTO (used in poller-sync.php)
+// Test 2.1: BotSecretDTO (used in tg_daemons-sync.php)
 echo "Test 2.1: BotSecretDTO\n";
 $botDTO = new BotSecretDTO(token: TOKEN);
 assert_test('botId extracted', $botDTO->botId() === '123456789');
@@ -164,7 +164,7 @@ assert_test('secret is null by default', $botDTO->secret() === null);
 $botDTOWithSecret = new BotSecretDTO(token: TOKEN, secret: 'custom-secret');
 assert_test('custom secret stored', $botDTOWithSecret->secret() === 'custom-secret');
 
-// Test 2.2: BotSecretRegistry (used in poller-sync.php)
+// Test 2.2: BotSecretRegistry (used in tg_daemons-sync.php)
 echo "\nTest 2.2: BotSecretRegistry\n";
 $botRegistry = TgPureFactory::botSecretRegistry();
 $botRegistry->register($botDTO);
@@ -173,13 +173,13 @@ assert_test('bot registered', $botRegistry->has($botDTO->botId()));
 assert_test('getBot returns bot', $botRegistry->getBot($botDTO->botId()) === $botDTO);
 assert_test('getBotCount', $botRegistry->getBotCount() === 1);
 
-// Test 2.3: UpdateProcessor with registry (used in poller-sync.php)
+// Test 2.3: UpdateProcessor with registry (used in tg_daemons-sync.php)
 echo "\nTest 2.3: UpdateProcessor with registry\n";
 $registry = TypeDTOProcessorRegistry::build();
 $messageCollector3 = new TestMessageCollectorProcessor();
 $registry->register(MessageTypeDTO::class, $messageCollector3);
 
-$dispatcher = Mockery::mock(\BAGArt\TelegramBot\Contracts\Processing\Update\Processing\ProcessingDispatcherContract::class);
+$dispatcher = Mockery::mock(\BAGArt\TelegramBot\Contracts\Processing\ProcessingDispatcherContract::class);
 $dispatcher->shouldReceive('dispatch')->andReturnNull();
 $config = new TgServiceConfig(dispatcher: $dispatcher);
 $factory = TgBotSetupFactory::build();
@@ -197,7 +197,7 @@ $processor->process($updateDTO);
 assert_test('processor dispatches to collectors', $messageCollector3->count() === 1);
 assert_test('message text from processor', $messageCollector3->last()['dto']->text === 'Hello from Telegram!');
 
-// Test 2.4: Multiple updates processed (poller-sync.php loop simulation)
+// Test 2.4: Multiple updates processed (tg_daemons-sync.php loop simulation)
 echo "\nTest 2.4: Multiple updates processed\n";
 $registry4 = TypeDTOProcessorRegistry::build();
 $messageCollector4 = new TestMessageCollectorProcessor();
@@ -246,11 +246,11 @@ $texts = array_map(fn ($item) => $item['dto']->text, $messageCollector4->collect
 assert_test('texts in order', $texts === ['First', 'Second', 'Third']);
 
 // =====================================================
-// SECTION 3: commands/webhook-processing.php flow
+// SECTION 3: commands/tg_webhook-processing.php flow
 // =====================================================
-echo "\n=== Section 3: commands/webhook-processing.php flow ===\n\n";
+echo "\n=== Section 3: commands/tg_webhook-processing.php flow ===\n\n";
 
-// Test 3.1: AutoSecretByTokenService (used in webhook-processing.php)
+// Test 3.1: AutoSecretByTokenService (used in tg_webhook-processing.php)
 echo "Test 3.1: AutoSecretByTokenService secret generation\n";
 $secret1 = $secretService->secret('111111111:AAAaaaBBBbbbCCCccc');
 $secret2 = $secretService->secret('222222222:DDDdddEEEeeeFFFfff');

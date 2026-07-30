@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use BAGArt\ASKClient\Contracts\Transporting\HttpTransportContract;
+use BAGArt\ASKClient\Contracts\Transport\HttpTransportContract;
+use BAGArt\ASKClient\Dto\ASKHttpRequest;
 use BAGArt\ASKClient\Lockers\InMemoryLocker;
-use BAGArt\ASKClient\Request\ASKHttpRequest;
-use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\ASKSocketTransportAdapter;
-use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\CurlMultiTransportAdapter;
-use BAGArt\ASKClient\HttpTransporting\HttpTransportAdapters\GuzzleTransportAdapter;
+use BAGArt\ASKClient\Transport\Adapters\ASKSocketTransportAdapter;
+use BAGArt\ASKClient\Transport\Adapters\CurlMultiTransportAdapter;
+use BAGArt\ASKClient\Transport\Adapters\GuzzleTransportAdapter;
 use BAGArt\AsyncKernel\ASKClock;
 use BAGArt\AsyncKernel\AsyncKernel;
 use BAGArt\AsyncKernel\Cache\InMemoryCache;
@@ -40,8 +40,16 @@ require_once __DIR__.'/../../../../vendor/autoload.php';
 // ── Options ──────────────────────────────────────────────────────────────────
 
 $definedOptions = [
-    'transport::', 'host::', 'orig', 'rate::', 'duration::', 'runs::',
-    'port::', 'token::', 'warmup::', 'help',
+    'transport::',
+    'host::',
+    'orig',
+    'rate::',
+    'duration::',
+    'runs::',
+    'port::',
+    'token::',
+    'warmup::',
+    'help',
 ];
 
 $options = getopt('', $definedOptions);
@@ -74,16 +82,16 @@ Examples:
     exit(0);
 }
 
-$rateLimit = max(1, (int) ($options['rate'] ?? 30));
-$duration = max(1, (int) ($options['duration'] ?? 5));
-$runs = max(1, (int) ($options['runs'] ?? 3));
-$warmupSec = max(0, (int) ($options['warmup'] ?? 2));
-$port = max(1024, (int) ($options['port'] ?? 8080));
-$token = (string) ($options['token'] ?? getenv('TELEGRAM_BOT_TOKEN') ?: '');
+$rateLimit = max(1, (int)($options['rate'] ?? 30));
+$duration = max(1, (int)($options['duration'] ?? 5));
+$runs = max(1, (int)($options['runs'] ?? 3));
+$warmupSec = max(0, (int)($options['warmup'] ?? 2));
+$port = max(1024, (int)($options['port'] ?? 8080));
+$token = (string)($options['token'] ?? getenv('TELEGRAM_BOT_TOKEN') ?: '');
 
-$transportFilter = (string) ($options['transport'] ?? '');
+$transportFilter = (string)($options['transport'] ?? '');
 $useOrig = isset($options['orig']);
-$customHost = (string) ($options['host'] ?? '');
+$customHost = (string)($options['host'] ?? '');
 
 // ── Transport factories ──────────────────────────────────────────────────────
 
@@ -126,7 +134,7 @@ if ($useOrig) {
             $port,
             escapeshellarg($docRoot)
         );
-        $pid = trim((string) shell_exec($serverCmd));
+        $pid = trim((string)shell_exec($serverCmd));
         if ($pid !== '' && is_numeric($pid)) {
             echo "  PHP server started (pid={$pid}) on localhost:{$port}\n";
             register_shutdown_function(function () use ($pid): void {
@@ -142,7 +150,10 @@ if ($useOrig) {
                 usleep(100_000);
             }
             if (!$ready) {
-                fwrite(STDERR, "  WARNING: Local PHP server on {$targetUrl} did not respond within 2s. Continuing anyway...\n");
+                fwrite(
+                    STDERR,
+                    "  WARNING: Local PHP server on {$targetUrl} did not respond within 2s. Continuing anyway...\n"
+                );
             }
         } else {
             echo "  Could not auto-start PHP server. Ensure {$targetUrl} is reachable.\n";
@@ -259,12 +270,15 @@ final class NoopCircuitBreaker implements OutboundCircuitBreakerContract
     {
         return true;
     }
+
     public function recordFailure(string $botId): void
     {
     }
+
     public function recordSuccess(string $botId): void
     {
     }
+
     public function getState(string $botId): CircuitBreakerState
     {
         return CircuitBreakerState::Closed;
@@ -295,10 +309,12 @@ final class BenchmarkTimer implements ASKTickableContract
     {
         return 0;
     }
+
     public function isIdle(): bool
     {
         return true;
     }
+
     public function queueSize(): int
     {
         return 0;
@@ -378,7 +394,7 @@ function runKernelPhase(
             id: bin2hex(random_bytes(16)),
             botConfig: new TgBotConfig(token: 'bench:token', botId: 'bench-bot'),
             dtoClass: 'BenchSendMessage',
-            dtoData: ['data' => (string) random_int(0, PHP_INT_MAX)],
+            dtoData: ['data' => (string)random_int(0, PHP_INT_MAX)],
         );
         $queue->push($task);
     }
@@ -452,9 +468,9 @@ function runBenchmark(
         drainTransport($transport);
     }
 
-    $sentAvg = (int) round(average($sentValues));
+    $sentAvg = (int)round(average($sentValues));
     $elapsedAvg = average($elapsedValues);
-    $errorsMax = $errorValues !== [] ? (int) max($errorValues) : 0;
+    $errorsMax = $errorValues !== [] ? (int)max($errorValues) : 0;
     $throughput = $elapsedAvg > 0 ? $sentAvg / $elapsedAvg : 0.0;
     $pctOfLimit = $rate > 0 ? ($throughput / $rate) * 100 : 0.0;
 
@@ -530,7 +546,7 @@ foreach ($results as $transport => $r) {
     echo sprintf(
         "%-16s %8d %7d %9.1f %9.1f%% %8.2fs\n",
         $transport,
-        (int) round($r['sent']),
+        (int)round($r['sent']),
         $r['errors'],
         $r['throughput'],
         min($r['pctOfLimit'], 100.0),

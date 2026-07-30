@@ -25,9 +25,9 @@ class ChatTypeDTO implements TgApiTypeDTOContract
         public string $id,
         #[Description('Type of the chat, can be either “private”, “group”, “supergroup” or “channel”')]
         public ChatPropTypeEnum $type,
-        #[Description('Title, for supergroups, channels and group chats')]
+        #[Description('Title, for supergroups, channels and group tg_chats')]
         public ?string $title = null,
-        #[Description('Username, for private chats, supergroups and channels if available')]
+        #[Description('Username, for private tg_chats, supergroups and channels if available')]
         public ?string $username = null,
         #[Description('First name of the other party in a private chat')]
         public ?string $firstName = null,

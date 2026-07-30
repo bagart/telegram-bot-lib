@@ -20,7 +20,8 @@ use Closure;
 use Fiber;
 use Throwable;
 
-final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASKTickableContract, WithASKTickableContract
+final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASKTickableContract,
+                                        WithASKTickableContract
 {
     private bool $isShuttingDown = false;
 

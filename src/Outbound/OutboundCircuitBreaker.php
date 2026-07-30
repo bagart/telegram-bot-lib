@@ -126,11 +126,11 @@ final class OutboundCircuitBreaker implements OutboundCircuitBreakerContract
         if ($value === null || $value === false) {
             // No key. If backoff stage > 0 — CB was open and backoff elapsed → half-open.
             // Otherwise — breaker never tripped (defaults to closed).
-            $stage = (int) $this->cache->get(self::BACKOFF_KEY_PREFIX.$botId);
+            $stage = (int)$this->cache->get(self::BACKOFF_KEY_PREFIX.$botId);
 
             return $stage > 0 ? 'half-open' : 'closed';
         }
 
-        return (string) $value;
+        return (string)$value;
     }
 }

@@ -2,8 +2,7 @@
 
 You are a senior PHP architect. We are developing the **telegram-bot-lib** library — the core of Telegram Bot Platform.
 
-Communication with the LLM-developer can be in Russian.
-All code comments and text must be in English.
+Communication with the LLM-developer can be in Russian. All code comments and text must be in English.
 
 ---
 
@@ -29,6 +28,7 @@ php-async-kernel             (scheduler, cache, queue, network primitives)
 ```
 
 `telegram-bot-lib` contains:
+
 - Telegram API DTOs (generated, `src/TgApi/`)
 - Api transports, clients, rate limiters (`src/ApiCommunication/`)
 - **Outbound Pipeline** (`src/Outbound/`) — unified outbound sending pipeline
@@ -62,15 +62,15 @@ Processor → `TgSender` → `OutboundQueueContract` → `TgOutboundDaemon` → 
 
 Telegram always returns HTTP 200. Errors are in JSON `error_code`.
 
-| Code | Exception | Retryable? | Action |
-|------|-----------|-----------|--------|
-| 400 | `TgBadRequestException` | No | business_error → DLQ |
-| 401, 403, 404 | `TgApiException` | No | business_error → DLQ |
-| 409 | `TgApiConflictException` | Yes | retry |
-| 429 | `TgApiRateLimitException` | Yes | retry (with retry_after) |
-| 500-503 | `TgApiException` | Yes | retry |
-| Network | `TgApiNetworkException` | Yes | retry |
-| "Try later" > 1h | — | No | business_error → DLQ |
+| Code             | Exception                 | Retryable? | Action                   |
+|------------------|---------------------------|------------|--------------------------|
+| 400              | `TgBadRequestException`   | No         | business_error → DLQ     |
+| 401, 403, 404    | `TgApiException`          | No         | business_error → DLQ     |
+| 409              | `TgApiConflictException`  | Yes        | retry                    |
+| 429              | `TgApiRateLimitException` | Yes        | retry (with retry_after) |
+| 500-503          | `TgApiException`          | Yes        | retry                    |
+| Network          | `TgApiNetworkException`   | Yes        | retry                    |
+| "Try later" > 1h | —                         | No         | business_error → DLQ     |
 
 ### Key Contracts
 
@@ -124,6 +124,7 @@ try {
 ### Data Flow
 
 **Producer (sending):**
+
 ```
 Processor::handle($update)
   → $sender->send($botConfig, $dto)
@@ -133,6 +134,7 @@ Processor::handle($update)
 ```
 
 **Worker (processing):**
+
 ```
 OutboundWorker::tick()
   → queue->pop('tg-outbound', visibility: 60) → $envelope
@@ -156,6 +158,7 @@ OutboundWorker::tick()
 ```
 
 **Pipeline (execution):**
+
 ```
 RetryPolicyMiddleware (expiry, max attempts)
   → RateLimitMiddleware (rate limit + ordering lock)
@@ -164,7 +167,7 @@ RetryPolicyMiddleware (expiry, max attempts)
 
 ### Priority-Based Retry
 
-Delay is calculated at failure time, not in tick():
+Delay is calculated at failure time, not in tick ():
 
 ```
 attempt 1-2 → 1s + jitter
@@ -186,6 +189,7 @@ Jitter: `$base + random_int(0, (int)($base * 0.1))`
 DLQ entries are structured: taskId, reason, firstFailedAt, attempts, lastError, payloadHash.
 
 **DLQ retry** — `TgOutboundDlqCommand --retry {id}` / `--retry-all`:
+
 - Creates a new `OutboundEnvelope` with `attempt = 0` (reset)
 - Pushes to `tg-outbound` via `OutboundQueueContract::push()`
 - Goes through full pipeline (including rate limit)
@@ -196,6 +200,7 @@ DLQ is storage only. Execution always goes through the main pipeline.
 ### Metrics
 
 `TgOutboundStats` — single class:
+
 - `recordSent/Retry/Failed/BusinessError` — incremental
 - `getGlobalMetrics/getBotMetrics` — read aggregations
 - Atomic INCR + TTL (Lua for Redis, mutex for memory)
@@ -203,7 +208,7 @@ DLQ is storage only. Execution always goes through the main pipeline.
 
 ### Memory Management (Daemon)
 
-- `gc_collect_cycles()` when iteration threshold is exceeded in tick()
+- `gc_collect_cycles()` when iteration threshold is exceeded in tick ()
 - Graceful shutdown — Worker completes current task
 
 ### File Structure

@@ -16,7 +16,11 @@ use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
 use BAGArt\TelegramBot\Outbound\OutboundTask;
 use BAGArt\TelegramBot\Outbound\OutboundTaskState;
 
-final class RedisOutboundQueueContractContractContractContract implements AtomicDlqQueueContract, ChannelDiscoverableQueueContract, LeaseRenewableQueueContract, OutboundOrderingQueueContract, PurgeableQueueContract
+final class RedisOutboundQueueContractContractContractContract implements AtomicDlqQueueContract,
+                                                                          ChannelDiscoverableQueueContract,
+                                                                          LeaseRenewableQueueContract,
+                                                                          OutboundOrderingQueueContract,
+                                                                          PurgeableQueueContract
 {
     public const string TYPE = 'redis';
 
@@ -201,8 +205,11 @@ LUA;
         if ($orderingKey !== null && $orderingKey !== '') {
             if ($this->useLuaOptimization) {
                 $this->redis->eval(self::LUA_PUSH, [
-                    self::READY_KEYS, self::QUEUE_PREFIX.$orderingKey,
-                    $orderingKey, $envelopeJson, (string) $priority,
+                    self::READY_KEYS,
+                    self::QUEUE_PREFIX.$orderingKey,
+                    $orderingKey,
+                    $envelopeJson,
+                    (string)$priority,
                 ], 2);
             } else {
                 $qKey = self::QUEUE_PREFIX.$orderingKey;
@@ -223,20 +230,24 @@ LUA;
 
         if ($this->useLuaOptimization) {
             $result = $this->redis->eval(self::LUA_POP, [
-                self::READY_KEYS, self::INFLIGHT_KEY, self::INFLIGHT_SEQ_KEY, self::GLOBAL_KEY,
-                (string) $now, (string) $leaseExpiry,
+                self::READY_KEYS,
+                self::INFLIGHT_KEY,
+                self::INFLIGHT_SEQ_KEY,
+                self::GLOBAL_KEY,
+                (string)$now,
+                (string)$leaseExpiry,
             ], 4);
 
             if ($result === false || $result === null) {
                 return null;
             }
 
-            $decoded = json_decode((string) $result, true);
+            $decoded = json_decode((string)$result, true);
         } else {
             $decoded = $this->popPhpNative($now, $leaseExpiry);
         }
 
-        if (! $decoded) {
+        if (!$decoded) {
             return null;
         }
 
@@ -244,8 +255,8 @@ LUA;
             ? json_decode($decoded['envelope'], true)
             : $decoded['envelope'];
 
-        $envelope = OutboundEnvelope::fromJson((array) $envelopeData);
-        $envelope->deliveryId = (string) $decoded['deliveryId'];
+        $envelope = OutboundEnvelope::fromJson((array)$envelopeData);
+        $envelope->deliveryId = (string)$decoded['deliveryId'];
 
         return $envelope;
     }
@@ -271,7 +282,7 @@ LUA;
         $data = json_decode($inflightJson, true);
         $this->redis->hDel(self::INFLIGHT_KEY, $deliveryId);
 
-        if (! empty($data['orderingKey'])) {
+        if (!empty($data['orderingKey'])) {
             $this->refreshKeyState($data['orderingKey']);
         }
     }
@@ -285,8 +296,14 @@ LUA;
 
         if ($this->useLuaOptimization) {
             $this->redis->eval(self::LUA_RELEASE, [
-                self::READY_KEYS, self::INFLIGHT_KEY, self::DELAYED_KEY, self::GLOBAL_KEY, self::GLOBAL_DELAYED_KEY,
-                $deliveryId, (string) $delaySec, (string) $this->clock->time(),
+                self::READY_KEYS,
+                self::INFLIGHT_KEY,
+                self::DELAYED_KEY,
+                self::GLOBAL_KEY,
+                self::GLOBAL_DELAYED_KEY,
+                $deliveryId,
+                (string)$delaySec,
+                (string)$this->clock->time(),
             ], 5);
 
             return;
@@ -301,7 +318,7 @@ LUA;
         $this->redis->hDel(self::INFLIGHT_KEY, $deliveryId);
 
         if ($delaySec > 0) {
-            if (! empty($data['orderingKey'])) {
+            if (!empty($data['orderingKey'])) {
                 $this->redis->set(self::DELAYED_DATA_PREFIX.$deliveryId, $data['envelopeJson']);
                 $this->redis->zAdd(self::DELAYED_KEY, $this->clock->time() + $delaySec, $deliveryId);
             } else {
@@ -310,7 +327,7 @@ LUA;
                 $this->redis->zAdd(self::GLOBAL_DELAYED_KEY, $this->clock->time() + $delaySec, $data['envelopeJson']);
             }
         } else {
-            if (! empty($data['orderingKey'])) {
+            if (!empty($data['orderingKey'])) {
                 $this->redis->lPush(self::QUEUE_PREFIX.$data['orderingKey'], $data['envelopeJson']);
                 $this->refreshKeyState($data['orderingKey']);
             } else {
@@ -328,7 +345,7 @@ LUA;
             return null;
         }
 
-        return (string) array_key_first($ready);
+        return (string)array_key_first($ready);
     }
 
     public function refreshKeyState(string $orderingKey): void
@@ -339,7 +356,7 @@ LUA;
         if ($nextTaskJson !== false && $nextTaskJson !== null) {
             $nextTask = json_decode($nextTaskJson, true);
             $priority = (isset($nextTask['task']['priority']['value']))
-                ? (int) $nextTask['task']['priority']['value']
+                ? (int)$nextTask['task']['priority']['value']
                 : 0;
 
             $this->redis->zAdd(self::READY_KEYS, $priority, $orderingKey);
@@ -354,10 +371,10 @@ LUA;
         $readyIds = $this->redis->zRangeByScore(
             self::DELAYED_KEY,
             '0',
-            (string) $now,
+            (string)$now,
             ['limit' => [0, 100]]
         );
-        if (! is_array($readyIds)) {
+        if (!is_array($readyIds)) {
             return 0;
         }
 
@@ -393,7 +410,7 @@ LUA;
         $readyGlobal = $this->redis->zRangeByScore(
             self::GLOBAL_DELAYED_KEY,
             '0',
-            (string) $now,
+            (string)$now,
             ['limit' => [0, 100]]
         );
         if (is_array($readyGlobal)) {
@@ -423,11 +440,11 @@ LUA;
 
             foreach ($results as $deliveryId => $inflightJson) {
                 $data = json_decode($inflightJson, true);
-                if ((int) $data['leaseExpiry'] >= $now) {
+                if ((int)$data['leaseExpiry'] >= $now) {
                     continue;
                 }
 
-                if (! empty($data['orderingKey'])) {
+                if (!empty($data['orderingKey'])) {
                     $this->redis->lPush(self::QUEUE_PREFIX.$data['orderingKey'], $data['envelopeJson']);
                     $this->redis->hDel(self::INFLIGHT_KEY, $deliveryId);
                     $this->refreshKeyState($data['orderingKey']);
@@ -454,19 +471,19 @@ LUA;
         $newExpiry = $this->clock->time() + max(1, $seconds);
         $result = $this->redis->eval(
             self::LUA_RENEW,
-            [self::INFLIGHT_KEY, $deliveryId, (string) $newExpiry],
+            [self::INFLIGHT_KEY, $deliveryId, (string)$newExpiry],
             1,
         );
 
-        return (bool) $result;
+        return (bool)$result;
     }
 
     public function size(): int
     {
-        return (int) $this->redis->zCard(self::READY_KEYS)
-            + (int) $this->redis->zCard(self::GLOBAL_KEY)
-            + (int) $this->redis->zCard(self::DELAYED_KEY)
-            + (int) $this->redis->zCard(self::GLOBAL_DELAYED_KEY);
+        return (int)$this->redis->zCard(self::READY_KEYS)
+            + (int)$this->redis->zCard(self::GLOBAL_KEY)
+            + (int)$this->redis->zCard(self::DELAYED_KEY)
+            + (int)$this->redis->zCard(self::GLOBAL_DELAYED_KEY);
     }
 
     // ----- AtomicDlqQueueContract -----
@@ -487,7 +504,7 @@ LUA;
             return null;
         }
 
-        return (string) $result;
+        return (string)$result;
     }
 
     public function listDeadLetter(?string $channel, int $limit = 50): array
@@ -497,11 +514,11 @@ LUA;
 
         foreach ($channels as $ch) {
             $raw = $this->redis->hGetAll($ch);
-            if (! is_array($raw) || $raw === []) {
+            if (!is_array($raw) || $raw === []) {
                 continue;
             }
             foreach ($raw as $entryJson) {
-                $data = json_decode((string) $entryJson, true);
+                $data = json_decode((string)$entryJson, true);
                 if (is_array($data)) {
                     $result[] = DeadLetterEntry::fromJson($data);
                 }
@@ -517,11 +534,11 @@ LUA;
     public function deadLetterSize(?string $channel = null): int
     {
         if ($channel !== null) {
-            return (int) $this->redis->hLen($channel);
+            return (int)$this->redis->hLen($channel);
         }
         $total = 0;
         foreach ($this->getDlqChannels(self::DLQ_PREFIX.'*') as $ch) {
-            $total += (int) $this->redis->hLen($ch);
+            $total += (int)$this->redis->hLen($ch);
         }
 
         return $total;
@@ -549,17 +566,17 @@ LUA;
         $purged = 0;
         foreach ($this->getDlqChannels($channelPattern) as $channel) {
             $raw = $this->redis->hGetAll($channel);
-            if (! is_array($raw)) {
+            if (!is_array($raw)) {
                 continue;
             }
             foreach ($raw as $entryId => $entryJson) {
-                $data = json_decode((string) $entryJson, true);
-                if (! is_array($data) || ! isset($data['failedAt'])) {
+                $data = json_decode((string)$entryJson, true);
+                if (!is_array($data) || !isset($data['failedAt'])) {
                     continue;
                 }
-                $failedAtTs = (new \DateTimeImmutable((string) $data['failedAt']))->getTimestamp();
+                $failedAtTs = (new \DateTimeImmutable((string)$data['failedAt']))->getTimestamp();
                 if ($failedAtTs < $beforeTimestamp) {
-                    $this->redis->hDel($channel, (string) $entryId);
+                    $this->redis->hDel($channel, (string)$entryId);
                     $purged++;
                 }
             }
@@ -572,7 +589,7 @@ LUA;
 
     private function popPhpNative(int $now, int $leaseExpiry): ?array
     {
-        $deliveryId = (string) $this->redis->hIncrBy(self::INFLIGHT_SEQ_KEY, 'seq', 1);
+        $deliveryId = (string)$this->redis->hIncrBy(self::INFLIGHT_SEQ_KEY, 'seq', 1);
         $orderingKey = $this->lockNextReadyKey();
 
         if ($orderingKey !== null) {
@@ -592,8 +609,8 @@ LUA;
         }
 
         $global = $this->redis->zPopMax(self::GLOBAL_KEY);
-        if (! empty($global)) {
-            $taskJson = (string) array_key_first($global);
+        if (!empty($global)) {
+            $taskJson = (string)array_key_first($global);
             $this->redis->hSet(self::INFLIGHT_KEY, $deliveryId, json_encode([
                 'orderingKey' => '',
                 'envelopeJson' => $taskJson,

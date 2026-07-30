@@ -22,8 +22,10 @@ final class TgMiddlewarePipeline
     {
         $runner = array_reduce(
             array_reverse($this->middlewares),
-            static fn ($next, TgMiddlewareContract $mw): callable =>
-                static fn (TgEnvelope $env): mixed => $mw->handle($env, $next),
+            static fn ($next, TgMiddlewareContract $mw): callable => static fn (TgEnvelope $env): mixed => $mw->handle(
+                $env,
+                $next
+            ),
             $core,
         );
 

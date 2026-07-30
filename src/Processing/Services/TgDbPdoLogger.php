@@ -36,7 +36,7 @@ class TgDbPdoLogger implements TgDbLoggerContract
             );
             $stmt->execute($data);
         } catch (Throwable $e) {
-            $this->logger?->error('Error on write DB log by '.static::class . ". {$e->getMessage()}");
+            $this->logger?->error('Error on write DB log by '.static::class.". {$e->getMessage()}");
         }
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\ApiCommunication\Clients;
 
-use BAGArt\ASKClient\Contracts\ASKFutureContract;
+use BAGArt\ASKClient\Contracts\Pipeline\ASKFutureContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\WithASKTickableContract;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgBotConfig;

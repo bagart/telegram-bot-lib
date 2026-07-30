@@ -133,7 +133,7 @@ final class CommandActions
     }
 
     /**
-     * Apply CLI options to poller/service configuration.
+     * Apply CLI options to tg_daemons/service configuration.
      */
     public static function makePollerConfig(
         array $options,
@@ -182,7 +182,7 @@ final class CommandActions
     }
 
     /**
-     * Print service/poller configuration info to stdout.
+     * Print service/tg_daemons configuration info to stdout.
      */
     public static function configInfo(
         TgServiceConfig $tgConfig,

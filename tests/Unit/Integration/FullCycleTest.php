@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
 define('TG_TEST_TOKEN', '123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZabcde1234');
 
 /**
- * Real Telegram webhook payloads (from documentation + real bots).
+ * Real Telegram tg_webhook payloads (from documentation + real bots).
  */
 function messagePayload(): array
 {
@@ -383,7 +383,11 @@ test('full cycle: invalid secret returns false', function () {
 
     $webhook = TgBotSetupFactory::webhook($registry);
 
-    $result = $webhook->parse(messagePayload(), 'invalid:secret', new TgServiceConfig(dispatcher: SyncProcessingDispatcher::TYPE));
+    $result = $webhook->parse(
+        messagePayload(),
+        'invalid:secret',
+        new TgServiceConfig(dispatcher: SyncProcessingDispatcher::TYPE)
+    );
 
     expect($result)->toBeFalse()
         ->and($messageCollector->count())->toBe(0);

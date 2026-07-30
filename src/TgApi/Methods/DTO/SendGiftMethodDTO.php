@@ -21,7 +21,7 @@ class SendGiftMethodDTO implements TgApiMethodDTOContract
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('Identifier of the gift; limited gifts can"t be sent to channel chats')]
+        #[Description('Identifier of the gift; limited gifts can"t be sent to channel tg_chats')]
         public string $giftId,
         #[Description('Required if _chat\_id_ is not specified. Unique identifier of the target user who will receive the gift.')]
         public ?int $userId = null,

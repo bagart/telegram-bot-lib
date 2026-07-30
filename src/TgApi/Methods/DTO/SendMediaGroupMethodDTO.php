@@ -28,7 +28,7 @@ class SendMediaGroupMethodDTO implements TgApiMethodDTOContract
         public array $media,
         #[Description('Unique identifier of the business connection on behalf of which the message will be sent')]
         public ?string $businessConnectionId = null,
-        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only')]
+        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private tg_chats of bots with forum topic mode enabled only')]
         public ?int $messageThreadId = null,
         #[Description('Identifier of the direct messages topic to which the messages will be sent; required if the messages are sent to a direct messages chat')]
         public ?int $directMessagesTopicId = null,
@@ -38,7 +38,7 @@ class SendMediaGroupMethodDTO implements TgApiMethodDTOContract
         public ?bool $protectContent = null,
         #[Description('Pass _True_ to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot"s balance')]
         public ?bool $allowPaidBroadcast = null,
-        #[Description('Unique identifier of the message effect to be added to the message; for private chats only')]
+        #[Description('Unique identifier of the message effect to be added to the message; for private tg_chats only')]
         public ?string $messageEffectId = null,
         #[Description('Description of the message to reply to')]
         public ?ReplyParametersTypeDTO $replyParameters = null,

@@ -18,8 +18,8 @@ if (isset($options['help'])) {
     echo "Usage:
 export TELEGRAM_BOT_TOKEN=xxx:xxx           # Default Telegram Token
 
-php commands/pollers/poller-raw.php --help  # show help
-php commands/pollers/poller-raw.php         # receive updates in raw mode
+php commands/pollers/tg_daemons-raw.php --help  # show help
+php commands/pollers/tg_daemons-raw.php         # receive updates in raw mode
   --echo                                    # echo reply to messages
   --show                                    # dump update objects
 
@@ -70,7 +70,7 @@ try {
 
 
 echo "=== Long Poller Mode (raw mode) ===\n";
-echo "Starting long poller. Press Ctrl+C to stop.\n\n";
+echo "Starting long tg_daemons. Press Ctrl+C to stop.\n\n";
 
 $offset = 0;
 while (true) {

@@ -58,7 +58,7 @@ class UpdateTypeDTO implements TgApiTypeDTOContract
         public ?PollTypeDTO $poll = null,
         #[Description('A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.')]
         public ?PollAnswerTypeDTO $pollAnswer = null,
-        #[Description('The bot"s chat member status was updated in a chat. For private chats, this update is received only when the bot is blocked or unblocked by the user.')]
+        #[Description('The bot"s chat member status was updated in a chat. For private tg_chats, this update is received only when the bot is blocked or unblocked by the user.')]
         public ?ChatMemberUpdatedTypeDTO $myChatMember = null,
         #[Description('A chat member"s status was updated in a chat. The bot must be an administrator in the chat and must explicitly specify `"chat_member"` in the list of _allowed\_updates_ to receive these updates.')]
         public ?ChatMemberUpdatedTypeDTO $chatMember = null,

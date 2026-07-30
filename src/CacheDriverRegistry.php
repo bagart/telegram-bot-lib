@@ -34,7 +34,7 @@ final class CacheDriverRegistry
     }
 
     /**
-     * @param class-string<ASKCacheContract> $driverClass
+     * @param  class-string<ASKCacheContract>  $driverClass
      */
     public function register(
         string $driverClass,

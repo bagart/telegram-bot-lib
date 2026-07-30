@@ -42,7 +42,7 @@ final class DefaultOrderingStrategy implements OrderingStrategyContract
     {
         $chatId = $dtoData['chat_id'] ?? null;
         if ($chatId !== null) {
-            return (string) $chatId;
+            return (string)$chatId;
         }
 
         return null;

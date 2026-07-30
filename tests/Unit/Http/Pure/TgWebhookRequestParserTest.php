@@ -109,7 +109,9 @@ describe('TgWebhookRequestParser', function () {
 
         it('returns false for null secret', function () {
             $parser = new TgWebhookRequestParser(
-                tgApiDTOMapper: Mockery::mock(\BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract::class),
+                tgApiDTOMapper: Mockery::mock(
+                    \BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract::class
+                ),
                 selector: createTestSelector(),
                 secretService: new AutoSecretByTokenService(),
                 logger: createTestLogger(),
@@ -122,7 +124,9 @@ describe('TgWebhookRequestParser', function () {
 
         it('returns false for invalid secret', function () {
             $parser = new TgWebhookRequestParser(
-                tgApiDTOMapper: Mockery::mock(\BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract::class),
+                tgApiDTOMapper: Mockery::mock(
+                    \BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract::class
+                ),
                 selector: createTestSelector(),
                 secretService: new AutoSecretByTokenService(),
                 logger: createTestLogger(),
@@ -135,7 +139,9 @@ describe('TgWebhookRequestParser', function () {
 
         it('returns false for empty secret', function () {
             $parser = new TgWebhookRequestParser(
-                tgApiDTOMapper: Mockery::mock(\BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract::class),
+                tgApiDTOMapper: Mockery::mock(
+                    \BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract::class
+                ),
                 selector: createTestSelector(),
                 secretService: new AutoSecretByTokenService(),
                 logger: createTestLogger(),

@@ -12,8 +12,8 @@ use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessingErrorConsumer;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessingErrorRegistry;
 use BAGArt\TelegramBot\Processing\ProcessorUpdateDaemon;
 use BAGArt\TelegramBot\Processing\Update\UpdateRouter;
-use BAGArt\TelegramBot\Queue\JobHandlerFactory;
 use BAGArt\TelegramBot\Queue\ASKQueueDaemon;
+use BAGArt\TelegramBot\Queue\JobHandlerFactory;
 use BAGArt\TelegramBot\TgBotSetupFactory;
 
 require_once __DIR__.'/../../../../vendor/autoload.php';

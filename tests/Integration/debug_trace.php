@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../../../vendor/autoload.php';
+require_once __DIR__.'/../../../../../vendor/autoload.php';
 require_once __DIR__.'/Support/TestMessageCollectorProcessor.php';
 require_once __DIR__.'/Support/TestTypeDTOCollectorProcessor.php';
 
@@ -42,15 +42,15 @@ echo "Registry configured\n";
 // Check what processors are registered for each type
 echo "\nProcessors for UpdateTypeDTO:\n";
 foreach ($registry->get(UpdateTypeDTO::class) as $p) {
-    echo "  - " . $p::class . "\n";
+    echo "  - ".$p::class."\n";
 }
 
 echo "\nProcessors for MessageTypeDTO:\n";
 foreach ($registry->get(MessageTypeDTO::class) as $p) {
-    echo "  - " . $p::class . "\n";
+    echo "  - ".$p::class."\n";
 }
 
-// Now run the actual webhook
+// Now run the actual tg_webhook
 $secretService = new AutoSecretByTokenService();
 $secret = $secretService->secret(TOKEN);
 
@@ -69,10 +69,10 @@ $payload = [
 
 echo "\n=== Running parse ===\n";
 $result = $webhook->parse($payload, $secret);
-echo "Parse result: " . ($result ? 'true' : 'false') . "\n";
+echo "Parse result: ".($result ? 'true' : 'false')."\n";
 
-echo "\nMessage collector count: " . $msgCollector->count() . "\n";
+echo "\nMessage collector count: ".$msgCollector->count()."\n";
 echo "Collected items:\n";
 foreach ($msgCollector->collected as $item) {
-    echo "  - dto: " . $item['dto']::class . ", text: " . ($item['dto']->text ?? 'N/A') . "\n";
+    echo "  - dto: ".$item['dto']::class.", text: ".($item['dto']->text ?? 'N/A')."\n";
 }

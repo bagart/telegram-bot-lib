@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\Exceptions;
 
 /**
- * Thrown when a bot token or webhook secret has invalid format.
+ * Thrown when a bot token or tg_webhook secret has invalid format.
  *
  * Expected formats:
  * - Token: `botId:tokenPart` (e.g. `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
