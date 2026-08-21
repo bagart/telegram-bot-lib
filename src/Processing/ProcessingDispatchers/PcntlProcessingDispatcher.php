@@ -10,6 +10,7 @@ use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\ProcessingDispatcherContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\Exceptions\TgAsyncException;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\TgBotSetup;
 
 /**
@@ -145,7 +146,12 @@ class PcntlProcessingDispatcher implements ProcessingDispatcherContract, ASKTick
                 try {
                     /** @var class-string $processorClassName */
                     $processorClassName = $job['processor'];
-                    $processor = $processorClassName::build($job['serviceConfig'], $this->botSetup);
+                    $processor = $processorClassName::build(
+                        BotProcessorContext::fromBotSetup(
+                            $this->botSetup
+                            ?? throw new TgAsyncException('PcntlProcessingDispatcher requires a TgBotSetup to build processors'),
+                        ),
+                    );
                     $processor->process(
                         $job['dto'],
                         $job['botConfig'],

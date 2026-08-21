@@ -4,33 +4,26 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Processing\Processors\MessageValidator;
 
-use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessorErrorContext;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
-use BAGArt\TelegramBot\TgBotSetup;
 
 class MessageValidatorProcessor implements TgTypeDTOProcessorContract
 {
     public static function build(
-        TgServiceConfig $serviceConfig,
-        TgBotSetup $botSetup,
-        ?ASKSchedulerContract $scheduler = null,
+        BotProcessorContext $context,
     ): self {
-        $ruleRegistry = new MessageValidationRuleRegistry();
-        $ruleRegistry->register(
-            new AdvertisingValidationRule(),
-        );
+        $ruleRegistry = $context->messageRules ?? MessageValidationRuleRegistry::withCoreRules();
 
         return new static(
             ruleRegistry: $ruleRegistry,
             executor: new MessageVerdictExecutor(
-                sender: $botSetup->tgSender
-                ?? $botSetup->tgApiCaller,
-                logger: $botSetup->logger,
+                sender: $context->tgSender
+                    ?? $context->tgApiCaller,
+                logger: $context->logger,
             ),
             antiSpamLogger: new AntiSpamLogger(),
         );

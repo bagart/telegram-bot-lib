@@ -8,13 +8,16 @@ use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract;
 use BAGArt\TelegramBot\Contracts\Processing\TgDbLoggerContract;
+use BAGArt\TelegramBot\Modules\TgCommandRegistry;
 use BAGArt\TelegramBot\TgApiCaller;
 use BAGArt\TelegramBot\TgBotSetup;
+use BAGArt\TelegramBot\Processing\Processors\MessageValidator\MessageValidationRuleRegistry;
 
 /**
  * Processor-facing context passed to TgTypeDTOProcessorContract::build().
  *
- * Carries only the services processors actually need — not the full TgBotSetup.
+ * Carries the services processors need, plus the originating TgBotSetup
+ * for processors that require the full setup.
  */
 final readonly class BotProcessorContext
 {
@@ -24,7 +27,10 @@ final readonly class BotProcessorContext
         public TgApiCaller $tgApiCaller,
         public TypeDTOProcessorRegistry $processorRegistry,
         public TgServiceConfig $serviceConfig,
+        public TgBotSetup $botSetup,
         public ?TgDbLoggerContract $dbLogger = null,
+        public ?MessageValidationRuleRegistry $messageRules = null,
+        public ?TgCommandRegistry $commandRegistry = null,
     ) {
     }
 
@@ -36,7 +42,10 @@ final readonly class BotProcessorContext
             tgApiCaller: $botSetup->tgApiCaller,
             processorRegistry: $botSetup->processorRegistry,
             serviceConfig: $botSetup->serviceConfig,
+            botSetup: $botSetup,
             dbLogger: $botSetup->dbLogger,
+            messageRules: $botSetup->messageRules,
+            commandRegistry: $botSetup->commandRegistry,
         );
     }
 }

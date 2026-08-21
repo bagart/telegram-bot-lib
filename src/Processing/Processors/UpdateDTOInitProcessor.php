@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\Processing\Processors;
 
 use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\ProcessingDispatcherContract;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Contracts\Processing\TgUpdateProcessorSelectorContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessorErrorContext;
 use BAGArt\TelegramBot\Processing\RegisteredUpdateProcessorSelector;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
-use BAGArt\TelegramBot\TgBotSetup;
 
 class UpdateDTOInitProcessor implements TgTypeDTOProcessorContract
 {
@@ -25,15 +24,14 @@ class UpdateDTOInitProcessor implements TgTypeDTOProcessorContract
     }
 
     public static function build(
-        TgServiceConfig $serviceConfig,
-        TgBotSetup $botSetup,
+        BotProcessorContext $context,
         ?ProcessingDispatcherContract $dispatcher = null,
     ): self {
         return new self(
-            serviceConfig: $serviceConfig,
+            serviceConfig: $context->serviceConfig,
             processorSelector: new RegisteredUpdateProcessorSelector(
-                serviceConfig: $serviceConfig,
-                botSetup: $botSetup,
+                serviceConfig: $context->serviceConfig,
+                botSetup: $context->botSetup,
             ),
             dispatcher: $dispatcher,
         );

@@ -9,7 +9,7 @@ use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
-use BAGArt\TelegramBot\TgBotSetup;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use Throwable;
 
 class CallableProcessor implements TgTypeDTOProcessorContract
@@ -21,12 +21,11 @@ class CallableProcessor implements TgTypeDTOProcessorContract
     }
 
     public static function build(
-        TgServiceConfig $serviceConfig,
-        TgBotSetup $botSetup,
+        BotProcessorContext $context,
     ): self {
         return new self(
             fn: static fn () => null,
-            logger: $botSetup->logger,
+            logger: $context->logger,
         );
     }
 

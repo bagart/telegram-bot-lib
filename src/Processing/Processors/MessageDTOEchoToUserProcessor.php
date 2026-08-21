@@ -6,24 +6,22 @@ namespace BAGArt\TelegramBot\Processing\Processors;
 
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessorErrorContext;
 use BAGArt\TelegramBot\TgApi\Methods\DTO\SendMessageMethodDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApiCaller;
-use BAGArt\TelegramBot\TgBotSetup;
 
 class MessageDTOEchoToUserProcessor implements TgTypeDTOProcessorContract
 {
     public static function build(
-        TgServiceConfig $serviceConfig,
-        TgBotSetup $botSetup,
+        BotProcessorContext $context,
     ): self {
         return new static(
-            logger: $botSetup->logger,
-            tgApiCaller: $botSetup->tgApiCaller,
+            logger: $context->logger,
+            tgApiCaller: $context->tgApiCaller,
         );
     }
 

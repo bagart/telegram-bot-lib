@@ -19,12 +19,12 @@ final class RedisQueueDTOProcessJob
 
     public function handle(): void
     {
-        $this->context->processor::build($this->serviceConfig)
-            ->process(
-                dto: $this->context->dto,
-                botConfig: $this->context->botConfig,
-                action: $this->context->source,
-                updateDto: $this->updateDto,
-            );
+        // BotProcessorContext is not serializable, so a class-string processor
+        // cannot be built in the queue worker. Dispatch a pre-built processor
+        // instance or use a context-carrying dispatcher instead.
+        throw new \LogicException(
+            'RedisQueueDTOProcessJob cannot build processor '.$this->context->processor
+            .' without a BotProcessorContext; this legacy payload path is not supported',
+        );
     }
 }

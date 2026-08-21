@@ -49,6 +49,14 @@ use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
 use BAGArt\TelegramBot\Exceptions\TgTechnicalException;
 use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
+use BAGArt\TelegramBot\Modules\AttributedComponentsScanner;
+use BAGArt\TelegramBot\Modules\ModuleBootloader;
+use BAGArt\TelegramBot\Outbound\OutboundMiddlewareRegistry;
+use BAGArt\TelegramBot\Modules\TgCommandRegistry;
+use BAGArt\TelegramBot\Modules\TgModuleRegistrar;
+use BAGArt\TelegramBot\Modules\TgModuleRegistry;
+use BAGArt\TelegramBot\Modules\TypedModuleRegistrar;
+use BAGArt\TelegramBot\Processing\Processors\MessageValidator\MessageValidationRuleRegistry;
 use BAGArt\TelegramBot\Processing\RegisteredUpdateProcessorSelector;
 use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
 use BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper;
@@ -88,12 +96,18 @@ class TelegramBotServiceProvider extends ServiceProvider
             fn () => $this->app->make(ASKCacheWrapper::class),
         );
 
-        // Core factory — builds all registries and creates TgBotSetup instances
+        // Core factory — builds all registries and creates TgBotSetup instances.
+        // Shares the container's TypeDTOProcessorRegistry so processors
+        // registered by bootloaded modules are visible to every TgBotSetup.
         $this->app->singleton(
             TgBotSetupFactory::class,
             fn ($app): TgBotSetupFactory => TgBotSetupFactory::build(
                 logger: $app->make(ASKLogWrapper::class),
                 cache: $app->make(ASKCacheWrapper::class),
+                processorRegistry: $app->make(TypeDTOProcessorRegistry::class),
+                messageRules: $app->make(MessageValidationRuleRegistry::class),
+                outboundMiddlewares: $app->make(OutboundMiddlewareRegistry::class),
+                commandRegistry: $app->make(TgCommandRegistry::class),
             ),
         );
 
@@ -314,13 +328,53 @@ class TelegramBotServiceProvider extends ServiceProvider
             ),
         );
 
-        // Registries — built once, shared across all consumers
+        // Registries — built once, shared across all consumers.
+        // Core processors (MessageValidatorProcessor) are registered
+        // unconditionally; module processors are appended on boot.
         $this->app->singleton(
             TypeDTOProcessorRegistry::class,
-            fn () => TypeDTOProcessorRegistry::build(),
+            fn (): TypeDTOProcessorRegistry => TgBotSetupFactory::processorRegistry(),
         );
 
-        // Update processor selector — built once with default config
+        // Shared validation-rule registry: core rules registered by default,
+        // module rules appended by bootloaded modules via the registrar
+        $this->app->singleton(
+            MessageValidationRuleRegistry::class,
+            fn (): MessageValidationRuleRegistry => MessageValidationRuleRegistry::withCoreRules(),
+        );
+
+        // Plugin foundation — module registry, registrar and bootloader
+        $this->app->singleton(TgModuleRegistry::class);
+        $this->app->singleton(OutboundMiddlewareRegistry::class);
+        $this->app->singleton(TgCommandRegistry::class);
+        $this->app->singleton(
+            AttributedComponentsScanner::class,
+            fn ($app): AttributedComponentsScanner => new AttributedComponentsScanner(
+                $app->make(ASKCacheWrapper::class),
+            ),
+        );
+        $this->app->singleton(
+            TgModuleRegistrar::class,
+            fn ($app): TgModuleRegistrar => new TypedModuleRegistrar(
+                $app->make(TypeDTOProcessorRegistry::class),
+                $app->make(MessageValidationRuleRegistry::class),
+                $app->make(OutboundMiddlewareRegistry::class),
+                $app->make(TgCommandRegistry::class),
+                $app->make(AttributedComponentsScanner::class),
+            ),
+        );
+        $this->app->singleton(
+            ModuleBootloader::class,
+            fn ($app): ModuleBootloader => new ModuleBootloader(
+                registrar: $app->make(TgModuleRegistrar::class),
+                registry: $app->make(TgModuleRegistry::class),
+                logger: $app->make(ASKLogWrapper::class),
+            ),
+        );
+
+        // Update processor selector — built once with default config.
+        // Module enablement is injected only when a management layer binding
+        // exists (the lib itself stays enablement-agnostic).
         $this->app->singleton(
             RegisteredUpdateProcessorSelector::class,
             function ($app): RegisteredUpdateProcessorSelector {
@@ -329,6 +383,9 @@ class TelegramBotServiceProvider extends ServiceProvider
                 return new RegisteredUpdateProcessorSelector(
                     serviceConfig: new TgServiceConfig(),
                     botSetup: $factory->create(serviceConfig: new TgServiceConfig()),
+                    moduleEnablement: $app->bound(\BAGArt\TelegramBot\Contracts\Modules\ModuleEnablementContract::class)
+                        ? $app->make(\BAGArt\TelegramBot\Contracts\Modules\ModuleEnablementContract::class)
+                        : null,
                 );
             },
         );
@@ -355,6 +412,41 @@ class TelegramBotServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->bootModules();
+    }
+
+    /**
+     * Discovery: local folders (config('telegram.modules') scan) and
+     * composer-installed providers (config('telegram.modules_providers'))
+     * both resolve to TgModuleContract class-strings and are booted through
+     * the ModuleBootloader with per-module fault isolation.
+     */
+    private function bootModules(): void
+    {
+        $providers = [];
+
+        foreach ((array)config('telegram.modules', []) as $moduleConfig) {
+            if (is_array($moduleConfig)
+                && isset($moduleConfig['provider'])
+                && is_string($moduleConfig['provider'])
+            ) {
+                $providers[] = $moduleConfig['provider'];
+            }
+        }
+
+        foreach ((array)config('telegram.modules_providers', []) as $providerClass) {
+            if (is_string($providerClass)) {
+                $providers[] = $providerClass;
+            }
+        }
+
+        if ($providers === []) {
+            return;
+        }
+
+        /** @var ModuleBootloader $bootloader */
+        $bootloader = $this->app->make(ModuleBootloader::class);
+        $bootloader->bootAll(array_values(array_unique($providers)));
     }
 
     /**

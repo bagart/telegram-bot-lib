@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Processing\Processors;
 
-use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\TgApiServices\TgEntityNamer;
-use BAGArt\TelegramBot\TgBotSetup;
 
 class DbgDTOToStdProcessor extends AbsDtoToChannelProcessor
 {
     public static function build(
-        TgServiceConfig $serviceConfig,
-        TgBotSetup $botSetup,
-        ?ASKSchedulerContract $scheduler = null,
+        BotProcessorContext $context,
         bool $onlyBasicInfo = true,
     ): static {
         return new static(

@@ -6,13 +6,12 @@ namespace BAGArt\TelegramBot\Processing\Processors;
 
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessorErrorContext;
-use BAGArt\TelegramBot\TgBotSetup;
 
 class ApiCallProcessor implements TgTypeDTOProcessorContract
 {
@@ -24,8 +23,7 @@ class ApiCallProcessor implements TgTypeDTOProcessorContract
     }
 
     public static function build(
-        TgServiceConfig $serviceConfig,
-        TgBotSetup $botSetup,
+        BotProcessorContext $context,
     ): self {
         throw new \RuntimeException('ApiCallProcessor cannot be built from registry');
     }

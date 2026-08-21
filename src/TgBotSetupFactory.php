@@ -48,6 +48,7 @@ use BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract;
 use BAGArt\TelegramBot\Contracts\Queue\QueueConfigContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
+use BAGArt\TelegramBot\Modules\TgCommandRegistry;
 use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
 use BAGArt\TelegramBot\Outbound\Adapters\OutboundRateLimiterAdapter;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
@@ -55,6 +56,7 @@ use BAGArt\TelegramBot\Outbound\ExpiryMiddleware;
 use BAGArt\TelegramBot\Outbound\LeaseRenewer;
 use BAGArt\TelegramBot\Outbound\Ordering\DefaultOrderingStrategy;
 use BAGArt\TelegramBot\Outbound\OutboundCircuitBreaker;
+use BAGArt\TelegramBot\Outbound\OutboundMiddlewareRegistry;
 use BAGArt\TelegramBot\Outbound\OutboundPipeline;
 use BAGArt\TelegramBot\Outbound\OutboundQueueRegistry;
 use BAGArt\TelegramBot\Outbound\RateLimitMiddleware;
@@ -68,6 +70,7 @@ use BAGArt\TelegramBot\Processing\Processors\DbgDTOToStdProcessor;
 use BAGArt\TelegramBot\Processing\Processors\MessageDTOEchoToUserProcessor;
 use BAGArt\TelegramBot\Processing\Processors\MessageDTOShowToConsoleProcessor;
 use BAGArt\TelegramBot\Processing\Processors\MessageDTOToDbProcessor;
+use BAGArt\TelegramBot\Processing\Processors\MessageValidator\MessageValidationRuleRegistry;
 use BAGArt\TelegramBot\Processing\Processors\MessageValidator\MessageValidatorProcessor;
 use BAGArt\TelegramBot\Processing\RegisteredUpdateProcessorSelector;
 use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
@@ -89,6 +92,9 @@ final readonly class TgBotSetupFactory
         public TgRateLimiterRegistry $rateLimiterRegistry,
         private TypeDTOProcessorRegistry $processorRegistry,
         public TgEntityToDTORegistry $tgEntityToDTORegistry,
+        public readonly ?MessageValidationRuleRegistry $messageRules = null,
+        public readonly ?OutboundMiddlewareRegistry $outboundMiddlewares = null,
+        public readonly ?TgCommandRegistry $commandRegistry = null,
     ) {
     }
 
@@ -97,6 +103,10 @@ final readonly class TgBotSetupFactory
         ?string $loggerChannel = null,
         ?ASKLogWrapper $logger = null,
         ?ASKCacheWrapper $cache = null,
+        ?TypeDTOProcessorRegistry $processorRegistry = null,
+        ?MessageValidationRuleRegistry $messageRules = null,
+        ?OutboundMiddlewareRegistry $outboundMiddlewares = null,
+        ?TgCommandRegistry $commandRegistry = null,
     ): self {
         return new self(
             loggerChannel: $loggerChannel,
@@ -104,8 +114,11 @@ final readonly class TgBotSetupFactory
             cache: $cache ?? self::createCache(),
             dispatcherRegistry: ProcessingDispatcherRegistry::build(),
             rateLimiterRegistry: TgRateLimiterRegistry::build(),
-            processorRegistry: self::processorRegistry($initProcConfig),
+            processorRegistry: $processorRegistry ?? self::processorRegistry($initProcConfig),
             tgEntityToDTORegistry: TgEntityToDTORegistry::build(),
+            messageRules: $messageRules,
+            outboundMiddlewares: $outboundMiddlewares,
+            commandRegistry: $commandRegistry,
         );
     }
 
@@ -140,7 +153,6 @@ final readonly class TgBotSetupFactory
             log: array_key_exists('log', $options),
             store: array_key_exists('store', $options),
             dbg: array_key_exists('dbg', $options),
-            antispam: array_key_exists('antispam', $options),
         );
 
         return self::build($procConfig)
@@ -206,21 +218,23 @@ final readonly class TgBotSetupFactory
         return $warmed;
     }
 
+    /**
+     * Core processors registered unconditionally for every setup (webhook,
+     * poller, CLI). CLI behavior processors are layered on top via $config.
+     */
     public static function processorRegistry(?ProcessorConfig $config = null): TypeDTOProcessorRegistry
     {
-        if (!$config) {
-            return TypeDTOProcessorRegistry::build();
-        }
-
         return TypeDTOProcessorRegistry::build([
-            MessageTypeDTO::class => array_keys(array_filter([
-                MessageValidatorProcessor::class => $config->antispam,
-                MessageDTOEchoToUserProcessor::class => $config->echo,
-                DbgDTOToLoggerProcessor::class => $config->log,
-                MessageDTOToDbProcessor::class => $config->store,
-                MessageDTOShowToConsoleProcessor::class => $config->show,
-                DbgDTOToStdProcessor::class => $config->dbg,
-            ])),
+            MessageTypeDTO::class => [
+                MessageValidatorProcessor::class,
+                ...array_keys(array_filter([
+                    MessageDTOEchoToUserProcessor::class => $config?->echo ?? false,
+                    DbgDTOToLoggerProcessor::class => $config?->log ?? false,
+                    MessageDTOToDbProcessor::class => $config?->store ?? false,
+                    MessageDTOShowToConsoleProcessor::class => $config?->show ?? false,
+                    DbgDTOToStdProcessor::class => $config?->dbg ?? false,
+                ])),
+            ],
         ]);
     }
 
@@ -253,6 +267,7 @@ final readonly class TgBotSetupFactory
         ?TgServiceConfig $serviceConfig = null,
         ?ASKSchedulerContract $scheduler = null,
         ?HttpTransportContract $transport = null,
+        ?TypeDTOProcessorRegistry $processorRegistryOverride = null,
     ): TgBotSetup {
         $serviceConfig ??= new TgServiceConfig();
         $serviceConfig->daemonRuntime = new DaemonRuntime(
@@ -265,6 +280,7 @@ final readonly class TgBotSetupFactory
             $serviceConfig,
             scheduler: $scheduler,
             transport: $transport,
+            processorRegistryOverride: $processorRegistryOverride,
         );
     }
 
@@ -390,6 +406,8 @@ final readonly class TgBotSetupFactory
             tgSender: $outbound['sender'],
             outboundStats: $outbound['stats'],
             serviceConfig: $serviceConfig,
+            messageRules: $this->messageRules,
+            commandRegistry: $this->commandRegistry,
         );
     }
 
@@ -426,8 +444,8 @@ final readonly class TgBotSetupFactory
         if ($setup === null) {
             $factory = new self(
                 loggerChannel: null,
-                logger: null,
-                cache: null,
+                logger: self::createLogger(),
+                cache: self::createCache(),
                 dispatcherRegistry: ProcessingDispatcherRegistry::build(),
                 rateLimiterRegistry: TgRateLimiterRegistry::build(),
                 processorRegistry: $processorRegistry,
@@ -598,6 +616,9 @@ final readonly class TgBotSetupFactory
             new ExpiryMiddleware($config->maxAgeSec, $config->minAttemptsForExpiry),
             new RetryBudgetMiddleware($config->maxAttempts),
             new RateLimitMiddleware($rateLimiter),
+            // Module middleware sits closest to the executor: it observes only
+            // tasks that passed expiry/retry/rate-limit gates.
+            ...($this->outboundMiddlewares?->middlewares() ?? []),
             new TelegramOutboundExecutor(
                 $dtoClient,
                 $rateLimiter,

@@ -9,6 +9,7 @@ use BAGArt\AsyncKernel\Job\AsyncJob;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\Redis\TgPartitionSchedulerContract;
 use BAGArt\TelegramBot\Contracts\Processing\Redis\TgProcessorFactoryContract;
+use BAGArt\TelegramBot\Processing\BotProcessorContext;
 
 final class TgJobExecutor implements JobExecutorContract
 {
@@ -16,6 +17,7 @@ final class TgJobExecutor implements JobExecutorContract
         private readonly TgProcessorFactoryContract $processorFactory,
         private readonly TgServiceConfig $serviceConfig,
         private readonly ?TgPartitionSchedulerContract $partitionScheduler = null,
+        private readonly ?BotProcessorContext $processorContext = null,
     ) {
     }
 
@@ -24,7 +26,8 @@ final class TgJobExecutor implements JobExecutorContract
         /** @var TgAsyncJob $job */
         $processor = $this->processorFactory->create(
             $job->context->processor,
-            $this->serviceConfig,
+            $this->processorContext
+            ?? throw new \LogicException('TgJobExecutor requires a BotProcessorContext to build processors'),
         );
 
         if ($this->partitionScheduler !== null) {

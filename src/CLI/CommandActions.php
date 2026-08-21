@@ -194,7 +194,7 @@ final class CommandActions
 
         if ($initProcConfig) {
             $flags = implode(' ', array_filter([
-                $initProcConfig->antispam ? '[ANTISPAM]' : null,
+                '[ANTISPAM]',
                 $initProcConfig->echo ? '[ECHO]' : null,
                 $initProcConfig->show ? '[SHOW]' : null,
                 $initProcConfig->store ? '[STORE]' : null,

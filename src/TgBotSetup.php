@@ -16,7 +16,9 @@ use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
 use BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract;
 use BAGArt\TelegramBot\Contracts\Processing\TgDbLoggerContract;
+use BAGArt\TelegramBot\Modules\TgCommandRegistry;
 use BAGArt\TelegramBot\Outbound\TgOutboundStats;
+use BAGArt\TelegramBot\Processing\Processors\MessageValidator\MessageValidationRuleRegistry;
 use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
 
 final class TgBotSetup
@@ -37,6 +39,8 @@ final class TgBotSetup
         public readonly TgOutboundStats $outboundStats,
         public TgServiceConfig $serviceConfig,
         public ?TgDbLoggerContract $dbLogger = null,
+        public readonly ?MessageValidationRuleRegistry $messageRules = null,
+        public readonly ?TgCommandRegistry $commandRegistry = null,
     ) {
     }
 }
