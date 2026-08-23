@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Outbound;
 
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundRateLimiterContract;
-use Closure;
 
 /**
  * Middleware for rate limit checking (todo.md §3.4, §5.4).
@@ -29,8 +29,10 @@ final class RateLimitMiddleware implements OutboundMiddleware
     ) {
     }
 
-    public function handle(OutboundEnvelope $envelope, Closure $next): void
-    {
+    public function handle(
+        OutboundEnvelope $envelope,
+        OutboundNextHandlerContract $next,
+    ): void {
         $key = $this->buildKey($envelope);
         $delay = $this->limiter->getRetryDelay($key);
 
@@ -41,7 +43,7 @@ final class RateLimitMiddleware implements OutboundMiddleware
             );
         }
 
-        $next($envelope);
+        $next->handle($envelope);
     }
 
     /**

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\Outbound;
 
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundRateLimiterContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiConflictException;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiNetworkException;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiRateLimitException;
 use BAGArt\TelegramBot\Exceptions\TgApi\TgBadRequestException;
-use Closure;
 use Throwable;
 
 /**
@@ -44,8 +44,10 @@ final class TelegramOutboundExecutor implements OutboundMiddleware
     ) {
     }
 
-    public function handle(OutboundEnvelope $envelope, Closure $next): void
-    {
+    public function handle(
+        OutboundEnvelope $envelope,
+        OutboundNextHandlerContract $next,
+    ): void {
         $dto = $this->dtoMapper->fromArray($envelope->task->dtoClass, $envelope->task->dtoData);
 
         try {

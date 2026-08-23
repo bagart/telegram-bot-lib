@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use BAGArt\TelegramBot\Configs\TgBotConfig;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
 use BAGArt\TelegramBot\Outbound\OutboundMiddleware;
 use BAGArt\TelegramBot\Outbound\OutboundPipeline;
@@ -23,12 +24,12 @@ function recordingMiddleware(string $mark, array &$log): OutboundMiddleware
         ) {
         }
 
-        public function handle(OutboundEnvelope $envelope, Closure $next): void
+        public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
         {
             $this->log[] = "enter:{$this->mark}";
 
             try {
-                $next($envelope);
+                $next->handle($envelope);
                 $this->log[] = "exit:{$this->mark}";
             } catch (Throwable $e) {
                 $this->log[] = "exit:{$this->mark}";
@@ -82,7 +83,7 @@ describe('OutboundPipeline', function () {
 
     it('propagates OutboundSkipException without swallowing', function () {
         $throwing = new class () implements OutboundMiddleware {
-            public function handle(OutboundEnvelope $envelope, Closure $next): void
+            public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new OutboundSkipException('expired');
             }
@@ -96,7 +97,7 @@ describe('OutboundPipeline', function () {
 
     it('propagates OutboundRetryException without swallowing', function () {
         $throwing = new class () implements OutboundMiddleware {
-            public function handle(OutboundEnvelope $envelope, Closure $next): void
+            public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new OutboundRetryException(delaySec: 5, reason: 'rate_limit');
             }
@@ -111,7 +112,7 @@ describe('OutboundPipeline', function () {
     it('runs finally (exit markers) on all layers when innermost throws', function () {
         $log = [];
         $throwing = new class () implements OutboundMiddleware {
-            public function handle(OutboundEnvelope $envelope, Closure $next): void
+            public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new OutboundSkipException('boom');
             }

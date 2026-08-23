@@ -15,8 +15,16 @@ final class TgRequestFactory
         TgBotConfig $botConfig,
         ?int $timeout = null,
     ): ASKHttpRequest {
+        $url = "https://api.telegram.org/bot{$botConfig->token}/{$tgMethodName}";
+
+        // Endpoint pinning (03 §61): the Bot API is only ever called over TLS
+        // on the official host — a non-https URL here means caller error.
+        if (!str_starts_with($url, 'https://api.telegram.org/')) {
+            throw new \InvalidArgumentException('Telegram API requests must target https://api.telegram.org');
+        }
+
         $request = ASKHttpRequest::fromParameters(
-            url: "https://api.telegram.org/bot{$botConfig->token}/{$tgMethodName}",
+            url: $url,
             method: 'POST',
             parameters: $parameters,
             requestName: $tgMethodName,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use BAGArt\AsyncKernel\Drivers\ASKFiberScheduler;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
 use BAGArt\TelegramBot\Outbound\LeaseRenewer;
@@ -23,9 +24,9 @@ if (!class_exists('ControllableClock') || !function_exists('makeCacheWrapper')) 
 function okMiddleware(): OutboundMiddleware
 {
     return new class () implements OutboundMiddleware {
-        public function handle(OutboundEnvelope $envelope, Closure $next): void
+        public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
         {
-            $next($envelope);
+            $next->handle($envelope);
         }
     };
 }
@@ -226,10 +227,10 @@ describe('OutboundWorker', function () {
             ) {
             }
 
-            public function handle(\BAGArt\TelegramBot\Outbound\OutboundEnvelope $envelope, \Closure $next): void
+            public function handle(\BAGArt\TelegramBot\Outbound\OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 $this->executed->called = true;
-                $next($envelope);
+                $next->handle($envelope);
             }
         };
         $pipeline = new OutboundPipeline([$testMiddleware]);
@@ -256,7 +257,7 @@ describe('OutboundWorker', function () {
     it('handles OutboundSkipException — moves to DLQ', function () {
         $queue = new InMemoryOutboundQueue(new ControllableClock());
         $skipMiddleware = new class () implements OutboundMiddleware {
-            public function handle(OutboundEnvelope $envelope, Closure $next): void
+            public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new OutboundSkipException('expired');
             }
@@ -285,7 +286,7 @@ describe('OutboundWorker', function () {
     it('handles poison pill (Throwable) gracefully', function () {
         $queue = new InMemoryOutboundQueue(new ControllableClock());
         $poisonMiddleware = new class () implements OutboundMiddleware {
-            public function handle(OutboundEnvelope $envelope, Closure $next): void
+            public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new RuntimeException('something broke');
             }
@@ -310,13 +311,10 @@ describe('OutboundWorker', function () {
         expect($queue->size())->toBeGreaterThanOrEqual(0);
     });
 
-    it('uses dlqFallback when queue lacks AtomicDlqQueueContract capability', function () {
+    it('acks a skipped task without losing it when queue lacks AtomicDlqQueueContract capability', function () {
         // Bare queue without AtomicDlqQueueContract — simulates LaravelQueueAdapter.
-        $fallbackBag = new class () {
-            public ?OutboundEnvelope $envelope = null;
-
-            public ?string $reason = null;
-        };
+        // Neither atomic DLQ nor fallback exists ⇒ the task must still be ack'd
+        // (poison-pill log path), never silently lost.
         $bareQueue = new class () implements \BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract {
             public ?OutboundEnvelope $next = null;
 
@@ -350,7 +348,7 @@ describe('OutboundWorker', function () {
         };
 
         $skipMiddleware = new class () implements OutboundMiddleware {
-            public function handle(OutboundEnvelope $envelope, Closure $next): void
+            public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new OutboundSkipException('expired');
             }
@@ -378,19 +376,13 @@ describe('OutboundWorker', function () {
             logger: new ASKLogWrapper(),
             config: new OutboundWorkerConfig(),
             scheduler: $scheduler,
-            dlqFallback: function (OutboundEnvelope $e, string $reason) use ($fallbackBag): void {
-                $fallbackBag->envelope = $e;
-                $fallbackBag->reason = $reason;
-            },
         );
         $worker->startup();
 
         $worker->tick(0);
         $worker->tickScheduler(0);
 
-        // Fallback invoked, task ack'd — not lost.
-        expect($fallbackBag->envelope)->not->toBeNull()
-            ->and($fallbackBag->reason)->toBe('expired')
-            ->and($bareQueue->acked)->toContain('del1');
+        // Task ack'd — poison-pill log path taken, not a crash and not silent loss.
+        expect($bareQueue->acked)->toContain('del1');
     });
 });

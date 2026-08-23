@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBot;
 use BAGArt\ASKClient\Client\ASKClient;
 use BAGArt\ASKClient\Contracts\Client\ApiClientContract;
 use BAGArt\ASKClient\Contracts\Dns\AskDnsAdapterContract;
+use BAGArt\ASKClient\Contracts\Dns\AskDnsResolverContract;
 use BAGArt\ASKClient\Contracts\Transport\HttpTransportContract;
 use BAGArt\ASKClient\Dns\AskDnsConfig;
 use BAGArt\ASKClient\Dns\AskDnsConfigFactory;
@@ -48,6 +49,7 @@ use BAGArt\TelegramBot\Contracts\BotServices\TgBotsSecretServiceContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
 use BAGArt\TelegramBot\Exceptions\TgTechnicalException;
+use BAGArt\TelegramBot\Framework\Laravel\LaravelAskDnsResolver;
 use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
 use BAGArt\TelegramBot\Modules\AttributedComponentsScanner;
 use BAGArt\TelegramBot\Modules\ModuleBootloader;
@@ -126,8 +128,7 @@ class TelegramBotServiceProvider extends ServiceProvider
                 return (new AskDnsRegistry(
                     logger: $app->make(ASKLogWrapper::class),
                     factory: new AskDnsFactory(
-                        resolver: fn (string $class, AskDnsConfig $config): AskDnsAdapterContract
-                            => $app->make($class, ['config' => $config]),
+                        resolver: new LaravelAskDnsResolver($app),
                     ),
                 ))->make($dns['adapter'] ?? null, $config);
             },

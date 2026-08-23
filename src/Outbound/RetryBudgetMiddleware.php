@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Outbound;
 
-use Closure;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 
 /**
  * Attempt limit middleware (todo.md §3.3, §5.4 max attempts).
@@ -22,12 +22,14 @@ final class RetryBudgetMiddleware implements OutboundMiddleware
     ) {
     }
 
-    public function handle(OutboundEnvelope $envelope, Closure $next): void
-    {
+    public function handle(
+        OutboundEnvelope $envelope,
+        OutboundNextHandlerContract $next,
+    ): void {
         if ($envelope->state->getAttempt() >= $this->maxAttempts) {
             throw new OutboundSkipException('max_attempts');
         }
 
-        $next($envelope);
+        $next->handle($envelope);
     }
 }

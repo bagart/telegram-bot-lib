@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Outbound;
 
-use Closure;
-
 /**
  * Outbound middleware pipeline (PSR-15 style, synchronous, void return).
  *
- * Chain is built via array_reduce: each middleware wraps $next into a new Closure.
+ * Chain is folded right-to-left into a linked list of named
+ * {@see OutboundNextHandler} nodes terminated by {@see OutboundTerminalHandler}.
  * Call order = order in $middlewares array (first = outermost, last = executor).
  *
  * Order:
@@ -42,20 +41,12 @@ final class OutboundPipeline
      */
     public function execute(OutboundEnvelope $envelope): void
     {
-        $pipeline = array_reduce(
-            array_reverse($this->middlewares),
-            static fn (
-                Closure $next,
-                OutboundMiddleware $middleware,
-            ): Closure => static fn (
-                OutboundEnvelope $e,
-            ): null => $middleware->handle(
-                $e,
-                $next,
-            ),
-            static fn (): null => null,
-        );
+        $handler = new OutboundTerminalHandler();
 
-        $pipeline($envelope);
+        foreach (array_reverse($this->middlewares) as $middleware) {
+            $handler = new OutboundNextHandler($middleware, $handler);
+        }
+
+        $handler->handle($envelope);
     }
 }

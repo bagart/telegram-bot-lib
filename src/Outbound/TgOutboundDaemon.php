@@ -16,7 +16,6 @@ use BAGArt\TelegramBot\Contracts\Outbound\OutboundCircuitBreakerContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundOrderingQueueContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
-use Closure;
 use Fiber;
 use Throwable;
 
@@ -41,12 +40,6 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
         private readonly ASKLogWrapper $logger,
         private readonly OutboundWorkerConfig $config,
         private readonly ASKSchedulerContract $scheduler,
-        /**
-         * DLQ fallback: called when the queue does NOT implement AtomicDlqQueueContract
-         * (e.g. LaravelQueueAdapter). Signature: fn(OutboundEnvelope, string $reason): void.
-         * null — the task is logged (md5+truncated) but not silently lost.
-         */
-        private readonly ?Closure $dlqFallback = null,
     ) {
         if (!$queue instanceof OutboundOrderingQueueContract) {
             $logger?->warning(
@@ -146,11 +139,8 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
 
         if ($this->queue instanceof AtomicDlqQueueContract) {
             $this->queue->pushToDeadLetter($envelope, $reason);
-        } elseif ($this->dlqFallback !== null) {
-            // Broker without AtomicDlqQueueContract (e.g. LaravelQueueAdapter) — fallback via callback.
-            ($this->dlqFallback)($envelope, $reason);
         } else {
-            // Neither AtomicDlqQueueContract nor fallback — do NOT silently lose: log as poison pill
+            // Queue without atomic DLQ — do NOT silently lose: log as poison pill
             // (md5 + truncated 256, per todo.md §7.3 — full payload is not logged).
             $this->logger->error('[OutboundWorker] DLQ unavailable — task dropped to log', [
                 'reason' => $reason,

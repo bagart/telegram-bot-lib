@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Outbound;
 
-use Closure;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 
 /**
  * Outbound pipeline middleware (PSR-15 style, synchronous, void return).
@@ -17,7 +17,7 @@ use Closure;
  * not by middleware.
  *
  * Middleware decisions:
- *   - call $next($envelope) — pass task forward;
+ *   - call $next->handle($envelope) — pass task forward;
  *   - throw {@see OutboundRetryException} — retry with delay;
  *   - throw {@see OutboundSkipException} or {@see OutboundBusinessErrorException} — drop to DLQ.
  *
@@ -25,8 +25,8 @@ use Closure;
  */
 interface OutboundMiddleware
 {
-    /**
-     * @param  Closure(OutboundEnvelope): void  $next  Next middleware / final executor.
-     */
-    public function handle(OutboundEnvelope $envelope, Closure $next): void;
+    public function handle(
+        OutboundEnvelope $envelope,
+        OutboundNextHandlerContract $next,
+    ): void;
 }

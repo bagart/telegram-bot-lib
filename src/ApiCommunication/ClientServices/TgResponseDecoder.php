@@ -14,12 +14,34 @@ use Throwable;
 final class TgResponseDecoder
 {
     /**
+     * Response size cap (03 §61). Bounds json_decode memory blowups from
+     * oversized/hostile bodies regardless of which HTTP adapter is in use.
+     */
+    public const int DEFAULT_MAX_BYTES = 16 * 1024 * 1024;
+
+    public function __construct(
+        private readonly int $maxBytes = self::DEFAULT_MAX_BYTES,
+    ) {
+    }
+
+    /**
      * @return array<string, mixed>
      *
      * @throws TgApiNetworkException
      */
     public function decode(string $response): array
     {
+        if (strlen($response) > $this->maxBytes) {
+            throw new TgApiNetworkException(
+                tgMethodName: 'unknown',
+                message: sprintf(
+                    'Telegram response exceeds the %d byte limit (got %d)',
+                    $this->maxBytes,
+                    strlen($response),
+                ),
+            );
+        }
+
         try {
             $decoded = json_decode(
                 $response,

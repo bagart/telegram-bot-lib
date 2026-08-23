@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\ApiCommunication\AskTransport;
 
 use BAGArt\ASKClient\Client\ASKFuture;
+use BAGArt\ASKClient\Client\CallbackProducer;
 use BAGArt\ASKClient\Contracts\Client\ApiClientContract;
 use BAGArt\ASKClient\Contracts\Pipeline\ASKContextContract;
 use BAGArt\ASKClient\Contracts\Pipeline\ASKFutureContract;
@@ -57,6 +58,10 @@ final class TgBotApiAskTransport implements ASKTransportContract
                     ->decoder->decode((string)$response->getBody()),
             );
 
-        return ASKFuture::pending(fn (): mixed => $promise->await());
+        return ASKFuture::pending(
+            new CallbackProducer(
+                static fn (): mixed => $promise->await()
+            )
+        );
     }
 }

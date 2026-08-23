@@ -10,6 +10,7 @@ use BAGArt\TelegramBot\Modules\TgModuleDescriptor;
 use BAGArt\TelegramBot\Modules\TgModuleRegistrar;
 use BAGArt\TelegramBot\Modules\TgModuleRegistry;
 use BAGArt\TelegramBot\Modules\TypedModuleRegistrar;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
 use BAGArt\TelegramBot\Outbound\OutboundMiddleware;
 use BAGArt\TelegramBot\Outbound\OutboundMiddlewareRegistry;
@@ -25,16 +26,16 @@ final class ModulesOutboundPassMiddleware implements OutboundMiddleware
 {
     public static int $calls = 0;
 
-    public function handle(OutboundEnvelope $envelope, Closure $next): void
+    public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
     {
         self::$calls++;
-        $next($envelope);
+        $next->handle($envelope);
     }
 }
 
 final class ModulesOutboundDropMiddleware implements OutboundMiddleware
 {
-    public function handle(OutboundEnvelope $envelope, Closure $next): void
+    public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
     {
         throw new OutboundSkipException(reason: 'dropped by fixture');
     }
@@ -104,7 +105,7 @@ it('registry middleware runs in the pipeline before the executor and can drop an
     $pipeline = new OutboundPipeline([
         ...$registry->middlewares(),
         new class () implements OutboundMiddleware {
-            public function handle(OutboundEnvelope $envelope, Closure $next): void
+            public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new RuntimeException('Executor must not run for dropped envelope');
             }

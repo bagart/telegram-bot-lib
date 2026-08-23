@@ -6,6 +6,7 @@ use BAGArt\ASKClient\Lockers\InMemoryLocker;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Contracts\Outbound\AtomicDlqQueueContract;
 use BAGArt\TelegramBot\Contracts\Outbound\ChannelDiscoverableQueueContract;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
 use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
@@ -35,9 +36,9 @@ function makeOutboundComponentsForCli(): array
 
     $pipeline = new OutboundPipeline([
         new class () implements OutboundMiddleware {
-            public function handle(OutboundEnvelope $envelope, Closure $next): void
+            public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
-                $next($envelope);
+                $next->handle($envelope);
             }
         },
     ]);

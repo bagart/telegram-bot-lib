@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot\Outbound;
 
 use BAGArt\AsyncKernel\Contracts\ASKClockContract;
-use Closure;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 
 /**
  * Task expiry checking middleware (todo.md §3.3, §5.3 timeout).
@@ -28,8 +28,10 @@ final class ExpiryMiddleware implements OutboundMiddleware
     ) {
     }
 
-    public function handle(OutboundEnvelope $envelope, Closure $next): void
-    {
+    public function handle(
+        OutboundEnvelope $envelope,
+        OutboundNextHandlerContract $next,
+    ): void {
         $now = $this->clock?->time() ?? time();
         $age = $envelope->task->age($now);
 
@@ -37,6 +39,6 @@ final class ExpiryMiddleware implements OutboundMiddleware
             throw new OutboundSkipException('expired');
         }
 
-        $next($envelope);
+        $next->handle($envelope);
     }
 }
