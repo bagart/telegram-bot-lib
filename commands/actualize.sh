@@ -25,4 +25,9 @@ node -e "import('@grom.js/bot-api-spec').then(m => console.log(JSON.stringify({m
 echo "[STEP 3] Generate PHP DTOs $FULL_FLAG"
 php src/DevTool/DTOGenerator.php $FULL_FLAG
 
+echo "[STEP 4] Reminder: the spec package carries no Bot API version field."
+echo "  Determine the version from https://core.telegram.org/bots/api-changelog"
+echo "  (compare newly added classes) and update extra.bot-api.version in composer.json"
+echo "  plus the botApi dimension in the platform's tools/baseline/compat-matrix.json."
+
 echo "Done"
