@@ -18,6 +18,7 @@ use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundCircuitBreakerContract;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundRateLimiterContract;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
 use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
@@ -82,31 +83,31 @@ Examples:
     exit(0);
 }
 
-$rateLimit = max(1, (int)($options['rate'] ?? 30));
-$duration = max(1, (int)($options['duration'] ?? 5));
-$runs = max(1, (int)($options['runs'] ?? 3));
-$warmupSec = max(0, (int)($options['warmup'] ?? 2));
-$port = max(1024, (int)($options['port'] ?? 8080));
-$token = (string)($options['token'] ?? getenv('TELEGRAM_BOT_TOKEN') ?: '');
+$rateLimit = max(1, (int) ($options['rate'] ?? 30));
+$duration = max(1, (int) ($options['duration'] ?? 5));
+$runs = max(1, (int) ($options['runs'] ?? 3));
+$warmupSec = max(0, (int) ($options['warmup'] ?? 2));
+$port = max(1024, (int) ($options['port'] ?? 8080));
+$token = (string) ($options['token'] ?? getenv('TELEGRAM_BOT_TOKEN') ?: '');
 
-$transportFilter = (string)($options['transport'] ?? '');
+$transportFilter = (string) ($options['transport'] ?? '');
 $useOrig = isset($options['orig']);
-$customHost = (string)($options['host'] ?? '');
+$customHost = (string) ($options['host'] ?? '');
 
 // ── Transport factories ──────────────────────────────────────────────────────
 
 function transportFactories(): array
 {
     return [
-        CurlMultiTransportAdapter::TYPE => fn () => new CurlMultiTransportAdapter(),
-        GuzzleTransportAdapter::TYPE => fn () => new GuzzleTransportAdapter(),
-        ASKSocketTransportAdapter::TYPE => fn () => new ASKSocketTransportAdapter(),
+        CurlMultiTransportAdapter::TYPE => fn () => new CurlMultiTransportAdapter,
+        GuzzleTransportAdapter::TYPE => fn () => new GuzzleTransportAdapter,
+        ASKSocketTransportAdapter::TYPE => fn () => new ASKSocketTransportAdapter,
     ];
 }
 
 $factories = transportFactories();
 
-if ($transportFilter !== '' && !isset($factories[$transportFilter])) {
+if ($transportFilter !== '' && ! isset($factories[$transportFilter])) {
     fwrite(STDERR, "Unknown transport: {$transportFilter}. Known: ".implode(', ', array_keys($factories))."\n");
     exit(2);
 }
@@ -134,7 +135,7 @@ if ($useOrig) {
             $port,
             escapeshellarg($docRoot)
         );
-        $pid = trim((string)shell_exec($serverCmd));
+        $pid = trim((string) shell_exec($serverCmd));
         if ($pid !== '' && is_numeric($pid)) {
             echo "  PHP server started (pid={$pid}) on localhost:{$port}\n";
             register_shutdown_function(function () use ($pid): void {
@@ -149,7 +150,7 @@ if ($useOrig) {
                 }
                 usleep(100_000);
             }
-            if (!$ready) {
+            if (! $ready) {
                 fwrite(
                     STDERR,
                     "  WARNING: Local PHP server on {$targetUrl} did not respond within 2s. Continuing anyway...\n"
@@ -172,8 +173,7 @@ final class BenchmarkRateLimiter implements OutboundRateLimiterContract
 
     public function __construct(
         private readonly int $rate,
-    ) {
-    }
+    ) {}
 
     public function getRetryDelay(string $key): float
     {
@@ -195,9 +195,7 @@ final class BenchmarkRateLimiter implements OutboundRateLimiterContract
         $this->windows[$key][] = microtime(true);
     }
 
-    public function registerRetryAfter(string $key, float $seconds): void
-    {
-    }
+    public function registerRetryAfter(string $key, float $seconds): void {}
 
     public function resetKey(string $key): void
     {
@@ -225,16 +223,16 @@ final class BenchmarkRateLimiter implements OutboundRateLimiterContract
 final class BenchmarkOutboundExecutor implements OutboundMiddleware
 {
     public int $sent = 0;
+
     public int $errors = 0;
 
     public function __construct(
         private readonly HttpTransportContract $transport,
         private readonly OutboundRateLimiterContract $rateLimiter,
         private readonly string $targetUrl,
-    ) {
-    }
+    ) {}
 
-    public function handle(OutboundEnvelope $envelope, \Closure $next): void
+    public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
     {
         $body = json_encode($envelope->task->dtoData, JSON_THROW_ON_ERROR);
 
@@ -271,13 +269,9 @@ final class NoopCircuitBreaker implements OutboundCircuitBreakerContract
         return true;
     }
 
-    public function recordFailure(string $botId): void
-    {
-    }
+    public function recordFailure(string $botId): void {}
 
-    public function recordSuccess(string $botId): void
-    {
-    }
+    public function recordSuccess(string $botId): void {}
 
     public function getState(string $botId): CircuitBreakerState
     {
@@ -333,7 +327,7 @@ function drainTransport(HttpTransportContract $transport): void
 /**
  * Run one kernel phase with the given transport.
  *
- * @return array{0: int, 1: int, 2: float}  [sent, errors, wall_time]
+ * @return array{0: int, 1: int, 2: float} [sent, errors, wall_time]
  */
 function runKernelPhase(
     HttpTransportContract $transport,
@@ -343,9 +337,9 @@ function runKernelPhase(
     int $durationSec,
     int $taskMultiplier = 10,
 ): array {
-    $clock = new ASKClock();
+    $clock = new ASKClock;
     $logger = new ASKLogWrapper(minLevel: 'debug');
-    $resolver = new ASKPromiseResolver();
+    $resolver = new ASKPromiseResolver;
 
     $config = new OutboundWorkerConfig(
         maxAttempts: 5,
@@ -353,7 +347,7 @@ function runKernelPhase(
     );
 
     $cache = new ASKCacheWrapper(new InMemoryCache($clock));
-    $locker = new InMemoryLocker();
+    $locker = new InMemoryLocker;
     $outboundCache = new KernelCacheAdapter($cache, $locker);
 
     $queue = new InMemoryOutboundQueue($clock, 200_000);
@@ -372,9 +366,9 @@ function runKernelPhase(
     ]);
 
     $stats = new TgOutboundStats($outboundCache, 1);
-    $circuitBreaker = new NoopCircuitBreaker();
+    $circuitBreaker = new NoopCircuitBreaker;
     $leaseRenewer = new LeaseRenewer($queue, $clock, 3600, 0);
-    $scheduler = new ASKFiberScheduler();
+    $scheduler = new ASKFiberScheduler;
 
     $daemon = new TgOutboundDaemon(
         queue: $queue,
@@ -394,7 +388,7 @@ function runKernelPhase(
             id: bin2hex(random_bytes(16)),
             botConfig: new TgBotConfig(token: 'bench:token', botId: 'bench-bot'),
             dtoClass: 'BenchSendMessage',
-            dtoData: ['data' => (string)random_int(0, PHP_INT_MAX)],
+            dtoData: ['data' => (string) random_int(0, PHP_INT_MAX)],
         );
         $queue->push($task);
     }
@@ -468,9 +462,9 @@ function runBenchmark(
         drainTransport($transport);
     }
 
-    $sentAvg = (int)round(average($sentValues));
+    $sentAvg = (int) round(average($sentValues));
     $elapsedAvg = average($elapsedValues);
-    $errorsMax = $errorValues !== [] ? (int)max($errorValues) : 0;
+    $errorsMax = $errorValues !== [] ? (int) max($errorValues) : 0;
     $throughput = $elapsedAvg > 0 ? $sentAvg / $elapsedAvg : 0.0;
     $pctOfLimit = $rate > 0 ? ($throughput / $rate) * 100 : 0.0;
 
@@ -494,7 +488,7 @@ echo "    Rate limit: {$rateLimit} req/s\n";
 echo "    Measurement: {$duration}s × {$runs} runs (averaged)\n";
 echo "    Warmup: {$warmupSec}s\n";
 echo "    Target: {$targetUrl}\n";
-echo "    Transports: ".implode(', ', $transports)."\n\n";
+echo '    Transports: '.implode(', ', $transports)."\n\n";
 
 // ── Measurements ─────────────────────────────────────────────────────────────
 
@@ -531,7 +525,7 @@ foreach ($transports as $transport) {
 // ── Final comparison table ───────────────────────────────────────────────────
 
 $header = sprintf(
-    "%-16s %8s %7s %9s %10s %8s",
+    '%-16s %8s %7s %9s %10s %8s',
     'transport',
     'sent',
     'errors',
@@ -546,7 +540,7 @@ foreach ($results as $transport => $r) {
     echo sprintf(
         "%-16s %8d %7d %9.1f %9.1f%% %8.2fs\n",
         $transport,
-        (int)round($r['sent']),
+        (int) round($r['sent']),
         $r['errors'],
         $r['throughput'],
         min($r['pctOfLimit'], 100.0),

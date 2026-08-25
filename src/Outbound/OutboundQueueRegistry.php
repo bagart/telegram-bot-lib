@@ -8,14 +8,14 @@ use BAGArt\ASKClientRedis\Redis\Contract\RedisClientContract;
 use BAGArt\AsyncKernel\Contracts\ASKClockContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundOrderingQueueContract;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
-use BAGArt\TelegramBot\Outbound\Adapters\RedisOutboundQueueContractContractContractContract;
+use BAGArt\TelegramBot\Outbound\Adapters\RedisOutboundQueue;
 
 final class OutboundQueueRegistry
 {
     /** @var array<string, class-string<OutboundOrderingQueueContract>> */
     private static array $default = [
         InMemoryOutboundQueue::TYPE => InMemoryOutboundQueue::class,
-        RedisOutboundQueueContractContractContractContract::TYPE => RedisOutboundQueueContractContractContractContract::class,
+        RedisOutboundQueue::TYPE => RedisOutboundQueue::class,
     ];
 
     /** @var array<string, class-string<OutboundOrderingQueueContract>> */
@@ -23,9 +23,9 @@ final class OutboundQueueRegistry
 
     public static function build(): self
     {
-        $registry = new self();
+        $registry = new self;
 
-        foreach (static::$default as $type => $class) {
+        foreach (self::$default as $type => $class) {
             $registry->register($class, $type);
         }
 
@@ -49,7 +49,7 @@ final class OutboundQueueRegistry
      */
     public function get(string $type): string
     {
-        if (!$this->has($type)) {
+        if (! $this->has($type)) {
             throw new \RuntimeException("Outbound queue type not registered: {$type}");
         }
 
@@ -71,8 +71,8 @@ final class OutboundQueueRegistry
     ): OutboundOrderingQueueContract {
         $class = $this->get($type);
 
-        if ($redis !== null && $class === RedisOutboundQueueContractContractContractContract::class) {
-            return new RedisOutboundQueueContractContractContractContract($redis, $clock, $useLuaOptimization);
+        if ($redis !== null && $class === RedisOutboundQueue::class) {
+            return new RedisOutboundQueue($redis, $clock, $useLuaOptimization);
         }
 
         return $class::build($clock, $dsn, $maxSize, $useLuaOptimization);

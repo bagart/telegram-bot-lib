@@ -19,8 +19,7 @@ use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
 use Fiber;
 use Throwable;
 
-final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASKTickableContract,
-                                        WithASKTickableContract
+final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASKTickableContract, WithASKTickableContract
 {
     private bool $isShuttingDown = false;
 
@@ -41,7 +40,7 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
         private readonly OutboundWorkerConfig $config,
         private readonly ASKSchedulerContract $scheduler,
     ) {
-        if (!$queue instanceof OutboundOrderingQueueContract) {
+        if (! $queue instanceof OutboundOrderingQueueContract) {
             $logger?->warning(
                 '[OutboundWorker] Queue does not implement OutboundOrderingQueueContract — ordering guarantees are not enforced'
             );
@@ -60,7 +59,7 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
             return;
         }
         $botId = $envelope->task->botConfig->botId;
-        if (!$this->circuitBreaker->allowsRequest($botId)) {
+        if (! $this->circuitBreaker->allowsRequest($botId)) {
             $this->queue->release($envelope, 30);
             $this->stats->recordRetry(
                 botId: $botId,
@@ -185,16 +184,15 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
             return 0;
         }
 
-        return (int)round(($size / 256) * 100);
+        return (int) round(($size / 256) * 100);
     }
 
     public function isIdle(): bool
     {
-        return (
+        return
             $this->inflight === []
             && $this->queue->size() === 0
-            && $this->scheduler->isIdle()
-        );
+            && $this->scheduler->isIdle();
     }
 
     public function queueSize(): int
@@ -226,7 +224,7 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
         // prepareShutdown() (called by the kernel in STOPPING phase) is the canonical
         // place $isShuttingDown is set. Guard here in case the kernel calls shutdown()
         // without the prepare step, or calls it repeatedly across DRAINING/FORCING.
-        if (!$this->isShuttingDown) {
+        if (! $this->isShuttingDown) {
             $this->isShuttingDown = true;
 
             $this->logger->debug('[OutboundWorker::shutdown]: need to complete: ', [

@@ -12,9 +12,7 @@ require_once __DIR__.'/Support/TestTypeDTOCollectorProcessor.php';
 
 use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
 use BAGArt\TelegramBot\Tests\Integration\Support\TestMessageCollectorProcessor;
-use BAGArt\TelegramBot\Tests\Integration\Support\TestTypeDTOCollectorProcessor;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
 use BAGArt\TelegramBot\TgBotSetupFactory;
 use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
 
@@ -191,27 +189,26 @@ function channelPostPayload(): array
 
 echo "\n=== Integration Tests: Full Cycle Processing ===\n\n";
 
-$secretService = new AutoSecretByTokenService();
+$secretService = new AutoSecretByTokenService;
 $secret = $secretService->secret(TOKEN);
 
 // Test 1: Text message
 echo "Test 1: Text message -> DTO -> processors\n";
 $registry = TypeDTOProcessorRegistry::build();
-$messageCollector = new TestMessageCollectorProcessor();
-$updateCollector = new TestTypeDTOCollectorProcessor();
+$messageCollector = new TestMessageCollectorProcessor;
 $registry->register(MessageTypeDTO::class, $messageCollector);
-$registry->register(UpdateTypeDTO::class, $updateCollector);
 $webhook = TgBotSetupFactory::webhook($registry);
 $result = $webhook->parse(messagePayload(), $secret);
 
 assert_test('parse returns true', $result === true);
-assert_test('update collector count', $updateCollector->count() === 1, "expected 1, got {$updateCollector->count()}");
+$updateDTO = $webhook->makeDTO(messagePayload());
+assert_test('update parsed', $updateDTO !== null && $updateDTO->updateId > 0);
 assert_test(
     'message collector count',
     $messageCollector->count() === 1,
     "expected 1, got {$messageCollector->count()}"
 );
-assert_test('update id', $updateCollector->last()['dto']->updateId === 987654321);
+assert_test('update id', $updateDTO->updateId === 987654321);
 assert_test('message id', $messageCollector->last()['dto']->messageId === 42);
 assert_test('message text', $messageCollector->last()['dto']->text === 'Hello, bot!');
 assert_test('chat id', $messageCollector->last()['dto']->chat->id === '111222333');
@@ -221,7 +218,7 @@ assert_test('bot id', $messageCollector->last()['botId'] === '123456789');
 // Test 2: Edited message
 echo "\nTest 2: Edited message -> DTO -> processors\n";
 $registry2 = TypeDTOProcessorRegistry::build();
-$messageCollector2 = new TestMessageCollectorProcessor();
+$messageCollector2 = new TestMessageCollectorProcessor;
 $registry2->register(MessageTypeDTO::class, $messageCollector2);
 $webhook2 = TgBotSetupFactory::webhook($registry2);
 $result2 = $webhook2->parse(editedMessagePayload(), $secret);
@@ -234,7 +231,7 @@ assert_test('edit date', $messageCollector2->last()['dto']->editDate === 1700000
 // Test 3: Reply message
 echo "\nTest 3: Reply message -> DTO -> processors\n";
 $registry3 = TypeDTOProcessorRegistry::build();
-$messageCollector3 = new TestMessageCollectorProcessor();
+$messageCollector3 = new TestMessageCollectorProcessor;
 $registry3->register(MessageTypeDTO::class, $messageCollector3);
 $webhook3 = TgBotSetupFactory::webhook($registry3);
 $result3 = $webhook3->parse(replyMessagePayload(), $secret);
@@ -248,15 +245,14 @@ assert_test('reply_to_message id', $messageCollector3->last()['dto']->replyToMes
 // Test 4: Callback query (no message processor)
 echo "\nTest 4: Callback query -> no message processor triggered\n";
 $registry4 = TypeDTOProcessorRegistry::build();
-$messageCollector4 = new TestMessageCollectorProcessor();
-$updateCollector4 = new TestTypeDTOCollectorProcessor();
+$messageCollector4 = new TestMessageCollectorProcessor;
 $registry4->register(MessageTypeDTO::class, $messageCollector4);
-$registry4->register(UpdateTypeDTO::class, $updateCollector4);
 $webhook4 = TgBotSetupFactory::webhook($registry4);
 $result4 = $webhook4->parse(callbackQueryPayload(), $secret);
 
 assert_test('parse returns true', $result4 === true);
-assert_test('update collector count', $updateCollector4->count() === 1);
+$updateDTO4 = $webhook4->makeDTO(callbackQueryPayload());
+assert_test('update collector count', $updateDTO4 !== null && $updateDTO4->callbackQuery !== null);
 assert_test(
     'message collector count (should be 0)',
     $messageCollector4->count() === 0,
@@ -266,7 +262,7 @@ assert_test(
 // Test 5: Channel post
 echo "\nTest 5: Channel post -> DTO -> processors\n";
 $registry5 = TypeDTOProcessorRegistry::build();
-$messageCollector5 = new TestMessageCollectorProcessor();
+$messageCollector5 = new TestMessageCollectorProcessor;
 $registry5->register(MessageTypeDTO::class, $messageCollector5);
 $webhook5 = TgBotSetupFactory::webhook($registry5);
 $result5 = $webhook5->parse(channelPostPayload(), $secret);
@@ -279,7 +275,7 @@ assert_test('channel chat id', $messageCollector5->last()['dto']->chat->id === '
 // Test 6: Multiple messages accumulate
 echo "\nTest 6: Multiple messages accumulate in collectors\n";
 $registry6 = TypeDTOProcessorRegistry::build();
-$messageCollector6 = new TestMessageCollectorProcessor();
+$messageCollector6 = new TestMessageCollectorProcessor;
 $registry6->register(MessageTypeDTO::class, $messageCollector6);
 $webhook6 = TgBotSetupFactory::webhook($registry6);
 $webhook6->parse(messagePayload(), $secret);
@@ -302,7 +298,7 @@ assert_test('count after reset', $messageCollector6->count() === 0);
 // Test 8: Invalid secret
 echo "\nTest 8: Invalid secret returns false\n";
 $registry8 = TypeDTOProcessorRegistry::build();
-$messageCollector8 = new TestMessageCollectorProcessor();
+$messageCollector8 = new TestMessageCollectorProcessor;
 $registry8->register(MessageTypeDTO::class, $messageCollector8);
 $webhook8 = TgBotSetupFactory::webhook($registry8);
 $result8 = $webhook8->parse(messagePayload(), 'invalid:secret');
@@ -313,7 +309,7 @@ assert_test('message collector count (should be 0)', $messageCollector8->count()
 // Test 9: Null secret
 echo "\nTest 9: Null secret returns false\n";
 $registry9 = TypeDTOProcessorRegistry::build();
-$messageCollector9 = new TestMessageCollectorProcessor();
+$messageCollector9 = new TestMessageCollectorProcessor;
 $registry9->register(MessageTypeDTO::class, $messageCollector9);
 $webhook9 = TgBotSetupFactory::webhook($registry9);
 $result9 = $webhook9->parse(messagePayload(), null);
@@ -331,24 +327,23 @@ assert_test('botId extraction', $botId === '123456789');
 // Test 11: Both processors work together
 echo "\nTest 11: Both update and message processors work together\n";
 $registry11 = TypeDTOProcessorRegistry::build();
-$messageCollector11 = new TestMessageCollectorProcessor();
-$updateCollector11 = new TestTypeDTOCollectorProcessor();
+$messageCollector11 = new TestMessageCollectorProcessor;
 $registry11->register(MessageTypeDTO::class, $messageCollector11);
-$registry11->register(UpdateTypeDTO::class, $updateCollector11);
 $webhook11 = TgBotSetupFactory::webhook($registry11);
 $webhook11->parse(messagePayload(), $secret);
+$updateDTO11 = $webhook11->makeDTO(messagePayload());
 
-assert_test('update collector count', $updateCollector11->count() === 1);
+assert_test('update collector count', $updateDTO11 !== null && $updateDTO11->message !== null);
 assert_test('message collector count', $messageCollector11->count() === 1);
 assert_test(
     'update message matches',
-    $updateCollector11->last()['dto']->message->messageId === $messageCollector11->last()['dto']->messageId
+    $updateDTO11->message->messageId === $messageCollector11->last()['dto']->messageId
 );
 
 // Test 12: Multiple bots
 echo "\nTest 12: Multiple bots use same processors\n";
 $registry12 = TypeDTOProcessorRegistry::build();
-$messageCollector12 = new TestMessageCollectorProcessor();
+$messageCollector12 = new TestMessageCollectorProcessor;
 $registry12->register(MessageTypeDTO::class, $messageCollector12);
 $webhook12 = TgBotSetupFactory::webhook($registry12);
 

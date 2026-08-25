@@ -9,11 +9,12 @@ use BAGArt\ASKClient\Exceptions\ASKNetworkException;
 use BAGArt\AsyncKernel\Contracts\ASKPromiseContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\ASKTickableContract;
 use BAGArt\AsyncKernel\Promise\ASKPromise;
+use BAGArt\TelegramBot\ApiCommunication\Clients\TgBotApiDTOClient;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgRequestFactory;
 use BAGArt\TelegramBot\ApiCommunication\ClientServices\TgResponseDecoder;
-use BAGArt\TelegramBot\ApiCommunication\Clients\TgBotApiDTOClient;
 use BAGArt\TelegramBot\ApiCommunication\Transports\TgBotApiTransport;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundRateLimiterContract;
 use BAGArt\TelegramBot\Exceptions\ApiCommunication\TgApiNetworkException;
 use BAGArt\TelegramBot\Outbound\OutboundBusinessErrorException;
@@ -99,9 +100,7 @@ class EdgeRateLimiter implements OutboundRateLimiterContract
         $this->registered[$key] = $seconds;
     }
 
-    public function markSent(string $key): void
-    {
-    }
+    public function markSent(string $key): void {}
 }
 
 function makeEdgeTask(): OutboundTask
@@ -115,7 +114,7 @@ function makeEdgeTask(): OutboundTask
     );
 }
 
-function makeEdgeExecutor(EdgeRawBodyTransport $http, EdgeRateLimiter $limiter = new EdgeRateLimiter()): TelegramOutboundExecutor
+function makeEdgeExecutor(EdgeRawBodyTransport $http, EdgeRateLimiter $limiter = new EdgeRateLimiter): TelegramOutboundExecutor
 {
     $mapper = new TgApiDTOMapper(TgEntityToDTORegistry::build());
     $dtoClient = TgBotApiDTOClient::build(new TgBotApiTransport($http));
@@ -128,10 +127,18 @@ function makeEdgeExecutor(EdgeRawBodyTransport $http, EdgeRateLimiter $limiter =
  */
 function edgeSend(TelegramOutboundExecutor $executor): Throwable
 {
+    $neverNext = new class implements OutboundNextHandlerContract
+    {
+        public function handle(OutboundEnvelope $envelope): void
+        {
+            throw new LogicException('executor is final — $next must never be called');
+        }
+    };
+
     try {
         $executor->handle(
-            new OutboundEnvelope(makeEdgeTask(), new OutboundTaskState()),
-            static fn (): Throwable => throw new LogicException('executor is final — $next must never be called'),
+            new OutboundEnvelope(makeEdgeTask(), new OutboundTaskState),
+            $neverNext,
         );
     } catch (Throwable $e) {
         return $e;
@@ -142,7 +149,7 @@ function edgeSend(TelegramOutboundExecutor $executor): Throwable
 
 describe('Telegram outbound transport edge cases', function () {
     it('retries (not DLQ) when a reverse proxy returns an HTML error page', function () {
-        $http = new EdgeRawBodyTransport();
+        $http = new EdgeRawBodyTransport;
         $http->respondWith('<html><body><h1>502 Bad Gateway</h1></body></html>');
         $e = edgeSend(makeEdgeExecutor($http));
 
@@ -152,7 +159,7 @@ describe('Telegram outbound transport edge cases', function () {
     });
 
     it('retries on an empty response body', function () {
-        $http = new EdgeRawBodyTransport();
+        $http = new EdgeRawBodyTransport;
         $http->respondWith('');
         $e = edgeSend(makeEdgeExecutor($http));
 
@@ -161,7 +168,7 @@ describe('Telegram outbound transport edge cases', function () {
     });
 
     it('retries when the body is valid JSON but not an object/array', function () {
-        $http = new EdgeRawBodyTransport();
+        $http = new EdgeRawBodyTransport;
         $http->respondWith('42');
         $e = edgeSend(makeEdgeExecutor($http));
 
@@ -170,7 +177,7 @@ describe('Telegram outbound transport edge cases', function () {
     });
 
     it('retries unknown_transport_error on a 5xx-shaped Telegram payload', function () {
-        $http = new EdgeRawBodyTransport();
+        $http = new EdgeRawBodyTransport;
         $http->respondWith('{"ok":false,"error_code":502,"description":"Bad Gateway"}');
         $e = edgeSend(makeEdgeExecutor($http));
 
@@ -181,9 +188,9 @@ describe('Telegram outbound transport edge cases', function () {
     });
 
     it('does not honor retry_after outside of 429', function () {
-        $http = new EdgeRawBodyTransport();
+        $http = new EdgeRawBodyTransport;
         $http->respondWith('{"ok":false,"error_code":500,"parameters":{"retry_after":999}}');
-        $limiter = new EdgeRateLimiter();
+        $limiter = new EdgeRateLimiter;
         $e = edgeSend(makeEdgeExecutor($http, $limiter));
 
         expect($e)->toBeInstanceOf(OutboundRetryException::class)
@@ -193,7 +200,7 @@ describe('Telegram outbound transport edge cases', function () {
     });
 
     it('classifies connection reset as retry', function () {
-        $http = new EdgeRawBodyTransport();
+        $http = new EdgeRawBodyTransport;
         $http->failWith(new ASKNetworkException('Recv failure: Connection reset by peer'));
         $e = edgeSend(makeEdgeExecutor($http));
 
@@ -202,7 +209,7 @@ describe('Telegram outbound transport edge cases', function () {
     });
 
     it('classifies DNS resolution failure as retry', function () {
-        $http = new EdgeRawBodyTransport();
+        $http = new EdgeRawBodyTransport;
         $http->failWith(new ASKNetworkException('Could not resolve host: api.telegram.org'));
         $e = edgeSend(makeEdgeExecutor($http));
 
@@ -211,7 +218,7 @@ describe('Telegram outbound transport edge cases', function () {
     });
 
     it('classifies read timeout as retry', function () {
-        $http = new EdgeRawBodyTransport();
+        $http = new EdgeRawBodyTransport;
         $http->failWith(new ASKNetworkException('Operation timed out after 30000 milliseconds'));
         $e = edgeSend(makeEdgeExecutor($http));
 
@@ -227,7 +234,7 @@ describe('Telegram outbound transport edge cases', function () {
         $payload = json_encode(['ok' => true, 'result' => $updates], JSON_THROW_ON_ERROR);
         expect(strlen($payload))->toBeGreaterThan(1000000);
 
-        $decoded = (new TgResponseDecoder())->decode($payload);
+        $decoded = (new TgResponseDecoder)->decode($payload);
 
         expect(count($decoded['result']))->toBe(50000)
             ->and($decoded['result'][49999]['message']['text'])->toBe(str_repeat('x', 32));
@@ -248,7 +255,7 @@ describe('Telegram outbound transport edge cases', function () {
 
 describe('TgRequestFactory timeout propagation', function () {
     it('propagates an explicit timeout as CURLOPT_TIMEOUT', function () {
-        $factory = new TgRequestFactory();
+        $factory = new TgRequestFactory;
         $request = $factory->make(
             tgMethodName: 'sendMessage',
             parameters: ['chat_id' => 1],
@@ -260,7 +267,7 @@ describe('TgRequestFactory timeout propagation', function () {
     });
 
     it('leaves the adapter default untouched when no timeout is given', function () {
-        $factory = new TgRequestFactory();
+        $factory = new TgRequestFactory;
         $request = $factory->make(
             tgMethodName: 'getMe',
             parameters: [],
@@ -271,7 +278,7 @@ describe('TgRequestFactory timeout propagation', function () {
     });
 
     it('pins requests to the official TLS endpoint (03 §61)', function () {
-        $factory = new TgRequestFactory();
+        $factory = new TgRequestFactory;
         $request = $factory->make(
             tgMethodName: 'sendMessage',
             parameters: ['chat_id' => 1],

@@ -31,9 +31,21 @@
         "php": "^8.5",
         "psr/container": "^2.0",
         "bagart/async-kernel": "*",
-        "bagart/ask-client": "*",
-        "bagart/daemon-runner": "*"
+        "bagart/ask-client": "*"
     },
+    "require-dev": {
+        "pestphp/pest": "^4.0"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../php-async-kernel-lib"
+        },
+        {
+            "type": "path",
+            "url": "../php-async-kernel-client"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "BAGArt\\TelegramBot\\": "src/"
@@ -61,6 +73,13 @@
         "test:fullcycle": "php tests/Integration/FullCycleTest.php",
         "test:integration": "php tests/Integration/integration-test.php",
         "test:offline": "php tests/Integration/commands-offline-test.php",
-        "test:pest": "composer exec pest tests --colors=always"
+        "test:pest": "sh -c 'if [ -x ../../../vendor/bin/pest ]; then cd ../../.. && vendor/bin/pest --testsuite TelegramBotLib; else echo \"skip: unit suite is host-launched (artisan test / root phpunit.xml)\"; fi'"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }

@@ -3,12 +3,15 @@
 declare(strict_types=1);
 
 use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\AsyncKernel\ASKShutdownContext;
+use BAGArt\AsyncKernel\Enum\ShutdownPhase;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Contracts\Processing\UpdateRouterContract;
 use BAGArt\TelegramBot\Processing\ProcessorUpdateDaemon;
 use BAGArt\TelegramBot\Processing\Update\UpdateContext;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
+use Psr\Log\NullLogger;
 
 function processorDaemonValidToken(): string
 {
@@ -17,7 +20,7 @@ function processorDaemonValidToken(): string
 
 function processorDaemonLogger(): ASKLogWrapper
 {
-    return new ASKLogWrapper(logger: new \Psr\Log\NullLogger());
+    return new ASKLogWrapper(logger: new NullLogger);
 }
 
 describe('ProcessorDaemon', function () {
@@ -61,7 +64,7 @@ describe('ProcessorDaemon', function () {
         $daemon->tick(0);
     });
 
-    it('shutdown ticks once and returns true when queue empty', function () {
+    it('shutdown returns true when every tickable is idle', function () {
         $queue = Mockery::mock(ASKQueueAdapterContract::class);
         $router = Mockery::mock(UpdateRouterContract::class);
         $daemon = new ProcessorUpdateDaemon(
@@ -72,9 +75,28 @@ describe('ProcessorDaemon', function () {
         );
 
         $router->shouldReceive('tickable')->once()->andReturn([]);
-        $queue->shouldReceive('pop')->once()->with('tg-test')->andReturn(null);
         $queue->shouldReceive('size')->once()->with('tg-test')->andReturn(0);
 
-        expect($daemon->shutdown())->toBeTrue();
+        $context = new ASKShutdownContext(ShutdownPhase::STOPPING, false, microtime(true) + 30);
+
+        expect($daemon->shutdown($context))->toBeTrue();
+    });
+
+    it('shutdown returns false while the queue still has work', function () {
+        $queue = Mockery::mock(ASKQueueAdapterContract::class);
+        $router = Mockery::mock(UpdateRouterContract::class);
+        $daemon = new ProcessorUpdateDaemon(
+            queue: $queue,
+            updateRouter: $router,
+            logger: processorDaemonLogger(),
+            queueName: 'tg-test',
+        );
+
+        $router->shouldReceive('tickable')->once()->andReturn([]);
+        $queue->shouldReceive('size')->once()->with('tg-test')->andReturn(5);
+
+        $context = new ASKShutdownContext(ShutdownPhase::STOPPING, false, microtime(true) + 30);
+
+        expect($daemon->shutdown($context))->toBeFalse();
     });
 });

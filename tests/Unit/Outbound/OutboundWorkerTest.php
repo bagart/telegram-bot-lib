@@ -2,28 +2,37 @@
 
 declare(strict_types=1);
 
+use BAGArt\ASKClient\Lockers\InMemoryLocker;
+use BAGArt\AsyncKernel\ASKShutdownContext;
+use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\AsyncKernel\Drivers\ASKFiberScheduler;
+use BAGArt\AsyncKernel\Enum\ShutdownPhase;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
+use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
 use BAGArt\TelegramBot\Outbound\LeaseRenewer;
+use BAGArt\TelegramBot\Outbound\OutboundCircuitBreaker;
 use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
 use BAGArt\TelegramBot\Outbound\OutboundMiddleware;
 use BAGArt\TelegramBot\Outbound\OutboundPipeline;
 use BAGArt\TelegramBot\Outbound\OutboundSkipException;
 use BAGArt\TelegramBot\Outbound\OutboundTask;
+use BAGArt\TelegramBot\Outbound\OutboundTaskState;
 use BAGArt\TelegramBot\Outbound\TgOutboundDaemon;
 use BAGArt\TelegramBot\Outbound\TgOutboundStats;
 
-if (!class_exists('ControllableClock') || !function_exists('makeCacheWrapper')) {
+if (! class_exists('ControllableClock') || ! function_exists('makeCacheWrapper')) {
     require_once __DIR__.'/../../Helpers.php';
 }
 
 function okMiddleware(): OutboundMiddleware
 {
-    return new class () implements OutboundMiddleware {
+    return new class implements OutboundMiddleware
+    {
         public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
         {
             $next->handle($envelope);
@@ -31,25 +40,34 @@ function okMiddleware(): OutboundMiddleware
     };
 }
 
+function shutdownContext(): ASKShutdownContext
+{
+    return new ASKShutdownContext(
+        phase: ShutdownPhase::DRAINING,
+        forced: false,
+        deadline: microtime() + 30,
+    );
+}
+
 function makeWorker(
     ?InMemoryOutboundQueue $queue = null,
     ?OutboundPipeline $pipeline = null,
     ?ASKFiberScheduler $scheduler = null,
-    ?\BAGArt\TelegramBot\Outbound\OutboundCircuitBreaker $circuitBreaker = null,
+    ?OutboundCircuitBreaker $circuitBreaker = null,
 ): TgOutboundDaemon {
-    $clock = new ControllableClock();
-    $config = new OutboundWorkerConfig();
-    $scheduler ??= new ASKFiberScheduler();
+    $clock = new ControllableClock;
+    $config = new OutboundWorkerConfig;
+    $scheduler ??= new ASKFiberScheduler;
     $queue ??= new InMemoryOutboundQueue($clock);
     $pipeline ??= new OutboundPipeline([okMiddleware()]);
-    $cache = new \BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter(
+    $cache = new KernelCacheAdapter(
         makeCacheWrapper(),
-        new \BAGArt\ASKClient\Lockers\InMemoryLocker(),
+        new InMemoryLocker,
     );
     $stats = new TgOutboundStats($cache);
-    $circuitBreaker ??= new \BAGArt\TelegramBot\Outbound\OutboundCircuitBreaker($cache);
+    $circuitBreaker ??= new OutboundCircuitBreaker($cache);
     $leaseRenewer = new LeaseRenewer($queue, $clock);
-    $logger = new ASKLogWrapper();
+    $logger = new ASKLogWrapper;
 
     return new TgOutboundDaemon(
         queue: $queue,
@@ -65,7 +83,7 @@ function makeWorker(
 
 describe('OutboundWorker', function () {
     it('pops a task from the queue and processes it', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        $queue = new InMemoryOutboundQueue(new ControllableClock);
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
@@ -89,7 +107,7 @@ describe('OutboundWorker', function () {
     });
 
     it('returns early when shutting down (no pop)', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        $queue = new InMemoryOutboundQueue(new ControllableClock);
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
@@ -102,19 +120,19 @@ describe('OutboundWorker', function () {
             )
         );
 
-        $worker->shutdown();
+        $worker->shutdown(shutdownContext());
         $worker->tick(0);
 
         expect($queue->size())->toBe(1);
     });
 
     it('handles circuit breaker — releases when CB is open', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
-        $cache = new \BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter(
+        $queue = new InMemoryOutboundQueue(new ControllableClock);
+        $cache = new KernelCacheAdapter(
             makeCacheWrapper(),
-            new \BAGArt\ASKClient\Lockers\InMemoryLocker(),
+            new InMemoryLocker,
         );
-        $cb = new \BAGArt\TelegramBot\Outbound\OutboundCircuitBreaker($cache);
+        $cb = new OutboundCircuitBreaker($cache);
         $cb->recordFailure('bot1');
         $cb->recordFailure('bot1');
         $cb->recordFailure('bot1');
@@ -146,7 +164,7 @@ describe('OutboundWorker', function () {
     });
 
     it('isIdle returns false when there are inflight tasks', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        $queue = new InMemoryOutboundQueue(new ControllableClock);
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
@@ -165,7 +183,7 @@ describe('OutboundWorker', function () {
     });
 
     it('shutdown returns false when inflight tasks exist', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        $queue = new InMemoryOutboundQueue(new ControllableClock);
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
@@ -180,14 +198,14 @@ describe('OutboundWorker', function () {
 
         $worker->tick(0);
 
-        expect($worker->shutdown())->toBeFalse();
+        expect($worker->shutdown(shutdownContext()))->toBeFalse();
     });
 
     it('shutdown returns true when no inflight tasks', function () {
         $worker = makeWorker();
         $worker->startup();
 
-        expect($worker->shutdown())->toBeTrue();
+        expect($worker->shutdown(shutdownContext()))->toBeTrue();
     });
 
     it('exposes tickable returning LeaseRenewer and scheduler', function () {
@@ -198,7 +216,7 @@ describe('OutboundWorker', function () {
         // Scheduler is required — without it, enqueued fibers (process) will never execute.
         expect($tickables)->toHaveCount(2)
             ->and($tickables[0])->toBeInstanceOf(LeaseRenewer::class)
-            ->and($tickables[1])->toBeInstanceOf(\BAGArt\AsyncKernel\Contracts\ASKSchedulerContract::class);
+            ->and($tickables[1])->toBeInstanceOf(ASKSchedulerContract::class);
     });
 
     it('onError logs and increments error counter', function () {
@@ -216,18 +234,19 @@ describe('OutboundWorker', function () {
     });
 
     it('processes via pipeline — successful send', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        $queue = new InMemoryOutboundQueue(new ControllableClock);
 
-        $executed = new class () {
+        $executed = new class
+        {
             public bool $called = false;
         };
-        $testMiddleware = new class ($executed) implements \BAGArt\TelegramBot\Outbound\OutboundMiddleware {
+        $testMiddleware = new class($executed) implements OutboundMiddleware
+        {
             public function __construct(
                 private readonly object $executed,
-            ) {
-            }
+            ) {}
 
-            public function handle(\BAGArt\TelegramBot\Outbound\OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
+            public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 $this->executed->called = true;
                 $next->handle($envelope);
@@ -255,8 +274,9 @@ describe('OutboundWorker', function () {
     });
 
     it('handles OutboundSkipException — moves to DLQ', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
-        $skipMiddleware = new class () implements OutboundMiddleware {
+        $queue = new InMemoryOutboundQueue(new ControllableClock);
+        $skipMiddleware = new class implements OutboundMiddleware
+        {
             public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new OutboundSkipException('expired');
@@ -284,8 +304,9 @@ describe('OutboundWorker', function () {
     });
 
     it('handles poison pill (Throwable) gracefully', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock());
-        $poisonMiddleware = new class () implements OutboundMiddleware {
+        $queue = new InMemoryOutboundQueue(new ControllableClock);
+        $poisonMiddleware = new class implements OutboundMiddleware
+        {
             public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new RuntimeException('something broke');
@@ -315,14 +336,13 @@ describe('OutboundWorker', function () {
         // Bare queue without AtomicDlqQueueContract — simulates LaravelQueueAdapter.
         // Neither atomic DLQ nor fallback exists ⇒ the task must still be ack'd
         // (poison-pill log path), never silently lost.
-        $bareQueue = new class () implements \BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract {
+        $bareQueue = new class implements OutboundQueueContract
+        {
             public ?OutboundEnvelope $next = null;
 
             public array $acked = [];
 
-            public function push(\BAGArt\TelegramBot\Outbound\OutboundTask $task): void
-            {
-            }
+            public function push(OutboundTask $task): void {}
 
             public function pop(int $visibilityTimeoutSec = 60): ?OutboundEnvelope
             {
@@ -337,9 +357,7 @@ describe('OutboundWorker', function () {
                 $this->acked[] = $envelope->deliveryId;
             }
 
-            public function release(OutboundEnvelope $envelope, int $delaySec): void
-            {
-            }
+            public function release(OutboundEnvelope $envelope, int $delaySec): void {}
 
             public function size(): int
             {
@@ -347,7 +365,8 @@ describe('OutboundWorker', function () {
             }
         };
 
-        $skipMiddleware = new class () implements OutboundMiddleware {
+        $skipMiddleware = new class implements OutboundMiddleware
+        {
             public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new OutboundSkipException('expired');
@@ -360,21 +379,21 @@ describe('OutboundWorker', function () {
             dtoClass: 'D',
             dtoData: []
         );
-        $bareQueue->next = new OutboundEnvelope($task, new \BAGArt\TelegramBot\Outbound\OutboundTaskState(), 'del1');
+        $bareQueue->next = new OutboundEnvelope($task, new OutboundTaskState, 'del1');
 
-        $scheduler = new ASKFiberScheduler();
-        $cache = new \BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter(
+        $scheduler = new ASKFiberScheduler;
+        $cache = new KernelCacheAdapter(
             makeCacheWrapper(),
-            new \BAGArt\ASKClient\Lockers\InMemoryLocker(),
+            new InMemoryLocker,
         );
         $worker = new TgOutboundDaemon(
             queue: $bareQueue,
             pipeline: new OutboundPipeline([$skipMiddleware]),
-            circuitBreaker: new \BAGArt\TelegramBot\Outbound\OutboundCircuitBreaker($cache),
+            circuitBreaker: new OutboundCircuitBreaker($cache),
             stats: new TgOutboundStats($cache),
-            leaseRenewer: new LeaseRenewer($bareQueue, new ControllableClock()),
-            logger: new ASKLogWrapper(),
-            config: new OutboundWorkerConfig(),
+            leaseRenewer: new LeaseRenewer($bareQueue, new ControllableClock),
+            logger: new ASKLogWrapper,
+            config: new OutboundWorkerConfig,
             scheduler: $scheduler,
         );
         $worker->startup();

@@ -21,7 +21,7 @@ use Illuminate\Contracts\Queue\Queue as LaravelQueueContract;
  *   - pop() = destructive: Laravel pop+delete. Visibility timeout is managed
  *     natively (queue:work --retry-after). Our $visibilityTimeoutSec is ignored.
  *   - priority/orderingKey: ignored (Laravel queue — FIFO, no priorities).
- *     For priorities/ordering use RedisOutboundQueueContractContractContractContract.
+ *     For priorities/ordering use RedisOutboundQueue.
  *   - release(delay) delegates to $job->release($delay) — native delayed requeue.
  *
  * Pattern mirrors ASK LaravelQueueAdapter: marker-job {@see OutboundLaravelJob}
@@ -33,12 +33,11 @@ final class LaravelQueueAdapter implements OutboundQueueContract
 
     public function __construct(
         private readonly LaravelQueueContract $queue,
-    ) {
-    }
+    ) {}
 
     public function push(OutboundTask $task): void
     {
-        $envelope = new OutboundEnvelope($task, new OutboundTaskState());
+        $envelope = new OutboundEnvelope($task, new OutboundTaskState);
         $payload = json_encode($envelope, JSON_THROW_ON_ERROR);
 
         // Marker-job passes through opaque payload; Laravel serializes it.
@@ -58,7 +57,7 @@ final class LaravelQueueAdapter implements OutboundQueueContract
         $data = json_decode($raw, true);
         $command = unserialize($data['data']['command'], ['allowed_classes' => [OutboundLaravelJob::class]]);
 
-        if (!$command instanceof OutboundLaravelJob) {
+        if (! $command instanceof OutboundLaravelJob) {
             // Foreign job in the queue — skip (ack via delete).
             $job->delete();
 
@@ -66,7 +65,7 @@ final class LaravelQueueAdapter implements OutboundQueueContract
         }
 
         $envelopeData = json_decode($command->payload, true);
-        $envelope = OutboundEnvelope::fromJson((array)$envelopeData);
+        $envelope = OutboundEnvelope::fromJson((array) $envelopeData);
         $envelope->deliveryId = $job->getJobId();
 
         // Destructive pop: delete immediately (ack). Laravel does not provide a separate ack —
@@ -105,6 +104,6 @@ final class LaravelQueueAdapter implements OutboundQueueContract
 
     public function size(): int
     {
-        return (int)$this->queue->size(self::QUEUE_NAME);
+        return (int) $this->queue->size(self::QUEUE_NAME);
     }
 }

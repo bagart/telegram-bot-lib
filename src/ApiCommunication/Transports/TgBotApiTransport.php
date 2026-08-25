@@ -20,27 +20,28 @@ final class TgBotApiTransport implements TgBotApiTransportContract, WithASKTicka
 {
     public function __construct(
         private readonly HttpTransportContract $httpTransport,
-        private readonly TgRequestFactory $requestFactory = new TgRequestFactory(),
-        private readonly TgResponseDecoder $decoder = new TgResponseDecoder(),
+        private readonly TgRequestFactory $requestFactory = new TgRequestFactory,
+        private readonly TgResponseDecoder $decoder = new TgResponseDecoder,
         private readonly ?ASKPromiseResolverContract $promiseResolver = null,
-    ) {
-    }
+    ) {}
 
     public function request(
         TgBotConfig $config,
         string $method,
         array $params = [],
         ?int $timeout = null,
+        array $files = [],
     ): array {
         $httpRequest = $this->requestFactory->make(
             tgMethodName: $method,
             parameters: $params,
             botConfig: $config,
             timeout: $timeout,
+            files: $files,
         );
 
         return $this->decoder->decode(
-            (string)$this->httpTransport->request($httpRequest)->getBody(),
+            (string) $this->httpTransport->request($httpRequest)->getBody(),
         );
     }
 
@@ -49,12 +50,14 @@ final class TgBotApiTransport implements TgBotApiTransportContract, WithASKTicka
         string $method,
         array $params = [],
         ?int $timeout = null,
+        array $files = [],
     ): ASKFutureContract {
         $httpRequest = $this->requestFactory->make(
             tgMethodName: $method,
             parameters: $params,
             botConfig: $config,
             timeout: $timeout,
+            files: $files,
         );
 
         $promise = $this->httpTransport->requestAsync($httpRequest);
@@ -63,7 +66,7 @@ final class TgBotApiTransport implements TgBotApiTransportContract, WithASKTicka
             new CallbackProducer(
                 function () use ($promise): array {
                     return $this->decoder->decode(
-                        (string)$promise->await()->getBody(),
+                        (string) $promise->await()->getBody(),
                     );
                 }
             ),

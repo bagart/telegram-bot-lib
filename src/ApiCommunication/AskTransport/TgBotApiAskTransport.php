@@ -29,14 +29,13 @@ final class TgBotApiAskTransport implements ASKTransportContract
 {
     public function __construct(
         private readonly ApiClientContract $apiClient,
-        private readonly TgRequestFactory $requestFactory = new TgRequestFactory(),
-        private readonly TgResponseDecoder $decoder = new TgResponseDecoder(),
-    ) {
-    }
+        private readonly TgRequestFactory $requestFactory = new TgRequestFactory,
+        private readonly TgResponseDecoder $decoder = new TgResponseDecoder,
+    ) {}
 
     public function execute(object $operation, ASKContextContract $context): ASKFutureContract
     {
-        if (!$operation instanceof TgApiAskOperation) {
+        if (! $operation instanceof TgApiAskOperation) {
             return ASKFuture::failed(
                 new \InvalidArgumentException(
                     sprintf('Expected TgApiAskOperation, got %s', get_debug_type($operation)),
@@ -49,13 +48,14 @@ final class TgBotApiAskTransport implements ASKTransportContract
             parameters: $operation->params,
             botConfig: $operation->config,
             timeout: $operation->timeout,
+            files: $operation->files,
         );
 
         $promise = $this->apiClient
             ->requestAsync($httpRequest)
             ->then(
                 fn ($response): array => $this
-                    ->decoder->decode((string)$response->getBody()),
+                    ->decoder->decode((string) $response->getBody()),
             );
 
         return ASKFuture::pending(

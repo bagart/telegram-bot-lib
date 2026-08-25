@@ -8,9 +8,9 @@ use BAGArt\TelegramBot\ApiCommunication\AskTransport\TgEnvelope;
 
 final class CircuitBreakerMiddleware implements TgMiddlewareContract
 {
-    public function handle(TgEnvelope $env, callable $next): mixed
+    public function handle(TgEnvelope $env, TgNextHandlerContract $next): mixed
     {
         // simplified placeholder
-        return $next($env);
+        return $next->handle($env);
     }
 }

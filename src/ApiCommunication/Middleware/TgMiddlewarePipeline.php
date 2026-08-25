@@ -6,6 +6,15 @@ namespace BAGArt\TelegramBot\ApiCommunication\Middleware;
 
 use BAGArt\TelegramBot\ApiCommunication\AskTransport\TgEnvelope;
 
+/**
+ * Telegram API middleware pipeline (PSR-15 style, mixed return).
+ *
+ * Chain is folded right-to-left into a linked list of named
+ * {@see TgNextHandler} nodes terminated by a {@see TgTerminalHandler}
+ * wrapping the caller-supplied core executor.
+ *
+ * Call order = order in the middleware list (first = outermost, last = core).
+ */
 final class TgMiddlewarePipeline
 {
     /** @var TgMiddlewareContract[] */
@@ -20,15 +29,12 @@ final class TgMiddlewarePipeline
 
     public function execute(TgEnvelope $env, callable $core): mixed
     {
-        $runner = array_reduce(
-            array_reverse($this->middlewares),
-            static fn ($next, TgMiddlewareContract $mw): callable => static fn (TgEnvelope $env): mixed => $mw->handle(
-                $env,
-                $next
-            ),
-            $core,
-        );
+        $handler = TgTerminalHandler::fromCallable($core);
 
-        return $runner($env);
+        foreach (array_reverse($this->middlewares) as $middleware) {
+            $handler = new TgNextHandler($middleware, $handler);
+        }
+
+        return $handler->handle($env);
     }
 }

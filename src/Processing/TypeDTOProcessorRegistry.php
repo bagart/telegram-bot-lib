@@ -7,7 +7,6 @@ namespace BAGArt\TelegramBot\Processing;
 use BAGArt\AsyncKernel\Exceptions\ASKInterruptException;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
-use BAGArt\TelegramBot\Processing\Processors\CallableProcessor;
 use Generator;
 
 class TypeDTOProcessorRegistry
@@ -20,7 +19,7 @@ class TypeDTOProcessorRegistry
     public static function build(
         array $processorsByDtoTypeList = [],
     ): self {
-        $registry = new self();
+        $registry = new self;
 
         foreach ($processorsByDtoTypeList as $dtoClass => $processorClasses) {
             foreach ($processorClasses as $processorClass) {
@@ -33,19 +32,12 @@ class TypeDTOProcessorRegistry
 
     /**
      * @param  class-string<TgApiTypeDTOContract>  $dtoClass
-     * @param  TgTypeDTOProcessorContract|class-string<TgTypeDTOProcessorContract>|callable  $processor
+     * @param  TgTypeDTOProcessorContract|class-string<TgTypeDTOProcessorContract>  $processor
      */
-    public function register(string $dtoClass, TgTypeDTOProcessorContract|string|callable $processor): self
+    public function register(string $dtoClass, TgTypeDTOProcessorContract|string $processor): self
     {
-        // Wrap bare callables in CallableProcessor
-        if ($processor instanceof \Closure || is_callable($processor)) {
-            $processor = new CallableProcessor(fn: $processor);
-        }
-
         if ($this->check && is_string($processor)) {
-            if ($processor !== CallableProcessor::class) {
-                assert(is_a($processor, TgTypeDTOProcessorContract::class, true));
-            }
+            assert(is_a($processor, TgTypeDTOProcessorContract::class, true));
         }
 
         $classToRegister = is_string($processor) ? $processor : $processor::class;
@@ -76,7 +68,7 @@ class TypeDTOProcessorRegistry
             $dto = $dto::class;
         }
         foreach ($this->processors[$dto] ?? [] as $key => $processor) {
-            if (!is_object($processor)) {
+            if (! is_object($processor)) {
                 try {
                     $processor = $processor::build($context);
                 } catch (ASKInterruptException $e) {

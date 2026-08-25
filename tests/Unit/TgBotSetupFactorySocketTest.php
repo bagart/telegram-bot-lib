@@ -1,5 +1,6 @@
 <?php
 
+use BAGArt\ASKClient\Contracts\Dns\AskDnsAdapterContract;
 use BAGArt\ASKClient\Transport\Adapters\ASKSocketTransportAdapter;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
@@ -57,7 +58,13 @@ describe('TgBotSetupFactory socket pool', function (): void {
     $build = function (TgServiceConfig $config, array $env): ?ASKSocketTransportAdapter {
         $method = new ReflectionMethod(TgBotSetupFactory::class, 'buildSocketTransport');
 
-        return $method->invoke(null, $config, new ASKLogWrapper(), $env);
+        return $method->invoke(
+            null,
+            $config,
+            new ASKLogWrapper,
+            $env,
+            Mockery::mock(AskDnsAdapterContract::class),
+        );
     };
 
     it(
@@ -93,11 +100,11 @@ describe('TgBotSetupFactory socket pool', function (): void {
     });
 
     it('skips warmup when WARM_CONNECTIONS <= 0', function (): void {
-        $transport = new ASKSocketTransportAdapter();
+        $transport = new ASKSocketTransportAdapter;
 
         $warmed = TgBotSetupFactory::warmSocketPool(
             $transport,
-            new ASKLogWrapper(),
+            new ASKLogWrapper,
             ['TG_OUTBOUND_WARM_CONNECTIONS' => '0'],
         );
 
@@ -105,11 +112,11 @@ describe('TgBotSetupFactory socket pool', function (): void {
     });
 
     it('skips warmup when WARM_HOST is empty', function (): void {
-        $transport = new ASKSocketTransportAdapter();
+        $transport = new ASKSocketTransportAdapter;
 
         $warmed = TgBotSetupFactory::warmSocketPool(
             $transport,
-            new ASKLogWrapper(),
+            new ASKLogWrapper,
             ['TG_OUTBOUND_WARM_CONNECTIONS' => '4', 'TG_OUTBOUND_WARM_HOST' => ''],
         );
 

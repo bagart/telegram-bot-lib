@@ -10,16 +10,15 @@ final class RetryMiddleware implements TgMiddlewareContract
 {
     public function __construct(
         private int $maxRetries = 2,
-    ) {
-    }
+    ) {}
 
-    public function handle(TgEnvelope $env, callable $next): mixed
+    public function handle(TgEnvelope $env, TgNextHandlerContract $next): mixed
     {
         $i = 0;
 
         retry:
         try {
-            return $next($env);
+            return $next->handle($env);
         } catch (\Throwable $e) {
             if (++$i <= $this->maxRetries) {
                 goto retry;

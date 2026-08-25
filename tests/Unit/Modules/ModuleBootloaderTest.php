@@ -12,7 +12,7 @@ use BAGArt\TelegramBot\Modules\TgModuleRegistrar;
 use BAGArt\TelegramBot\Modules\TgModuleRegistry;
 use BAGArt\TelegramBot\Modules\TypedModuleRegistrar;
 use BAGArt\TelegramBot\Processing\BotProcessorContext;
-use BAGArt\TelegramBot\Processing\Processors\CallableProcessor;
+use BAGArt\TelegramBot\Processing\Processors\DbgDTOToLoggerProcessor;
 use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgBotSetupFactory;
@@ -21,7 +21,7 @@ use Monolog\Logger;
 
 function modulesTestLogger(): ASKLogWrapper
 {
-    return new ASKLogWrapper(new Logger('test', [new NullHandler()]));
+    return new ASKLogWrapper(new Logger('test', [new NullHandler]));
 }
 
 function modulesTestRegistrar(TypeDTOProcessorRegistry $processorRegistry): TgModuleRegistrar
@@ -31,7 +31,7 @@ function modulesTestRegistrar(TypeDTOProcessorRegistry $processorRegistry): TgMo
 
 function modulesTestContext(): BotProcessorContext
 {
-    $botSetup = TgBotSetupFactory::build()->create(serviceConfig: new TgServiceConfig());
+    $botSetup = TgBotSetupFactory::build()->create(serviceConfig: new TgServiceConfig);
 
     return BotProcessorContext::fromBotSetup($botSetup);
 }
@@ -39,14 +39,15 @@ function modulesTestContext(): BotProcessorContext
 describe('ModuleBootloader', function () {
     it('boots a module and registers its processor', function () {
         $processorRegistry = TypeDTOProcessorRegistry::build();
-        $registry = new TgModuleRegistry();
+        $registry = new TgModuleRegistry;
         $bootloader = new ModuleBootloader(
             registrar: modulesTestRegistrar($processorRegistry),
             registry: $registry,
             logger: modulesTestLogger(),
         );
 
-        $provider = get_class(new class () implements TgModuleContract {
+        $provider = get_class(new class implements TgModuleContract
+        {
             public static function descriptor(): TgModuleDescriptor
             {
                 return new TgModuleDescriptor(
@@ -59,7 +60,7 @@ describe('ModuleBootloader', function () {
 
             public static function register(TgModuleRegistrar $registrar): void
             {
-                $registrar->processor(MessageTypeDTO::class, CallableProcessor::class);
+                $registrar->processor(MessageTypeDTO::class, DbgDTOToLoggerProcessor::class);
             }
         });
 
@@ -74,18 +75,19 @@ describe('ModuleBootloader', function () {
             $processorRegistry->get(MessageTypeDTO::class, modulesTestContext())
         );
         expect($built)->toHaveCount(1);
-        expect($built[0])->toBeInstanceOf(CallableProcessor::class);
+        expect($built[0])->toBeInstanceOf(DbgDTOToLoggerProcessor::class);
     });
 
     it('is idempotent: repeated boot does not duplicate', function () {
         $processorRegistry = TypeDTOProcessorRegistry::build();
         $bootloader = new ModuleBootloader(
             registrar: modulesTestRegistrar($processorRegistry),
-            registry: new TgModuleRegistry(),
+            registry: new TgModuleRegistry,
             logger: modulesTestLogger(),
         );
 
-        $provider = get_class(new class () implements TgModuleContract {
+        $provider = get_class(new class implements TgModuleContract
+        {
             public static function descriptor(): TgModuleDescriptor
             {
                 return new TgModuleDescriptor(id: 'dup', name: 'Dup', version: '1.0.0');
@@ -93,7 +95,7 @@ describe('ModuleBootloader', function () {
 
             public static function register(TgModuleRegistrar $registrar): void
             {
-                $registrar->processor(MessageTypeDTO::class, CallableProcessor::class);
+                $registrar->processor(MessageTypeDTO::class, DbgDTOToLoggerProcessor::class);
             }
         });
 
@@ -108,33 +110,31 @@ describe('ModuleBootloader', function () {
 
     it('skips a broken module but boots the rest (fault isolation)', function () {
         $processorRegistry = TypeDTOProcessorRegistry::build();
-        $registry = new TgModuleRegistry();
+        $registry = new TgModuleRegistry;
         $bootloader = new ModuleBootloader(
             registrar: modulesTestRegistrar($processorRegistry),
             registry: $registry,
             logger: modulesTestLogger(),
         );
 
-        $broken = get_class(new class () implements TgModuleContract {
+        $broken = get_class(new class implements TgModuleContract
+        {
             public static function descriptor(): TgModuleDescriptor
             {
                 throw new RuntimeException('broken descriptor');
             }
 
-            public static function register(TgModuleRegistrar $registrar): void
-            {
-            }
+            public static function register(TgModuleRegistrar $registrar): void {}
         });
 
-        $working = get_class(new class () implements TgModuleContract {
+        $working = get_class(new class implements TgModuleContract
+        {
             public static function descriptor(): TgModuleDescriptor
             {
                 return new TgModuleDescriptor(id: 'working', name: 'Working', version: '1.0.0');
             }
 
-            public static function register(TgModuleRegistrar $registrar): void
-            {
-            }
+            public static function register(TgModuleRegistrar $registrar): void {}
         });
 
         $booted = $bootloader->bootAll([$broken, $working]);
@@ -145,18 +145,17 @@ describe('ModuleBootloader', function () {
     });
 
     it('skips duplicate module ids: first registered wins', function () {
-        $makeProvider = fn () => get_class(new class () implements TgModuleContract {
+        $makeProvider = fn () => get_class(new class implements TgModuleContract
+        {
             public static function descriptor(): TgModuleDescriptor
             {
                 return new TgModuleDescriptor(id: 'same-id', name: 'static', version: '1.0.0');
             }
 
-            public static function register(TgModuleRegistrar $registrar): void
-            {
-            }
+            public static function register(TgModuleRegistrar $registrar): void {}
         });
 
-        $registry = new TgModuleRegistry();
+        $registry = new TgModuleRegistry;
         $bootloader = new ModuleBootloader(
             registrar: modulesTestRegistrar(TypeDTOProcessorRegistry::build()),
             registry: $registry,
@@ -172,7 +171,7 @@ describe('ModuleBootloader', function () {
     it('rejects providers that do not implement TgModuleContract', function () {
         $bootloader = new ModuleBootloader(
             registrar: modulesTestRegistrar(TypeDTOProcessorRegistry::build()),
-            registry: new TgModuleRegistry(),
+            registry: new TgModuleRegistry,
             logger: modulesTestLogger(),
         );
 

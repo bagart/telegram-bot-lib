@@ -22,30 +22,43 @@ final class UpdateRouter implements UpdateRouterContract
         private readonly TgServiceConfig $serviceConfig,
         private readonly TgBotSetup $botSetup,
         private readonly ProcessingErrorConsumer $errorConsumer,
-        private readonly ASKSchedulerContract $scheduler = new ASKFiberScheduler(),
-        private readonly ASKSchedulerContract $processorsScheduler = new ASKFiberScheduler(),
-        private readonly OrderedExecutionCoordinator $coordinator = new OrderedExecutionCoordinator(),
-    ) {
-    }
+        private readonly ASKSchedulerContract $scheduler = new ASKFiberScheduler,
+        private readonly ASKSchedulerContract $processorsScheduler = new ASKFiberScheduler,
+        private readonly OrderedExecutionCoordinator $coordinator = new OrderedExecutionCoordinator,
+    ) {}
 
     public function dispatch(UpdateContext $updateContext): void
     {
-        //@todo queue by $serviceConfig
-        //$this->partitionScheduler->enqueue($updateContext);
-        $task = fn () => $this->process($updateContext);
+        // @todo queue by $serviceConfig
+        // $this->partitionScheduler->enqueue($updateContext);
+        $task = new ProcessUpdateTask($this, $updateContext);
 
         if ($updateContext->executionKey !== null) {
-            $task = $this->coordinator->enqueue(
+            $runnable = $this->coordinator->enqueue(
                 key: $updateContext->executionKey,
                 task: $task,
             );
 
-            if ($task === null) {
+            if ($runnable === null) {
                 return;
             }
+
+            $this->scheduler->enqueue($runnable);
+
+            return;
         }
 
-        $this->scheduler->enqueue($task);
+        // Scheduler API is Fiber|Closure — first-class callable of the named task.
+        $this->scheduler->enqueue($task->execute(...));
+    }
+
+    /**
+     * Internal entry the {@see ProcessUpdateTask} calls — kept beside dispatch()
+     * so ordered tasks stay named objects without exposing processing to callers.
+     */
+    public function runProcess(UpdateContext $updateContext): void
+    {
+        $this->process($updateContext);
     }
 
     private function process(UpdateContext $updateContext): void
@@ -78,7 +91,7 @@ final class UpdateRouter implements UpdateRouterContract
     {
         return [
             $this->scheduler,
-            $this->processorsScheduler
+            $this->processorsScheduler,
         ];
     }
 }

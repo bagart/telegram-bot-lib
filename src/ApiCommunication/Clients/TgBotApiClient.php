@@ -15,8 +15,7 @@ final class TgBotApiClient implements TgBotApiClientContract
 {
     public function __construct(
         private readonly TgBotApiTransportContract $transport,
-    ) {
-    }
+    ) {}
 
     public static function build(HttpTransportContract $httpTransport): self
     {
@@ -29,8 +28,9 @@ final class TgBotApiClient implements TgBotApiClientContract
         TgBotConfig $config,
         string $method,
         array $params = [],
+        array $files = [],
     ): array {
-        return $this->transport->request($config, $method, $params);
+        return $this->transport->request($config, $method, $params, null, $files);
     }
 
     public function requestAsync(
@@ -38,7 +38,8 @@ final class TgBotApiClient implements TgBotApiClientContract
         string $method,
         array $params = [],
         ?int $timeout = null,
+        array $files = [],
     ): ASKFutureContract {
-        return $this->transport->requestAsync($config, $method, $params, $timeout);
+        return $this->transport->requestAsync($config, $method, $params, $timeout, $files);
     }
 }

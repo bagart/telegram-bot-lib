@@ -15,48 +15,50 @@ use BAGArt\TelegramBot\Outbound\TaskPriority;
 /**
  * Hand-rollable fake clock — allows shifting time in lease expiry tests.
  */
-class ControllableClock implements ASKClockContract
-{
-    public int $time;
-
-    public function __construct(int $startTime = 1000000)
+if (!class_exists('ControllableClock')) {
+    class ControllableClock implements ASKClockContract
     {
-        $this->time = $startTime;
-    }
+        public int $time;
 
-    public function advance(int $seconds): void
-    {
-        $this->time += $seconds;
-    }
+        public function __construct(int $startTime = 1000000)
+        {
+            $this->time = $startTime;
+        }
 
-    public function microtime(): float
-    {
-        return (float)$this->time;
-    }
+        public function advance(int $seconds): void
+        {
+            $this->time += $seconds;
+        }
 
-    public function time(): int
-    {
-        return $this->time;
-    }
+        public function microtime(): float
+        {
+            return (float)$this->time;
+        }
 
-    public function timeMs(): int
-    {
-        return $this->time * 1000;
-    }
+        public function time(): int
+        {
+            return $this->time;
+        }
 
-    public function hrtime(): int
-    {
-        return $this->time * ASKClockContract::NS_PER_SEC;
-    }
+        public function timeMs(): int
+        {
+            return $this->time * 1000;
+        }
 
-    public function sleep(int $microseconds): void
-    {
-        $this->advance((int)($microseconds / 1_000_000));
-    }
+        public function hrtime(): int
+        {
+            return $this->time * ASKClockContract::NS_PER_SEC;
+        }
 
-    public function getSecondsFromInterval(DateInterval $interval): int
-    {
-        return 0;
+        public function sleep(int $microseconds): void
+        {
+            $this->advance((int)($microseconds / 1_000_000));
+        }
+
+        public function getSecondsFromInterval(DateInterval $interval): int
+        {
+            return 0;
+        }
     }
 }
 

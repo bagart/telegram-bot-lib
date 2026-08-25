@@ -8,35 +8,89 @@ use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEnumContract;
+use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
 use BAGArt\TelegramBot\Exceptions\TgUnexpectedDataFormatException;
 
 readonly class TgApiDTOMapper implements TgApiDTOMapperContract
 {
+    private const string UPLOAD_FILE_SCHEME = 'file://';
+
     public function __construct(
         private TgApiDTORegistryContract $tgApiDTORegistry,
         private ?ASKLogWrapper $logger = null,
-    ) {
-    }
+    ) {}
 
     public function toArray(TgApiDTOContract $dto): array
     {
         $data = [];
         foreach ($dto::tgPropertyMetas() as $tgPropName => $dtoProperty) {
-            $dtoPop = $dtoProperty->property;
-            $value = $dto->$dtoPop;
-            if ($value instanceof TgApiDTOContract) {
-                $value = $this->toArray($value);
-            } elseif ($value instanceof TgApiEnumContract) {
-                $value = $value->value;
-            }
+            $value = $this->normalizeValue($dto, $dtoProperty, $dto->{$dtoProperty->property});
             if ($value !== null || $dtoProperty->required) {
                 $data[$tgPropName] = $value;
             }
         }
 
         return $data;
+    }
+
+    public function splitRequest(TgApiMethodDTOContract $dto): array
+    {
+        $parameters = [];
+        $files = [];
+
+        foreach ($dto::tgPropertyMetas() as $tgPropName => $dtoProperty) {
+            $rawValue = $dto->{$dtoProperty->property};
+
+            // Uploadable local files travel in ASKHttpRequest::$files instead
+            // of the JSON body (Track B, todo.tts.md §6).
+            if (
+                is_string($rawValue)
+                && str_starts_with($rawValue, self::UPLOAD_FILE_SCHEME)
+                && self::acceptsUploadedFile($dtoProperty)
+            ) {
+                $path = substr($rawValue, strlen(self::UPLOAD_FILE_SCHEME));
+
+                if ($path !== '') {
+                    $files[$tgPropName] = $path;
+
+                    continue;
+                }
+            }
+
+            $value = $this->normalizeValue($dto, $dtoProperty, $rawValue);
+
+            if ($value !== null || $dtoProperty->required) {
+                $parameters[$tgPropName] = $value;
+            }
+        }
+
+        return ['parameters' => $parameters, 'files' => $files];
+    }
+
+    private function normalizeValue(TgApiDTOContract $dto, TgApiProperty $dtoProperty, mixed $value): mixed
+    {
+        if ($value instanceof TgApiDTOContract) {
+            return $this->toArray($value);
+        }
+
+        if ($value instanceof TgApiEnumContract) {
+            return $value->value;
+        }
+
+        return $value;
+    }
+
+    private static function acceptsUploadedFile(TgApiProperty $dtoProperty): bool
+    {
+        foreach ($dtoProperty->tgTypes as $tgType) {
+            if (($tgType['type'] ?? null) === 'input-file') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -109,7 +163,7 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
 
         foreach ($phpTypes as $phpType) {
             if (is_array($phpType)) {
-                if (!is_array($propValue)) {
+                if (! is_array($propValue)) {
                     continue;
                 }
 
@@ -142,9 +196,9 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
                         $propValue,
                     );
             }
-            if ($phpType === 'string' && !is_string($propValue) && is_numeric($propValue)) {
+            if ($phpType === 'string' && ! is_string($propValue) && is_numeric($propValue)) {
                 // int52|float
-                $propValue = (string)$propValue;
+                $propValue = (string) $propValue;
             }
 
             if ($this->matchPrimitiveType($phpType, $propValue)) {

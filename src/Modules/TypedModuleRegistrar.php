@@ -6,9 +6,9 @@ namespace BAGArt\TelegramBot\Modules;
 
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
-use BAGArt\TelegramBot\Processing\Processors\MessageValidator\MessageValidationRule;
 use BAGArt\TelegramBot\Outbound\OutboundMiddleware;
 use BAGArt\TelegramBot\Outbound\OutboundMiddlewareRegistry;
+use BAGArt\TelegramBot\Processing\Processors\MessageValidator\MessageValidationRule;
 use BAGArt\TelegramBot\Processing\Processors\MessageValidator\MessageValidationRuleRegistry;
 use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
 use LogicException;
@@ -25,19 +25,16 @@ final class TypedModuleRegistrar implements TgModuleRegistrar
         private readonly ?OutboundMiddlewareRegistry $outboundMiddlewareRegistry = null,
         private readonly ?TgCommandRegistry $commandRegistry = null,
         private readonly ?AttributedComponentsScanner $attributedScanner = null,
-    ) {
-    }
+    ) {}
 
     public function processor(string $dtoClass, string $processorClass): self
     {
-        assert(
-            is_a($processorClass, TgTypeDTOProcessorContract::class, true),
-            "$processorClass must implement TgTypeDTOProcessorContract",
-        );
-        assert(
-            is_a($dtoClass, TgApiTypeDTOContract::class, true),
-            "$dtoClass must implement TgApiTypeDTOContract",
-        );
+        if (! is_a($processorClass, TgTypeDTOProcessorContract::class, true)) {
+            throw new LogicException("$processorClass must implement ".TgTypeDTOProcessorContract::class);
+        }
+        if (! is_a($dtoClass, TgApiTypeDTOContract::class, true)) {
+            throw new LogicException("$dtoClass must implement ".TgApiTypeDTOContract::class);
+        }
 
         $this->processorRegistry->register($dtoClass, $processorClass);
 
@@ -46,10 +43,9 @@ final class TypedModuleRegistrar implements TgModuleRegistrar
 
     public function validationRule(string $ruleClass, int $weight = 0): self
     {
-        assert(
-            is_a($ruleClass, MessageValidationRule::class, true),
-            "$ruleClass must implement MessageValidationRule",
-        );
+        if (! is_a($ruleClass, MessageValidationRule::class, true)) {
+            throw new LogicException("$ruleClass must implement ".MessageValidationRule::class);
+        }
 
         if ($this->ruleRegistry === null) {
             throw new LogicException(
@@ -65,10 +61,9 @@ final class TypedModuleRegistrar implements TgModuleRegistrar
 
     public function outboundMiddleware(string $middlewareClass): self
     {
-        assert(
-            is_a($middlewareClass, OutboundMiddleware::class, true),
-            "$middlewareClass must implement OutboundMiddleware",
-        );
+        if (! is_a($middlewareClass, OutboundMiddleware::class, true)) {
+            throw new LogicException("$middlewareClass must implement ".OutboundMiddleware::class);
+        }
 
         if ($this->outboundMiddlewareRegistry === null) {
             throw new LogicException(

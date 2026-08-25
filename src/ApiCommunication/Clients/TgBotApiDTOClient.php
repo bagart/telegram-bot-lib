@@ -28,8 +28,7 @@ final class TgBotApiDTOClient implements TgBotApiDTOClientContract
         private readonly TgApiDTOMapperContract $tgApiDTOMapper,
         private readonly TgResponseParser $returnParser,
         private readonly ?TgBotApiTransportContract $transport = null,
-    ) {
-    }
+    ) {}
 
     public static function build(
         TgBotApiTransportContract $transport,
@@ -81,11 +80,17 @@ final class TgBotApiDTOClient implements TgBotApiDTOClientContract
     ): ASKFutureContract {
         $tgMethodName = $dto::tgApiEntity()->name;
 
+        // The file split happens here — at the send point. Queue
+        // serialization (TgSender) uses toArray() and keeps `file://` values
+        // intact, so a queued task round-trips through Redis losslessly.
+        $split = $this->tgApiDTOMapper->splitRequest($dto);
+
         $rawFuture = $this->tgClient->requestAsync(
             $botConfig,
             $tgMethodName,
-            $this->tgApiDTOMapper->toArray($dto),
+            $split['parameters'],
             $timeout,
+            $split['files'],
         );
 
         return $rawFuture->then(

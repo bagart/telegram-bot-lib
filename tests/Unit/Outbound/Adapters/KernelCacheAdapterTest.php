@@ -10,7 +10,8 @@ use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
  * Hand-rolled PSR-16 cache (in-memory array store), wrapped in ASKCacheWrapper.
  * Implements the methods used by KernelCacheAdapter: get/set/forget.
  */
-function makeCacheWrapper(): ASKCacheWrapper
+if (!function_exists('makeCacheWrapper')) {
+    function makeCacheWrapper(): ASKCacheWrapper
 {
     $psr16 = new class () implements Psr\SimpleCache\CacheInterface {
         /** @var array<string, mixed> */
@@ -64,6 +65,7 @@ function makeCacheWrapper(): ASKCacheWrapper
     };
 
     return new ASKCacheWrapper($psr16);
+}
 }
 
 describe('KernelCacheAdapter', function () {

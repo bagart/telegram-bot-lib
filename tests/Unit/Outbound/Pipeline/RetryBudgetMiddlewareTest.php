@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use BAGArt\TelegramBot\Configs\TgBotConfig;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
 use BAGArt\TelegramBot\Outbound\OutboundSkipException;
 use BAGArt\TelegramBot\Outbound\OutboundTask;
@@ -21,16 +22,22 @@ function makeBudgetTask(): OutboundTask
 
 function makeBudgetSpy(): array
 {
-    $box = new class () {
+    $box = new class
+    {
         public bool $called = false;
     };
 
-    return [
-        static function (OutboundEnvelope $e) use ($box): void {
-            $box->called = true;
-        },
-        $box,
-    ];
+    $spy = new class($box) implements OutboundNextHandlerContract
+    {
+        public function __construct(private readonly object $box) {}
+
+        public function handle(OutboundEnvelope $envelope): void
+        {
+            $this->box->called = true;
+        }
+    };
+
+    return [$spy, $box];
 }
 
 describe('RetryBudgetMiddleware', function () {

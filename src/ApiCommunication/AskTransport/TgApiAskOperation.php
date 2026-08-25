@@ -13,11 +13,15 @@ use BAGArt\TelegramBot\Configs\TgBotConfig;
  */
 final class TgApiAskOperation
 {
+    /**
+     * @param  array<string, mixed>  $params
+     * @param  array<string, \CURLFile|resource|string>  $files
+     */
     public function __construct(
         public readonly TgBotConfig $config,
         public readonly string $method,
         public readonly array $params = [],
         public readonly ?int $timeout = null,
-    ) {
-    }
+        public readonly array $files = [],
+    ) {}
 }

@@ -7,15 +7,13 @@ namespace BAGArt\TelegramBot;
 use BAGArt\ASKClient\Client\ASKClient;
 use BAGArt\ASKClient\Contracts\Client\ApiClientContract;
 use BAGArt\ASKClient\Contracts\Dns\AskDnsAdapterContract;
-use BAGArt\ASKClient\Contracts\Dns\AskDnsResolverContract;
 use BAGArt\ASKClient\Contracts\Transport\HttpTransportContract;
-use BAGArt\ASKClient\Dns\AskDnsConfig;
 use BAGArt\ASKClient\Dns\AskDnsConfigFactory;
 use BAGArt\ASKClient\Dns\AskDnsFactory;
 use BAGArt\ASKClient\Dns\AskDnsRegistry;
-use BAGArt\ASKClient\HttpClient\ApiClient;
 use BAGArt\ASKClient\HttpClient\Adapters\AskCurlMultiClientAdapter;
 use BAGArt\ASKClient\HttpClient\Adapters\AskGuzzleClientAdapter;
+use BAGArt\ASKClient\HttpClient\ApiClient;
 use BAGArt\ASKClient\HttpClient\PoolWarmer;
 use BAGArt\ASKClient\RateLimiter\ASKRateLimiter;
 use BAGArt\ASKClient\SocketClient\AskHttpSocketClient;
@@ -46,6 +44,10 @@ use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgResponseNormalizerContract;
 use BAGArt\TelegramBot\Contracts\BotServices\TgBotsSecretServiceContract;
+use BAGArt\TelegramBot\Contracts\Modules\ModuleEnablementContract;
+use BAGArt\TelegramBot\Contracts\Outbound\BotTokenResolverContract;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract;
+use BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTOMapperContract;
 use BAGArt\TelegramBot\Contracts\TgApiServices\TgApiDTORegistryContract;
 use BAGArt\TelegramBot\Exceptions\TgTechnicalException;
@@ -53,17 +55,19 @@ use BAGArt\TelegramBot\Framework\Laravel\LaravelAskDnsResolver;
 use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
 use BAGArt\TelegramBot\Modules\AttributedComponentsScanner;
 use BAGArt\TelegramBot\Modules\ModuleBootloader;
-use BAGArt\TelegramBot\Outbound\OutboundMiddlewareRegistry;
 use BAGArt\TelegramBot\Modules\TgCommandRegistry;
 use BAGArt\TelegramBot\Modules\TgModuleRegistrar;
 use BAGArt\TelegramBot\Modules\TgModuleRegistry;
 use BAGArt\TelegramBot\Modules\TypedModuleRegistrar;
+use BAGArt\TelegramBot\Outbound\OutboundMiddlewareRegistry;
+use BAGArt\TelegramBot\Outbound\TgOutboundStats;
 use BAGArt\TelegramBot\Processing\Processors\MessageValidator\MessageValidationRuleRegistry;
 use BAGArt\TelegramBot\Processing\RegisteredUpdateProcessorSelector;
 use BAGArt\TelegramBot\Processing\TypeDTOProcessorRegistry;
 use BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper;
 use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistry;
 use BAGArt\TelegramBot\TgIntegration\AutoSecretByTokenService;
+use BAGArt\TelegramBotManagement\Models\TgDbTokenResolver;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Log\Logger;
 use Illuminate\Support\ServiceProvider;
@@ -79,6 +83,7 @@ class TelegramBotServiceProvider extends ServiceProvider
             function ($app): ASKLogWrapper {
                 /** @var Logger $logger */
                 $logger = $app->make(Logger::class);
+
                 return new ASKLogWrapper($logger, ASKLogWrapper::LEVEL_INFO);
             }
         );
@@ -89,6 +94,7 @@ class TelegramBotServiceProvider extends ServiceProvider
                 /** @var CacheManager $cacheManager */
                 $cacheManager = $app->make(CacheManager::class);
                 $cache = $cacheManager->store();
+
                 return new ASKCacheWrapper($cache);
             }
         );
@@ -122,7 +128,7 @@ class TelegramBotServiceProvider extends ServiceProvider
         $this->app->singleton(
             AskDnsAdapterContract::class,
             function ($app): AskDnsAdapterContract {
-                $dns = (array)config('tg-outbound-daemon.daemon.dns', []);
+                $dns = (array) config('tg-outbound-daemon.daemon.dns', []);
                 $config = AskDnsConfigFactory::fromLaravelConfig($dns);
 
                 return (new AskDnsRegistry(
@@ -140,14 +146,14 @@ class TelegramBotServiceProvider extends ServiceProvider
         $this->app->singleton(
             AskHttpSocketClient::class,
             function (): AskHttpSocketClient {
-                $pool = (array)config('tg-outbound-daemon.daemon.socket_pool', []);
+                $pool = (array) config('tg-outbound-daemon.daemon.socket_pool', []);
 
                 return new AskHttpSocketClient(
                     new HttpsSocketClientConfig(
-                        keepAlive: (bool)($pool['enabled'] ?? false),
-                        maxIdlePerHost: (int)($pool['max_idle_per_host'] ?? 4),
-                        maxIdleTotal: (int)($pool['max_idle_total'] ?? 16),
-                        idleTimeout: (float)($pool['idle_timeout'] ?? 30.0),
+                        keepAlive: (bool) ($pool['enabled'] ?? false),
+                        maxIdlePerHost: (int) ($pool['max_idle_per_host'] ?? 4),
+                        maxIdleTotal: (int) ($pool['max_idle_total'] ?? 16),
+                        idleTimeout: (float) ($pool['idle_timeout'] ?? 30.0),
                     ),
                     null,
                     $this->app->make(AskDnsAdapterContract::class),
@@ -161,14 +167,14 @@ class TelegramBotServiceProvider extends ServiceProvider
         $this->app->singleton(
             PoolWarmer::class,
             function (): ?PoolWarmer {
-                $pool = (array)config('tg-outbound-daemon.daemon.socket_pool', []);
+                $pool = (array) config('tg-outbound-daemon.daemon.socket_pool', []);
 
-                if (!($pool['enabled'] ?? false)) {
+                if (! ($pool['enabled'] ?? false)) {
                     return null;
                 }
 
-                $warmCount = (int)($pool['warm_connections'] ?? 0);
-                $warmHost = (string)($pool['warm_host'] ?? '');
+                $warmCount = (int) ($pool['warm_connections'] ?? 0);
+                $warmHost = (string) ($pool['warm_host'] ?? '');
 
                 if ($warmCount <= 0 || $warmHost === '') {
                     return null;
@@ -178,7 +184,7 @@ class TelegramBotServiceProvider extends ServiceProvider
                     client: $this->app->make(AskHttpSocketClient::class),
                     warmHost: $warmHost,
                     warmCount: $warmCount,
-                    warmInterval: (float)($pool['warm_interval'] ?? 30.0),
+                    warmInterval: (float) ($pool['warm_interval'] ?? 30.0),
                 );
             },
         );
@@ -270,7 +276,7 @@ class TelegramBotServiceProvider extends ServiceProvider
         $this->app->singleton(
             HttpTransportContract::class,
             function ($app): HttpTransportContract {
-                $type = (string)config('tg-outbound-daemon.daemon.transport', '');
+                $type = (string) config('tg-outbound-daemon.daemon.transport', '');
 
                 if ($type === '') {
                     throw new TgTechnicalException(
@@ -286,7 +292,7 @@ class TelegramBotServiceProvider extends ServiceProvider
                 }
 
                 $dnsConfig = $this->needsDnsServers()
-                    ? AskDnsConfigFactory::fromLaravelConfig((array)config('tg-outbound-daemon.daemon.dns', []))
+                    ? AskDnsConfigFactory::fromLaravelConfig((array) config('tg-outbound-daemon.daemon.dns', []))
                     : null;
 
                 return match ($type) {
@@ -311,9 +317,9 @@ class TelegramBotServiceProvider extends ServiceProvider
                     transport: $app->make(HttpTransportContract::class),
                     rateLimiter: new ASKRateLimiter(
                         $app->make(ASKCacheWrapper::class),
-                        new ASKClock(),
+                        new ASKClock,
                     ),
-                    promiseResolver: new ASKPromiseResolver(),
+                    promiseResolver: new ASKPromiseResolver,
                 );
             },
         );
@@ -324,7 +330,7 @@ class TelegramBotServiceProvider extends ServiceProvider
             fn ($app): ASKClient => new ASKClient(
                 transport: new TgBotApiAskTransport(
                     apiClient: $app->make(ApiClientContract::class),
-                    requestFactory: new TgRequestFactory(),
+                    requestFactory: new TgRequestFactory,
                 ),
             ),
         );
@@ -382,10 +388,10 @@ class TelegramBotServiceProvider extends ServiceProvider
                 $factory = $app->make(TgBotSetupFactory::class);
 
                 return new RegisteredUpdateProcessorSelector(
-                    serviceConfig: new TgServiceConfig(),
-                    botSetup: $factory->create(serviceConfig: new TgServiceConfig()),
-                    moduleEnablement: $app->bound(\BAGArt\TelegramBot\Contracts\Modules\ModuleEnablementContract::class)
-                        ? $app->make(\BAGArt\TelegramBot\Contracts\Modules\ModuleEnablementContract::class)
+                    serviceConfig: new TgServiceConfig,
+                    botSetup: $factory->create(serviceConfig: new TgServiceConfig),
+                    moduleEnablement: $app->bound(ModuleEnablementContract::class)
+                        ? $app->make(ModuleEnablementContract::class)
                         : null,
                 );
             },
@@ -396,7 +402,7 @@ class TelegramBotServiceProvider extends ServiceProvider
             TgWebhookRequestParser::class,
             function ($app): TgWebhookRequestParser {
                 $factory = $app->make(TgBotSetupFactory::class);
-                $config = new TgServiceConfig();
+                $config = new TgServiceConfig;
 
                 return new TgWebhookRequestParser(
                     tgApiDTOMapper: $factory->dtoMapper($config),
@@ -426,7 +432,7 @@ class TelegramBotServiceProvider extends ServiceProvider
     {
         $providers = [];
 
-        foreach ((array)config('telegram.modules', []) as $moduleConfig) {
+        foreach ((array) config('telegram.modules', []) as $moduleConfig) {
             if (is_array($moduleConfig)
                 && isset($moduleConfig['provider'])
                 && is_string($moduleConfig['provider'])
@@ -435,7 +441,7 @@ class TelegramBotServiceProvider extends ServiceProvider
             }
         }
 
-        foreach ((array)config('telegram.modules_providers', []) as $providerClass) {
+        foreach ((array) config('telegram.modules_providers', []) as $providerClass) {
             if (is_string($providerClass)) {
                 $providers[] = $providerClass;
             }
@@ -458,7 +464,7 @@ class TelegramBotServiceProvider extends ServiceProvider
     private function needsDnsServers(): bool
     {
         $config = AskDnsConfigFactory::fromLaravelConfig(
-            (array)config('tg-outbound-daemon.daemon.dns', []),
+            (array) config('tg-outbound-daemon.daemon.dns', []),
         );
 
         return $config->dnsServers() !== [];
@@ -474,27 +480,27 @@ class TelegramBotServiceProvider extends ServiceProvider
     private function registerOutbound(): void
     {
         $this->app->singleton(
-            \BAGArt\TelegramBot\Contracts\Outbound\BotTokenResolverContract::class,
-            \BAGArt\TelegramBotManagement\Models\TgDbTokenResolver::class,
+            BotTokenResolverContract::class,
+            TgDbTokenResolver::class,
         );
 
         $this->app->singleton(
-            \BAGArt\TelegramBot\Outbound\TgOutboundStats::class,
-            fn ($app): \BAGArt\TelegramBot\Outbound\TgOutboundStats => $app->make(
+            TgOutboundStats::class,
+            fn ($app): TgOutboundStats => $app->make(
                 TgBotSetupFactory::class
             )->createOutboundStats(),
         );
 
         $this->app->singleton(
-            \BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract::class,
-            fn ($app): \BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract => $app->make(
+            TgSenderContract::class,
+            fn ($app): TgSenderContract => $app->make(
                 TgBotSetupFactory::class
             )->createOutboundSender(),
         );
 
         $this->app->singleton(
-            \BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract::class,
-            fn ($app): \BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract => $app->make(
+            OutboundQueueContract::class,
+            fn ($app): OutboundQueueContract => $app->make(
                 TgBotSetupFactory::class
             )->createOutboundQueue(),
         );

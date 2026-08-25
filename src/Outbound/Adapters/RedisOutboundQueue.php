@@ -16,7 +16,7 @@ use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
 use BAGArt\TelegramBot\Outbound\OutboundTask;
 use BAGArt\TelegramBot\Outbound\OutboundTaskState;
 
-final class RedisOutboundQueueContractContractContractContract implements AtomicDlqQueueContract,
+final class RedisOutboundQueue implements AtomicDlqQueueContract,
                                                                           ChannelDiscoverableQueueContract,
                                                                           LeaseRenewableQueueContract,
                                                                           OutboundOrderingQueueContract,
@@ -215,11 +215,11 @@ LUA;
                 $qKey = self::QUEUE_PREFIX.$orderingKey;
                 $this->redis->rPush($qKey, $envelopeJson);
                 if ($this->redis->lLen($qKey) === 1) {
-                    $this->redis->zAdd(self::READY_KEYS, $priority, $orderingKey);
+                    $this->redis->zAdd(self::READY_KEYS, [], $priority, $orderingKey);
                 }
             }
         } else {
-            $this->redis->zAdd(self::GLOBAL_KEY, $priority, $envelopeJson);
+            $this->redis->zAdd(self::GLOBAL_KEY, [], $priority, $envelopeJson);
         }
     }
 
@@ -320,11 +320,11 @@ LUA;
         if ($delaySec > 0) {
             if (!empty($data['orderingKey'])) {
                 $this->redis->set(self::DELAYED_DATA_PREFIX.$deliveryId, $data['envelopeJson']);
-                $this->redis->zAdd(self::DELAYED_KEY, $this->clock->time() + $delaySec, $deliveryId);
+                $this->redis->zAdd(self::DELAYED_KEY, [], $this->clock->time() + $delaySec, $deliveryId);
             } else {
                 $envelopeData = json_decode($data['envelopeJson'], true);
                 $priority = $envelopeData['task']['priority']['value'] ?? 0;
-                $this->redis->zAdd(self::GLOBAL_DELAYED_KEY, $this->clock->time() + $delaySec, $data['envelopeJson']);
+                $this->redis->zAdd(self::GLOBAL_DELAYED_KEY, [], $this->clock->time() + $delaySec, $data['envelopeJson']);
             }
         } else {
             if (!empty($data['orderingKey'])) {
@@ -333,7 +333,7 @@ LUA;
             } else {
                 $envelopeData = json_decode($data['envelopeJson'], true);
                 $priority = $envelopeData['task']['priority']['value'] ?? 0;
-                $this->redis->zAdd(self::GLOBAL_KEY, $priority, $data['envelopeJson']);
+                $this->redis->zAdd(self::GLOBAL_KEY, [], $priority, $data['envelopeJson']);
             }
         }
     }
@@ -359,7 +359,7 @@ LUA;
                 ? (int)$nextTask['task']['priority']['value']
                 : 0;
 
-            $this->redis->zAdd(self::READY_KEYS, $priority, $orderingKey);
+            $this->redis->zAdd(self::READY_KEYS, [], $priority, $orderingKey);
         }
     }
 
@@ -396,10 +396,10 @@ LUA;
                 $qKey = self::QUEUE_PREFIX.$orderingKey;
                 $this->redis->rPush($qKey, $envelopeJson);
                 if ($this->redis->lLen($qKey) === 1) {
-                    $this->redis->zAdd(self::READY_KEYS, $priority, $orderingKey);
+                    $this->redis->zAdd(self::READY_KEYS, [], $priority, $orderingKey);
                 }
             } else {
-                $this->redis->zAdd(self::GLOBAL_KEY, $priority, $envelopeJson);
+                $this->redis->zAdd(self::GLOBAL_KEY, [], $priority, $envelopeJson);
             }
 
             $this->redis->del($dataKey);
@@ -417,7 +417,7 @@ LUA;
             foreach ($readyGlobal as $envelopeJson) {
                 $envelopeData = json_decode($envelopeJson, true);
                 $priority = $envelopeData['task']['priority']['value'] ?? 0;
-                $this->redis->zAdd(self::GLOBAL_KEY, $priority, $envelopeJson);
+                $this->redis->zAdd(self::GLOBAL_KEY, [], $priority, $envelopeJson);
                 $this->redis->zRem(self::GLOBAL_DELAYED_KEY, $envelopeJson);
                 $moved++;
             }
@@ -446,13 +446,13 @@ LUA;
 
                 if (!empty($data['orderingKey'])) {
                     $this->redis->lPush(self::QUEUE_PREFIX.$data['orderingKey'], $data['envelopeJson']);
-                    $this->redis->hDel(self::INFLIGHT_KEY, $deliveryId);
+                    $this->redis->hDel(self::INFLIGHT_KEY, (string)$deliveryId);
                     $this->refreshKeyState($data['orderingKey']);
                 } else {
                     $envelopeData = json_decode($data['envelopeJson'], true);
                     $priority = $envelopeData['task']['priority']['value'] ?? 0;
-                    $this->redis->zAdd(self::GLOBAL_KEY, $priority, $data['envelopeJson']);
-                    $this->redis->hDel(self::INFLIGHT_KEY, $deliveryId);
+                    $this->redis->zAdd(self::GLOBAL_KEY, [], $priority, $data['envelopeJson']);
+                    $this->redis->hDel(self::INFLIGHT_KEY, (string)$deliveryId);
                 }
                 $reclaimed++;
             }

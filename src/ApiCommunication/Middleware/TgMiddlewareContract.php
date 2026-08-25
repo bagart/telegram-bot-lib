@@ -8,5 +8,5 @@ use BAGArt\TelegramBot\ApiCommunication\AskTransport\TgEnvelope;
 
 interface TgMiddlewareContract
 {
-    public function handle(TgEnvelope $env, callable $next): mixed;
+    public function handle(TgEnvelope $env, TgNextHandlerContract $next): mixed;
 }

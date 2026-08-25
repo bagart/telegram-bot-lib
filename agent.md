@@ -12,7 +12,7 @@ Communication with the LLM-developer can be in Russian. All code comments and te
 application
     │
     ▼
-telegram-bot-management-lib  (Laravel models, commands, Laravel Queue adapters)
+telegram-bot-management  (Laravel models, commands, Laravel Queue adapters)
     │
     ▼
 telegram-bot-lib             (Telegram API, outbound pipeline, processors)
@@ -243,7 +243,7 @@ commands/
 
 ### What should NOT be in telegram-bot-lib
 
-- Laravel-specific code (commands, models, migrations) → in telegram-bot-management-lib
+- Laravel-specific code (commands, models, migrations) → in telegram-bot-management
 - Pure HTTP webhook handler → in telegram-bot-basic-lib
 - Async execution primitives (scheduler, promises) → in php-async-kernel / php-async-kernel-client
 - Redis queue implementation → in php-async-kernel-client-redis

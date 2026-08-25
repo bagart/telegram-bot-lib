@@ -2,16 +2,18 @@
 
 declare(strict_types=1);
 
+use BAGArt\ASKClientRedis\Redis\Client\PhpRedisAdapter;
+use BAGArt\ASKClientRedis\Redis\RedisDsn;
 use BAGArt\AsyncKernel\Contracts\ASKClockContract;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
-use BAGArt\TelegramBot\Outbound\Adapters\RedisOutboundQueueContractContractContractContract;
+use BAGArt\TelegramBot\Outbound\Adapters\RedisOutboundQueue;
 use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
 use BAGArt\TelegramBot\Outbound\OutboundTask;
 use BAGArt\TelegramBot\Outbound\OutboundTaskState;
 use BAGArt\TelegramBot\Outbound\TaskPriority;
 
 /**
- * RedisOutboundQueueContractContractContractContract integration test against a live Redis.
+ * RedisOutboundQueue integration test against a live Redis.
  *
  * Context: Redis-dependent tests are excluded from the default suite (phpunit.xml line 19).
  * Here — skip-guard: if Redis is unavailable, tests are skipped (covers nothing).
@@ -23,13 +25,13 @@ use BAGArt\TelegramBot\Outbound\TaskPriority;
  */
 function connectTestRedis(): ?Redis
 {
-    if (!extension_loaded('redis')) {
+    if (! extension_loaded('redis')) {
         return null;
     }
     try {
-        $redis = new Redis();
+        $redis = new Redis;
         $redis->connect('127.0.0.1', 6379, 2.0);
-        if (!$redis->ping()) {
+        if (! $redis->ping()) {
             return null;
         }
 
@@ -56,7 +58,7 @@ class RedisTestClock implements ASKClockContract
 
     public function microtime(): float
     {
-        return (float)$this->time;
+        return (float) $this->time;
     }
 
     public function time(): int
@@ -76,7 +78,7 @@ class RedisTestClock implements ASKClockContract
 
     public function sleep(int $microseconds): void
     {
-        $this->advance((int)($microseconds / 1_000_000));
+        $this->advance((int) ($microseconds / 1_000_000));
     }
 
     public function getSecondsFromInterval(DateInterval $interval): int
@@ -106,7 +108,7 @@ uses()->beforeEach(function () {
     $redis = connectTestRedis();
     if ($redis === null) {
         test()->skip(
-            'Redis not available — skipping RedisOutboundQueueContractContractContractContract integration test'
+            'Redis not available — skipping RedisOutboundQueue integration test'
         );
 
         return;
@@ -129,13 +131,14 @@ uses()->beforeEach(function () {
     if (is_array($delayedDataKeys) && $delayedDataKeys !== []) {
         $redis->del($delayedDataKeys);
     }
-    $this->redis = $redis;
-    $this->clock = new RedisTestClock();
+    // The queue adapter consumes the RedisClientContract wrapper, not raw phpredis.
+    $this->redis = new PhpRedisAdapter(new RedisDsn('127.0.0.1', 6379), $redis);
+    $this->clock = new RedisTestClock;
 });
 
-describe('RedisOutboundQueueContractContractContractContract — push/pop/ack', function () {
+describe('RedisOutboundQueue — push/pop/ack', function () {
     it('push then pop returns the task with a deliveryId', function () {
-        $queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock);
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
         $queue->push(makeRedisTask('t1'));
         $envelope = $queue->pop();
@@ -146,13 +149,13 @@ describe('RedisOutboundQueueContractContractContractContract — push/pop/ack', 
     });
 
     it('pop returns null when the queue is empty', function () {
-        $queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock);
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
         expect($queue->pop())->toBeNull();
     });
 
     it('ack removes the in-flight task', function () {
-        $queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock);
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
         $queue->push(makeRedisTask('t1'));
         $envelope = $queue->pop();
@@ -164,7 +167,7 @@ describe('RedisOutboundQueueContractContractContractContract — push/pop/ack', 
     });
 
     it('size counts ready_keys + global + delayed', function () {
-        $queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock);
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
         $queue->push(makeRedisTask('t1'));
         $queue->push(makeRedisTask('t2'));
@@ -173,9 +176,9 @@ describe('RedisOutboundQueueContractContractContractContract — push/pop/ack', 
     });
 });
 
-describe('RedisOutboundQueueContractContractContractContract — release / retry', function () {
+describe('RedisOutboundQueue — release / retry', function () {
     it('release with delay schedules the task for later', function () {
-        $queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock);
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
         $queue->push(makeRedisTask('t1'));
         $envelope = $queue->pop();
@@ -186,11 +189,11 @@ describe('RedisOutboundQueueContractContractContractContract — release / retry
     });
 });
 
-describe('RedisOutboundQueueContractContractContractContract — Dead Letter Queue', function () {
+describe('RedisOutboundQueue — Dead Letter Queue', function () {
     it('pushToDeadLetter stores and lists entries', function () {
-        $queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock);
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
-        $envelope = new OutboundEnvelope(makeRedisTask('t1'), new OutboundTaskState());
+        $envelope = new OutboundEnvelope(makeRedisTask('t1'), new OutboundTaskState);
         $entryId = $queue->pushToDeadLetter($envelope, 'bad_request');
 
         expect($entryId)->toBe('t1')
@@ -202,9 +205,9 @@ describe('RedisOutboundQueueContractContractContractContract — Dead Letter Que
     });
 
     it('atomicFetchAndRemoveFromDlq extracts and deletes the entry', function () {
-        $queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock);
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
-        $envelope = new OutboundEnvelope(makeRedisTask('t1'), new OutboundTaskState());
+        $envelope = new OutboundEnvelope(makeRedisTask('t1'), new OutboundTaskState);
         $queue->pushToDeadLetter($envelope, 'expired');
 
         $json = $queue->atomicFetchAndRemoveFromDlq('tg-dlq:bot1', 't1');
@@ -214,14 +217,14 @@ describe('RedisOutboundQueueContractContractContractContract — Dead Letter Que
     });
 
     it('getDlqChannels discovers DLQ channels by pattern', function () {
-        $queue = new RedisOutboundQueueContractContractContractContract($this->redis, $this->clock);
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
         $queue->pushToDeadLetter(
-            new OutboundEnvelope(makeRedisTask('t1', botId: 'bot1'), new OutboundTaskState()),
+            new OutboundEnvelope(makeRedisTask('t1', botId: 'bot1'), new OutboundTaskState),
             'r'
         );
         $queue->pushToDeadLetter(
-            new OutboundEnvelope(makeRedisTask('t2', botId: 'bot2'), new OutboundTaskState()),
+            new OutboundEnvelope(makeRedisTask('t2', botId: 'bot2'), new OutboundTaskState),
             'r'
         );
 
@@ -232,7 +235,7 @@ describe('RedisOutboundQueueContractContractContractContract — Dead Letter Que
     });
 });
 
-describe('RedisOutboundQueueContractContractContractContract — ordering (OutboundOrderingQueueContract)', function () {
+describe('RedisOutboundQueue — ordering (OutboundOrderingQueueContract)', function () {
     $flags = [true, false];
 
     foreach ($flags as $useLua) {
@@ -240,7 +243,7 @@ describe('RedisOutboundQueueContractContractContractContract — ordering (Outbo
             $useLua ? 'with Lua optimization' : 'without Lua optimization (PHP native)',
             function () use ($useLua): void {
                 beforeEach(function () use ($useLua): void {
-                    $this->queue = new RedisOutboundQueueContractContractContractContract(
+                    $this->queue = new RedisOutboundQueue(
                         $this->redis,
                         $this->clock,
                         $useLua
