@@ -75,7 +75,8 @@ class TypeDTOProcessorRegistry
                     throw $e;
                 } catch (\Throwable $e) {
                     throw new ASKInterruptException(
-                        "Build Processor error: $processor::build => ".$e::class." {$e->getMessage()}"
+                        source: 'processor.build',
+                        message: "Build Processor error: $processor::build => ".$e::class." {$e->getMessage()}"
                     );
                 }
                 assert(is_a($processor, TgTypeDTOProcessorContract::class));
