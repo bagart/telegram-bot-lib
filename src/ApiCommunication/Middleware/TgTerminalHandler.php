@@ -15,7 +15,8 @@ final class TgTerminalHandler implements TgNextHandlerContract
 {
     public function __construct(
         private readonly \Closure $core,
-    ) {}
+    ) {
+    }
 
     public static function fromCallable(callable $core): self
     {

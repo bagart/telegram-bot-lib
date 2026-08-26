@@ -5,67 +5,68 @@ declare(strict_types=1);
 use BAGArt\ASKClient\Lockers\InMemoryLocker;
 use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;
 use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * Hand-rolled PSR-16 cache (in-memory array store), wrapped in ASKCacheWrapper.
  * Implements the methods used by KernelCacheAdapter: get/set/forget.
  */
-if (!function_exists('makeCacheWrapper')) {
+if (! function_exists('makeCacheWrapper')) {
     function makeCacheWrapper(): ASKCacheWrapper
-{
-    $psr16 = new class () implements Psr\SimpleCache\CacheInterface {
-        /** @var array<string, mixed> */
-        private array $store = [];
+    {
+        $psr16 = new class () implements CacheInterface {
+            /** @var array<string, mixed> */
+            private array $store = [];
 
-        public function get(string $key, mixed $default = null): mixed
-        {
-            return $this->store[$key] ?? $default;
-        }
+            public function get(string $key, mixed $default = null): mixed
+            {
+                return $this->store[$key] ?? $default;
+            }
 
-        public function set(string $key, mixed $value, null|int|DateInterval $ttl = null): bool
-        {
-            $this->store[$key] = $value;
+            public function set(string $key, mixed $value, null|int|DateInterval $ttl = null): bool
+            {
+                $this->store[$key] = $value;
 
-            return true;
-        }
+                return true;
+            }
 
-        public function delete(string $key): bool
-        {
-            unset($this->store[$key]);
+            public function delete(string $key): bool
+            {
+                unset($this->store[$key]);
 
-            return true;
-        }
+                return true;
+            }
 
-        public function clear(): bool
-        {
-            $this->store = [];
+            public function clear(): bool
+            {
+                $this->store = [];
 
-            return true;
-        }
+                return true;
+            }
 
-        public function getMultiple(iterable $keys, mixed $default = null): iterable
-        {
-            return [];
-        }
+            public function getMultiple(iterable $keys, mixed $default = null): iterable
+            {
+                return [];
+            }
 
-        public function setMultiple(iterable $values, null|int|DateInterval $ttl = null): bool
-        {
-            return true;
-        }
+            public function setMultiple(iterable $values, null|int|DateInterval $ttl = null): bool
+            {
+                return true;
+            }
 
-        public function deleteMultiple(iterable $keys): bool
-        {
-            return true;
-        }
+            public function deleteMultiple(iterable $keys): bool
+            {
+                return true;
+            }
 
-        public function has(string $key): bool
-        {
-            return array_key_exists($key, $this->store);
-        }
-    };
+            public function has(string $key): bool
+            {
+                return array_key_exists($key, $this->store);
+            }
+        };
 
-    return new ASKCacheWrapper($psr16);
-}
+        return new ASKCacheWrapper($psr16);
+    }
 }
 
 describe('KernelCacheAdapter', function () {

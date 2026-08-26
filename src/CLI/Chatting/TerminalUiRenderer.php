@@ -7,7 +7,9 @@ namespace BAGArt\TelegramBot\CLI\Chatting;
 final class TerminalUiRenderer implements TerminalUiRendererInterface
 {
     private const int MAX_MESSAGES = 20;
+
     private const int MIN_BOX_WIDTH = 50;
+
     private const int MAX_BOX_WIDTH = 300;
 
     /**
@@ -39,7 +41,7 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
     ): void {
         $this->hideCursor();
 
-        if (!$this->initialized) {
+        if (! $this->initialized) {
             $this->initializeFixedLayout();
             $this->initialized = true;
         }
@@ -202,7 +204,7 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
         $start = 0;
 
         if ($bufferLength > $visibleWidth) {
-            $half = (int)floor($visibleWidth / 2);
+            $half = (int) floor($visibleWidth / 2);
 
             $start = max(
                 0,
@@ -312,11 +314,11 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
         foreach ($messages as $msg) {
             $raw = sprintf(
                 '[%s] #%d @%s: %s',
-                (string)($msg['time'] ?? ''),
-                (int)($msg['id'] ?? 0),
-                (string)($msg['from'] ?? 'unknown'),
+                (string) ($msg['time'] ?? ''),
+                (int) ($msg['id'] ?? 0),
+                (string) ($msg['from'] ?? 'unknown'),
                 $this->normalizeText(
-                    (string)($msg['text'] ?? '')
+                    (string) ($msg['text'] ?? '')
                 )
             );
 
@@ -372,6 +374,7 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
 
             if (mb_strlen($candidate, 'UTF-8') <= $width) {
                 $current = $candidate;
+
                 continue;
             }
 
@@ -429,7 +432,7 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
             );
         }
 
-        $half = (int)floor($maxWidth / 2);
+        $half = (int) floor($maxWidth / 2);
 
         $start = max(
             0,
@@ -486,24 +489,24 @@ final class TerminalUiRenderer implements TerminalUiRendererInterface
 
         return match ($padType) {
             STR_PAD_LEFT => str_repeat(
-                    $padString,
-                    $padLength
-                ).$string,
+                $padString,
+                $padLength
+            ).$string,
 
             STR_PAD_BOTH => str_repeat(
-                    $padString,
-                    (int)floor($padLength / 2)
-                )
+                $padString,
+                (int) floor($padLength / 2)
+            )
                 .$string.
                 str_repeat(
                     $padString,
-                    (int)ceil($padLength / 2)
+                    (int) ceil($padLength / 2)
                 ),
 
             default => $string.str_repeat(
-                    $padString,
-                    $padLength
-                ),
+                $padString,
+                $padLength
+            ),
         };
     }
 }

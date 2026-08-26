@@ -239,7 +239,7 @@ function forwardMessagePayload(): array
 
 echo "\n=== Integration Tests: Full Cycle (52 tests) ===\n\n";
 
-$secretService = new AutoSecretByTokenService;
+$secretService = new AutoSecretByTokenService();
 $secret = $secretService->secret(TOKEN);
 
 // --- Section 1: Webhook Processing ---
@@ -247,11 +247,11 @@ $secret = $secretService->secret(TOKEN);
 echo "Section 1: Webhook Processing\n";
 
 $r1 = TypeDTOProcessorRegistry::build();
-$m1 = new TestMessageCollectorProcessor;
+$m1 = new TestMessageCollectorProcessor();
 $r1->register(MessageTypeDTO::class, $m1);
 $factory1 = TgBotSetupFactory::build();
 $setup1 = $factory1->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r1,
 );
 $w1 = TgBotSetupFactory::webhook($r1);
@@ -263,11 +263,11 @@ assert_test('1.1 from username', $m1->last()['dto']->from->username === 'johndoe
 assert_test('1.1 bot_id', $m1->last()['botId'] === '123456789');
 
 $r2 = TypeDTOProcessorRegistry::build();
-$m2 = new TestMessageCollectorProcessor;
+$m2 = new TestMessageCollectorProcessor();
 $r2->register(MessageTypeDTO::class, $m2);
 $factory2 = TgBotSetupFactory::build();
 $setup2 = $factory2->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r2,
 );
 TgBotSetupFactory::webhook($r2)->parse(editedMessagePayload(), $secret);
@@ -275,11 +275,11 @@ assert_test('1.2 edited text', $m2->last()['dto']->text === 'Hello, bot! (edited
 assert_test('1.2 edit_date', $m2->last()['dto']->editDate === 1700000060);
 
 $r3 = TypeDTOProcessorRegistry::build();
-$m3 = new TestMessageCollectorProcessor;
+$m3 = new TestMessageCollectorProcessor();
 $r3->register(MessageTypeDTO::class, $m3);
 $factory3 = TgBotSetupFactory::build();
 $setup3 = $factory3->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r3,
 );
 TgBotSetupFactory::webhook($r3)->parse(replyMessagePayload(), $secret);
@@ -288,11 +288,11 @@ assert_test('1.3 reply_to_message', $m3->last()['dto']->replyToMessage !== null)
 assert_test('1.3 reply_message_id', $m3->last()['dto']->replyToMessage->messageId === 42);
 
 $r4 = TypeDTOProcessorRegistry::build();
-$m4 = new TestMessageCollectorProcessor;
+$m4 = new TestMessageCollectorProcessor();
 $r4->register(MessageTypeDTO::class, $m4);
 $factory4 = TgBotSetupFactory::build();
 $setup4 = $factory4->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r4,
 );
 TgBotSetupFactory::webhook($r4)->parse(callbackQueryPayload(), $secret);
@@ -301,33 +301,33 @@ assert_test('1.4 callback update', $upd4 !== null && $upd4->callbackQuery !== nu
 assert_test('1.4 no message for callback', $m4->count() === 0);
 
 $r5 = TypeDTOProcessorRegistry::build();
-$m5 = new TestMessageCollectorProcessor;
+$m5 = new TestMessageCollectorProcessor();
 $r5->register(MessageTypeDTO::class, $m5);
 $factory5 = TgBotSetupFactory::build();
 $setup5 = $factory5->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r5,
 );
 TgBotSetupFactory::webhook($r5)->parse(channelPostPayload(), $secret);
 assert_test('1.5 channel text', $m5->last()['dto']->text === 'Channel post text');
 
 $r6 = TypeDTOProcessorRegistry::build();
-$m6 = new TestMessageCollectorProcessor;
+$m6 = new TestMessageCollectorProcessor();
 $r6->register(MessageTypeDTO::class, $m6);
 $factory6 = TgBotSetupFactory::build();
 $setup6 = $factory6->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r6,
 );
 TgBotSetupFactory::webhook($r6)->parse(groupMessagePayload(), $secret);
 assert_test('1.6 group text', $m6->last()['dto']->text === 'Hello group!');
 
 $r7 = TypeDTOProcessorRegistry::build();
-$m7 = new TestMessageCollectorProcessor;
+$m7 = new TestMessageCollectorProcessor();
 $r7->register(MessageTypeDTO::class, $m7);
 $factory7 = TgBotSetupFactory::build();
 $setup7 = $factory7->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r7,
 );
 TgBotSetupFactory::webhook($r7)->parse(inlineQueryPayload(), $secret);
@@ -336,44 +336,44 @@ assert_test('1.7 inline update', $upd7 !== null && $upd7->inlineQuery !== null);
 assert_test('1.7 no message for inline', $m7->count() === 0);
 
 $r8 = TypeDTOProcessorRegistry::build();
-$m8 = new TestMessageCollectorProcessor;
+$m8 = new TestMessageCollectorProcessor();
 $r8->register(MessageTypeDTO::class, $m8);
 $factory8 = TgBotSetupFactory::build();
 $setup8 = $factory8->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r8,
 );
 TgBotSetupFactory::webhook($r8)->parse(stickerMessagePayload(), $secret);
 assert_test('1.8 sticker collected', $m8->count() === 1);
 
 $r9 = TypeDTOProcessorRegistry::build();
-$m9 = new TestMessageCollectorProcessor;
+$m9 = new TestMessageCollectorProcessor();
 $r9->register(MessageTypeDTO::class, $m9);
 $factory9 = TgBotSetupFactory::build();
 $setup9 = $factory9->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r9,
 );
 TgBotSetupFactory::webhook($r9)->parse(photoMessagePayload(), $secret);
 assert_test('1.9 photo caption', $m9->last()['dto']->caption === 'A nice photo');
 
 $r10 = TypeDTOProcessorRegistry::build();
-$m10 = new TestMessageCollectorProcessor;
+$m10 = new TestMessageCollectorProcessor();
 $r10->register(MessageTypeDTO::class, $m10);
 $factory10 = TgBotSetupFactory::build();
 $setup10 = $factory10->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r10,
 );
 TgBotSetupFactory::webhook($r10)->parse(forwardMessagePayload(), $secret);
 assert_test('1.10 forward text', $m10->last()['dto']->text === 'Forwarded message');
 
 $r11 = TypeDTOProcessorRegistry::build();
-$m11 = new TestMessageCollectorProcessor;
+$m11 = new TestMessageCollectorProcessor();
 $r11->register(MessageTypeDTO::class, $m11);
 $factory11 = TgBotSetupFactory::build();
 $setup11 = $factory11->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r11,
 );
 $w11 = TgBotSetupFactory::webhook($r11);
@@ -402,7 +402,7 @@ assert_test(
 
 echo "\nSection 2: public/index-sync.php\n";
 
-$ip = new TelegramIpValidator;
+$ip = new TelegramIpValidator();
 assert_test('2.1 ip allowed', $ip->validate('149.154.160.1') === true);
 assert_test('2.1 ip rejected', $ip->validate('8.8.8.8') === false);
 assert_test('2.2 secret format', preg_match('/^\d+:[a-f0-9]{64}$/', $secret) === 1);
@@ -419,7 +419,7 @@ foreach (['no-colon', ':abc', 'abc:', ''] as $bad) {
 }
 
 $r25 = TypeDTOProcessorRegistry::build();
-$m25 = new TestMessageCollectorProcessor;
+$m25 = new TestMessageCollectorProcessor();
 $r25->register(MessageTypeDTO::class, $m25);
 $w25 = TgBotSetupFactory::webhook($r25);
 foreach ([null, '', 'bad'] as $bad) {
@@ -443,15 +443,15 @@ assert_test('3.2 has bot', $botReg->has($botDTO->botId()));
 assert_test('3.2 getBot', $botReg->getBot($botDTO->botId()) === $botDTO);
 
 $r33 = TypeDTOProcessorRegistry::build();
-$m33 = new TestMessageCollectorProcessor;
+$m33 = new TestMessageCollectorProcessor();
 $r33->register(MessageTypeDTO::class, $m33);
 $factory33 = TgBotSetupFactory::build();
 $setup33 = $factory33->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r33,
 );
 $proc = new RegisteredUpdateProcessorSelector(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     botSetup: $setup33,
 );
 $upd33 = TgBotSetupFactory::webhook(TypeDTOProcessorRegistry::build())->makeDTO(messagePayload());
@@ -464,7 +464,7 @@ foreach ($proc->selectProcessors($upd33, $botConfig33) as $processors) {
 assert_test('3.3 processor dispatches', $m33->count() === 1);
 
 $r34 = TypeDTOProcessorRegistry::build();
-$m34 = new TestMessageCollectorProcessor;
+$m34 = new TestMessageCollectorProcessor();
 $r34->register(MessageTypeDTO::class, $m34);
 $w34 = TgBotSetupFactory::webhook($r34);
 foreach (
@@ -513,11 +513,11 @@ assert_test('3.5 different secrets', $secretService->secret('111:AAA') !== $secr
 echo "\nSection 4: Edge Cases\n";
 
 $r41 = TypeDTOProcessorRegistry::build();
-$m41 = new TestMessageCollectorProcessor;
+$m41 = new TestMessageCollectorProcessor();
 $r41->register(MessageTypeDTO::class, $m41);
 $factory41 = TgBotSetupFactory::build();
 $setup41 = $factory41->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r41,
 );
 $e41 = messagePayload();
@@ -526,22 +526,22 @@ TgBotSetupFactory::webhook($r41)->parse($e41, $secret);
 assert_test('4.1 empty text', $m41->last()['dto']->text === '');
 
 $r42 = TypeDTOProcessorRegistry::build();
-$m42 = new TestMessageCollectorProcessor;
+$m42 = new TestMessageCollectorProcessor();
 $r42->register(MessageTypeDTO::class, $m42);
 $factory42 = TgBotSetupFactory::build();
 $setup42 = $factory42->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r42,
 );
 TgBotSetupFactory::webhook($r42)->parse(channelPostPayload(), $secret);
 assert_test('4.2 channel from null', $m42->last()['dto']->from === null);
 
 $r43 = TypeDTOProcessorRegistry::build();
-$m43 = new TestMessageCollectorProcessor;
+$m43 = new TestMessageCollectorProcessor();
 $r43->register(MessageTypeDTO::class, $m43);
 $factory43 = TgBotSetupFactory::build();
 $setup43 = $factory43->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r43,
 );
 TgBotSetupFactory::webhook($r43)->parse(['update_id' => 999999999], $secret);
@@ -549,11 +549,11 @@ $upd43 = TgBotSetupFactory::webhook($r43)->makeDTO(['update_id' => 999999999]);
 assert_test('4.3 empty update', $upd43 !== null && $upd43->updateId === 999999999 && $m43->count() === 0);
 
 $r44 = TypeDTOProcessorRegistry::build();
-$m44 = new TestMessageCollectorProcessor;
+$m44 = new TestMessageCollectorProcessor();
 $r44->register(MessageTypeDTO::class, $m44);
 $factory44 = TgBotSetupFactory::build();
 $setup44 = $factory44->create(
-    serviceConfig: new TgServiceConfig,
+    serviceConfig: new TgServiceConfig(),
     processorRegistryOverride: $r44,
 );
 $e44 = messagePayload();
@@ -562,7 +562,7 @@ TgBotSetupFactory::webhook($r44)->parse($e44, $secret);
 assert_test('4.4 long text', strlen($m44->last()['dto']->text) === 4096);
 
 $r45 = TypeDTOProcessorRegistry::build();
-$m45 = new TestMessageCollectorProcessor;
+$m45 = new TestMessageCollectorProcessor();
 $r45->register(MessageTypeDTO::class, $m45);
 $e45 = messagePayload();
 $e45['message']['text'] = "Hello <b>world</b> & \"quotes\" '123' 💩";
@@ -570,7 +570,7 @@ TgBotSetupFactory::webhook($r45)->parse($e45, $secret);
 assert_test('4.5 special chars', $m45->last()['dto']->text === "Hello <b>world</b> & \"quotes\" '123' 💩");
 
 $r46 = TypeDTOProcessorRegistry::build();
-$m46 = new TestMessageCollectorProcessor;
+$m46 = new TestMessageCollectorProcessor();
 $r46->register(MessageTypeDTO::class, $m46);
 $e46 = messagePayload();
 $e46['message']['text'] = 'Hello world! 你好世界';

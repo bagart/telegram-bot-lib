@@ -15,7 +15,9 @@ use BAGArt\TelegramBot\Contracts\Outbound\AtomicDlqQueueContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundCircuitBreakerContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundOrderingQueueContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract;
+use BAGArt\TelegramBot\Contracts\Outbound\PressureAwareQueueContract;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
+use BAGArt\TelegramBot\Outbound\Degradation\OutboundDegradationTracker;
 use Fiber;
 use Throwable;
 
@@ -39,6 +41,7 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
         private readonly ASKLogWrapper $logger,
         private readonly OutboundWorkerConfig $config,
         private readonly ASKSchedulerContract $scheduler,
+        private readonly ?OutboundDegradationTracker $degradationTracker = null,
     ) {
         if (! $queue instanceof OutboundOrderingQueueContract) {
             $logger?->warning(
@@ -53,13 +56,25 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
             return;
         }
 
-        $envelope = $this->queue->pop($this->config->visibilityTimeoutSec);
+        try {
+            $envelope = $this->popWithPressureLanes($systemPressure);
+        } catch (Throwable $e) {
+            // Queue driver failure is an Offline degradation signal (06 §43);
+            // the exception still bubbles to the kernel policy.
+            $this->degradationTracker?->observe([], false, time());
+            throw $e;
+        }
 
         if ($envelope === null) {
             return;
         }
         $botId = $envelope->task->botConfig->botId;
         if (! $this->circuitBreaker->allowsRequest($botId)) {
+            $this->degradationTracker?->observe(
+                [$this->circuitBreaker->getState($botId)],
+                true,
+                time(),
+            );
             $this->queue->release($envelope, 30);
             $this->stats->recordRetry(
                 botId: $botId,
@@ -83,6 +98,28 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
         });
 
         $this->scheduler->enqueue($fiber);
+    }
+
+    /**
+     * Pop respecting pressure lanes (06 §44): as system pressure rises, lower
+     * priority lanes stop being drained (tasks stay queued — zero loss).
+     * Queues without the PressureAwareQueueContract capability always pop all
+     * lanes.
+     */
+    private function popWithPressureLanes(int $systemPressure): ?OutboundEnvelope
+    {
+        if (! $this->queue instanceof PressureAwareQueueContract) {
+            return $this->queue->pop($this->config->visibilityTimeoutSec);
+        }
+
+        $floor = match (true) {
+            $systemPressure >= 95 => TaskPriority::Critical,
+            $systemPressure >= 85 => TaskPriority::High,
+            $systemPressure >= 70 => TaskPriority::Normal,
+            default => TaskPriority::Low,
+        };
+
+        return $this->queue->popWithLaneFloor($this->config->visibilityTimeoutSec, $floor);
     }
 
     private function process(OutboundEnvelope $envelope): void
@@ -184,7 +221,7 @@ final class TgOutboundDaemon implements ASKDaemonContract, ASKShutdownAware, ASK
             return 0;
         }
 
-        return (int) round(($size / 256) * 100);
+        return (int) round(($size / $this->config->pressureQueueCapacity) * 100);
     }
 
     public function isIdle(): bool

@@ -15,6 +15,7 @@ use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
 use BAGArt\TelegramBot\TgApiServices\TgApiDTOMapper;
+use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistry;
 use BAGArt\TelegramBot\TgBotSetupFactory;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
@@ -46,10 +47,10 @@ $count = 0;
 foreach ($registry->get(UpdateTypeDTO::class, $serviceConfig) as $p) {
     $count++;
     echo "  [$count] ".$p::class."\n";
-    echo "      support(UpdateTypeDTO): ".($p->support(
-            new UpdateTypeDTO(0),
-            new TgBotConfig(token: TOKEN)
-        ) ? 'yes' : 'no')."\n";
+    echo '      support(UpdateTypeDTO): '.($p->support(
+        new UpdateTypeDTO(0),
+        new TgBotConfig(token: TOKEN)
+    ) ? 'yes' : 'no')."\n";
 }
 
 echo "\nProcessors for MessageTypeDTO:\n";
@@ -74,14 +75,14 @@ $payload = [
 ];
 
 $mapper = new TgApiDTOMapper(
-    \BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistry::build(TgApiEntityScopeEnum::class, $logger),
+    TgEntityToDTORegistry::build(TgApiEntityScopeEnum::class, $logger),
     $logger
 );
 
 $updateDTO = $mapper->fromArray(UpdateTypeDTO::class, $payload);
-echo "UpdateDTO class: ".$updateDTO::class."\n";
-echo "Message class: ".($updateDTO->message ? $updateDTO->message::class : "null")."\n";
-echo "Message instanceof TgApiTypeDTOContract: ".($updateDTO->message instanceof TgApiTypeDTOContract ? 'yes' : 'no')."\n";
+echo 'UpdateDTO class: '.$updateDTO::class."\n";
+echo 'Message class: '.($updateDTO->message ? $updateDTO->message::class : 'null')."\n";
+echo 'Message instanceof TgApiTypeDTOContract: '.($updateDTO->message instanceof TgApiTypeDTOContract ? 'yes' : 'no')."\n";
 
 echo "\n=== Testing selectProcessors() ===\n";
 $botConfig = new TgBotConfig(token: TOKEN);
@@ -96,5 +97,5 @@ foreach ($selector->selectProcessors($updateDTO, $botConfig) as $property => $pr
 
 echo "\nMessage collector count: ".$msgCollector->count()."\n";
 foreach ($msgCollector->collected as $item) {
-    echo "  Collected: ".$item['dto']::class." text=".$item['dto']->text."\n";
+    echo '  Collected: '.$item['dto']::class.' text='.$item['dto']->text."\n";
 }

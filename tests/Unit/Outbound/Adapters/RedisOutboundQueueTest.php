@@ -29,7 +29,7 @@ function connectTestRedis(): ?Redis
         return null;
     }
     try {
-        $redis = new Redis;
+        $redis = new Redis();
         $redis->connect('127.0.0.1', 6379, 2.0);
         if (! $redis->ping()) {
             return null;
@@ -92,6 +92,7 @@ function makeRedisTask(
     TaskPriority $priority = TaskPriority::Normal,
     ?string $orderingKey = null,
     string $botId = 'bot1',
+    ?DateTimeImmutable $createdAt = null,
 ): OutboundTask {
     return new OutboundTask(
         id: $id,
@@ -100,7 +101,17 @@ function makeRedisTask(
         dtoData: ['chat_id' => 1, 'text' => 'hi'],
         priority: $priority,
         orderingKey: $orderingKey,
+        createdAt: $createdAt ?? new DateTimeImmutable(),
     );
+}
+
+/** createdAt aligned to the fake test clock so aging math is deterministic. */
+function makeRedisTaskOnClock(
+    RedisTestClock $clock,
+    string $id,
+    TaskPriority $priority = TaskPriority::Normal,
+): OutboundTask {
+    return makeRedisTask($id, $priority, createdAt: (new DateTimeImmutable())->setTimestamp($clock->time));
 }
 
 // Before each test: clean queue keys.
@@ -133,7 +144,7 @@ uses()->beforeEach(function () {
     }
     // The queue adapter consumes the RedisClientContract wrapper, not raw phpredis.
     $this->redis = new PhpRedisAdapter(new RedisDsn('127.0.0.1', 6379), $redis);
-    $this->clock = new RedisTestClock;
+    $this->clock = new RedisTestClock();
 });
 
 describe('RedisOutboundQueue — push/pop/ack', function () {
@@ -193,7 +204,7 @@ describe('RedisOutboundQueue — Dead Letter Queue', function () {
     it('pushToDeadLetter stores and lists entries', function () {
         $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
-        $envelope = new OutboundEnvelope(makeRedisTask('t1'), new OutboundTaskState);
+        $envelope = new OutboundEnvelope(makeRedisTask('t1'), new OutboundTaskState());
         $entryId = $queue->pushToDeadLetter($envelope, 'bad_request');
 
         expect($entryId)->toBe('t1')
@@ -207,7 +218,7 @@ describe('RedisOutboundQueue — Dead Letter Queue', function () {
     it('atomicFetchAndRemoveFromDlq extracts and deletes the entry', function () {
         $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
-        $envelope = new OutboundEnvelope(makeRedisTask('t1'), new OutboundTaskState);
+        $envelope = new OutboundEnvelope(makeRedisTask('t1'), new OutboundTaskState());
         $queue->pushToDeadLetter($envelope, 'expired');
 
         $json = $queue->atomicFetchAndRemoveFromDlq('tg-dlq:bot1', 't1');
@@ -220,11 +231,11 @@ describe('RedisOutboundQueue — Dead Letter Queue', function () {
         $queue = new RedisOutboundQueue($this->redis, $this->clock);
 
         $queue->pushToDeadLetter(
-            new OutboundEnvelope(makeRedisTask('t1', botId: 'bot1'), new OutboundTaskState),
+            new OutboundEnvelope(makeRedisTask('t1', botId: 'bot1'), new OutboundTaskState()),
             'r'
         );
         $queue->pushToDeadLetter(
-            new OutboundEnvelope(makeRedisTask('t2', botId: 'bot2'), new OutboundTaskState),
+            new OutboundEnvelope(makeRedisTask('t2', botId: 'bot2'), new OutboundTaskState()),
             'r'
         );
 
@@ -232,6 +243,137 @@ describe('RedisOutboundQueue — Dead Letter Queue', function () {
 
         expect($channels)->toContain('tg-dlq:bot1')
             ->and($channels)->toContain('tg-dlq:bot2');
+    });
+});
+
+describe('RedisOutboundQueue — pressure lanes (06 §44)', function () {
+    it('popWithLaneFloor skips below-floor lanes and keeps them queued', function () {
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
+
+        $queue->push(makeRedisTask('low', priority: TaskPriority::Low));
+        $queue->push(makeRedisTask('normal', priority: TaskPriority::Normal));
+
+        $popped = $queue->popWithLaneFloor(60, TaskPriority::Normal);
+        expect($popped?->task->id)->toBe('normal')
+            ->and($queue->size())->toBe(1)
+            ->and($queue->pop()?->task->id)->toBe('low');
+    });
+
+    it('popWithLaneFloor with Low floor drains everything in score order', function () {
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
+
+        $queue->push(makeRedisTask('n1', priority: TaskPriority::Normal));
+        $queue->push(makeRedisTask('c1', priority: TaskPriority::Critical));
+
+        expect($queue->popWithLaneFloor(60, TaskPriority::Low)?->task->id)->toBe('c1')
+            ->and($queue->popWithLaneFloor(60, TaskPriority::Low)?->task->id)->toBe('n1');
+    });
+
+    it('ack refreshes the lane head score so the ordering key stays discoverable', function () {
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
+
+        $queue->push(makeRedisTask('t1', priority: TaskPriority::Normal, orderingKey: 'chat:aging'));
+        $queue->push(makeRedisTask('t2', priority: TaskPriority::Normal, orderingKey: 'chat:aging'));
+
+        $first = $queue->pop();
+        $queue->ack($first);
+
+        expect($queue->lockNextReadyKey())->toBe('chat:aging');
+    });
+});
+
+describe('RedisOutboundQueue — sustained load soak (06 §44–§46)', function () {
+    it('drains 200 mixed-lane tasks with zero loss under floor gating', function () {
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
+        $total = 200;
+        $ids = [];
+
+        foreach (TaskPriority::cases() as $priority) {
+            for ($i = 0; $i < $total / 4; $i++) {
+                $id = $priority->name.'-'.$i;
+                $queue->push(makeRedisTask($id, priority: $priority));
+                $ids[] = $id;
+            }
+        }
+
+        expect($queue->size())->toBe($total);
+
+        // Simulate pressure: only Critical/High may leave while we drain them.
+        $drained = [];
+        while (count($drained) < $total && ($envelope = $queue->popWithLaneFloor(60, TaskPriority::High)) !== null) {
+            $drained[] = $envelope->task->id;
+            $queue->ack($envelope);
+        }
+
+        expect(count($drained))->toBe($total / 2); // Critical + High only
+
+        // Pressure released: everything else drains, nothing lost or duplicated.
+        $rest = [];
+        while (($envelope = $queue->popWithLaneFloor(60, TaskPriority::Low)) !== null) {
+            $rest[] = $envelope->task->id;
+            $queue->ack($envelope);
+        }
+
+        expect(count($drained) + count($rest))->toBe($total)
+            ->and(count(array_unique(array_merge($drained, $rest))))->toBe($total)
+            ->and($queue->size())->toBe(0);
+    });
+
+    it('promotes an aged Low task across the Normal lane floor via Lua rescoring', function () {
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
+
+        $queue->push(makeRedisTaskOnClock($this->clock, 'aged-low', TaskPriority::Low));
+
+        // Fresh Low must stay parked while Normal lane is paused.
+        expect($queue->popWithLaneFloor(60, TaskPriority::Normal))->toBeNull();
+
+        // After one laneCrossSec (900s) the aged Low scores 1e10 — exactly
+        // the fresh Normal floor — and becomes eligible without any pressure
+        // release: aging, not operator action, restores fairness.
+        $this->clock->advance(900);
+
+        $envelope = $queue->popWithLaneFloor(60, TaskPriority::Normal);
+        expect($envelope?->task->id)->toBe('aged-low');
+    });
+
+    it('sustains four interleaved push/drain waves with zero loss and eventual aging fairness', function () {
+        $queue = new RedisOutboundQueue($this->redis, $this->clock);
+        $waves = 4;
+        $perWave = 48;
+        $delivered = [];
+
+        for ($wave = 0; $wave < $waves; $wave++) {
+            foreach (TaskPriority::cases() as $priority) {
+                for ($i = 0; $i < $perWave / 4; $i++) {
+                    $queue->push(makeRedisTaskOnClock($this->clock, "w{$wave}-{$priority->name}-{$i}", $priority));
+                }
+            }
+
+            expect($queue->size())->toBe(($wave + 1) * $perWave - count($delivered));
+
+            // Sustained pressure: drain only High+ lanes; clock advances so
+            // earlier waves keep aging across floors between waves.
+            while (($envelope = $queue->popWithLaneFloor(60, TaskPriority::High)) !== null) {
+                $delivered[] = $envelope->task->id;
+                $queue->ack($envelope);
+            }
+
+            $this->clock->advance(450);
+        }
+
+        // Pressure released: whatever remains drains with no floor.
+        while (($envelope = $queue->popWithLaneFloor(60, TaskPriority::Low)) !== null) {
+            $delivered[] = $envelope->task->id;
+            $queue->ack($envelope);
+        }
+
+        $total = $waves * $perWave;
+
+        expect(count($delivered))->toBe($total)
+            ->and(count(array_unique($delivered)))->toBe($total)
+            ->and($queue->size())->toBe(0)
+            ->and($this->redis->lLen('tg-dlq:bot1'))->toBe(0)
+            ->and($this->redis->zCard('tg_outbound:delayed'))->toBe(0);
     });
 });
 

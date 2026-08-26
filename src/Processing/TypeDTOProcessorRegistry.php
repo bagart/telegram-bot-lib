@@ -19,7 +19,7 @@ class TypeDTOProcessorRegistry
     public static function build(
         array $processorsByDtoTypeList = [],
     ): self {
-        $registry = new self;
+        $registry = new self();
 
         foreach ($processorsByDtoTypeList as $dtoClass => $processorClasses) {
             foreach ($processorClasses as $processorClass) {

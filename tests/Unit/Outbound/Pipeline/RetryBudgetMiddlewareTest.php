@@ -22,14 +22,14 @@ function makeBudgetTask(): OutboundTask
 
 function makeBudgetSpy(): array
 {
-    $box = new class
-    {
+    $box = new class () {
         public bool $called = false;
     };
 
-    $spy = new class($box) implements OutboundNextHandlerContract
-    {
-        public function __construct(private readonly object $box) {}
+    $spy = new class ($box) implements OutboundNextHandlerContract {
+        public function __construct(private readonly object $box)
+        {
+        }
 
         public function handle(OutboundEnvelope $envelope): void
         {

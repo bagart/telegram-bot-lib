@@ -10,61 +10,101 @@ use BAGArt\TelegramBot\TgApi\Types\Enum\MessageEntityPropTypeEnum;
 class AdvertisingValidationRule implements MessageValidationRule
 {
     private const GROUP_SHORTENER = 'shortener';
+
     private const GROUP_PROMOTIONAL = 'promotional';
+
     private const GROUP_PRIVATE_MSG = 'private_message';
 
     // --- URL shortener patterns ---
 
     private const REGEXP_T_ME = 'https?:\/\/t\.me\/';
+
     private const REGEXP_BITLY = 'https?:\/\/bit\.ly\/';
+
     private const REGEXP_TINYURL = 'https?:\/\/tinyurl\.com\/';
 
     // --- Promotional text patterns ---
 
     private const REGEXP_KUPI = 'куп[ии]\w*';
+
     private const REGEXP_PRODAI = 'прода[юй]\w*';
+
     private const REGEXP_SKIDKA = 'скидк\w*';
+
     private const REGEXP_AKCII = 'акци\w+';
+
     private const REGEXP_BESPLATNO = 'бесплатн\w+';
+
     private const REGEXP_ZAKAZ = 'заказ\w*';
+
     private const REGEXP_DOSTAVKA = 'доставк\w*';
+
     private const REGEXP_CENA = 'цена\b';
+
     private const REGEXP_STOIMOST = 'стоимост\w+';
+
     private const REGEXP_SALE = 'sale\b';
+
     private const REGEXP_BUY = 'buy\b';
+
     private const REGEXP_DISCOUNT = 'discount\b';
+
     private const REGEXP_FREE = 'free\b';
+
     private const REGEXP_ORDER = 'order\b';
+
     private const REGEXP_PRICE = 'price\b';
+
     private const REGEXP_PODRABOTKA = 'подработк\w*';
+
     private const REGEXP_PODRABOT = 'подр[аа]бот\w+';
+
     private const REGEXP_KURER = 'курьер\b';
+
     private const REGEXP_TREBUYUT_RABOCH = 'требуют?\w*\s*рабоч';
+
     private const REGEXP_TREBUYUT_SOTRUDNIK = 'требуют?\w*\s*сотрудник';
+
     private const REGEXP_VAKANSII = 'ваканси\w+';
+
     private const REGEXP_HALTURKA = 'халтурк\w*';
+
     private const REGEXP_ZARABOTOK_NA = 'заработ\w+\s+на\b';
+
     private const REGEXP_NUZHNY_RABOCH = 'нужн\w+\s+рабоч';
+
     private const REGEXP_NABOR_PERSONAL = 'набор\s+персонал';
+
     private const REGEXP_RABOTA_NA_DOMU = 'работ\w+\s+на\s+дому';
+
     private const REGEXP_RABOTA_UDALENNO = 'работ\w+\s+удал[её]нн';
+
     private const REGEXP_UDALENNAYA_RABOTA = 'удал[её]нн\w+\s+работ';
+
     private const REGEXP_RABOTA_V_INTERNETE = 'работ\w+\s+в\s+интернет';
 
     // --- Private message invitation patterns ---
 
     private const REGEXP_V_LICHKU = 'в\s+л[сич]+к?[уеи]?';
+
     private const REGEXP_V_PM = '\b[рp]\s*[mм]\b';
+
     private const REGEXP_V_DIRECT = '\b[дd][иi][рr][еe][кc][тt]\b';
+
     private const REGEXP_PISHITE = '(?:на)?пиш[иы](?:те)?';
+
     private const REGEXP_OBRASHCHAYTES = 'обраща[йя](?:тесь|ся)';
 
     private ?string $cachedShortenerRegexp = null;
+
     private ?string $cachedPromotionalRegexp = null;
+
     private ?string $cachedPrivateMessageRegexp = null;
 
     private array $urlShortenerPatterns;
+
     private array $promotionalPatterns;
+
     private array $privateMessagePatterns;
 
     public function __construct(
@@ -195,10 +235,10 @@ class AdvertisingValidationRule implements MessageValidationRule
         if ($dto->entities !== null) {
             foreach ($dto->entities as $entity) {
                 if (in_array(
-                        $entity->type,
-                        [MessageEntityPropTypeEnum::URL, MessageEntityPropTypeEnum::TEXT_LINK],
-                        true
-                    )
+                    $entity->type,
+                    [MessageEntityPropTypeEnum::URL, MessageEntityPropTypeEnum::TEXT_LINK],
+                    true
+                )
                     && $entity->url !== null) {
                     $parts[] = $entity->url;
                 }
@@ -208,10 +248,10 @@ class AdvertisingValidationRule implements MessageValidationRule
         if ($dto->captionEntities !== null) {
             foreach ($dto->captionEntities as $entity) {
                 if (in_array(
-                        $entity->type,
-                        [MessageEntityPropTypeEnum::URL, MessageEntityPropTypeEnum::TEXT_LINK],
-                        true
-                    )
+                    $entity->type,
+                    [MessageEntityPropTypeEnum::URL, MessageEntityPropTypeEnum::TEXT_LINK],
+                    true
+                )
                     && $entity->url !== null) {
                     $parts[] = $entity->url;
                 }

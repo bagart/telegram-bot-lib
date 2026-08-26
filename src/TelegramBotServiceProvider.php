@@ -58,6 +58,10 @@ use BAGArt\TelegramBot\Modules\ModuleBootloader;
 use BAGArt\TelegramBot\Modules\TgCommandRegistry;
 use BAGArt\TelegramBot\Modules\TgModuleRegistrar;
 use BAGArt\TelegramBot\Modules\TgModuleRegistry;
+use BAGArt\TelegramBot\Modules\TgWebApiRegistry;
+use BAGArt\TelegramBot\Modules\TgWebPermissionRegistry;
+use BAGArt\TelegramBot\Modules\TgWebResourceRegistry;
+use BAGArt\TelegramBot\Modules\TgWebUiRegistry;
 use BAGArt\TelegramBot\Modules\TypedModuleRegistrar;
 use BAGArt\TelegramBot\Outbound\OutboundMiddlewareRegistry;
 use BAGArt\TelegramBot\Outbound\TgOutboundStats;
@@ -317,9 +321,9 @@ class TelegramBotServiceProvider extends ServiceProvider
                     transport: $app->make(HttpTransportContract::class),
                     rateLimiter: new ASKRateLimiter(
                         $app->make(ASKCacheWrapper::class),
-                        new ASKClock,
+                        new ASKClock(),
                     ),
-                    promiseResolver: new ASKPromiseResolver,
+                    promiseResolver: new ASKPromiseResolver(),
                 );
             },
         );
@@ -330,7 +334,7 @@ class TelegramBotServiceProvider extends ServiceProvider
             fn ($app): ASKClient => new ASKClient(
                 transport: new TgBotApiAskTransport(
                     apiClient: $app->make(ApiClientContract::class),
-                    requestFactory: new TgRequestFactory,
+                    requestFactory: new TgRequestFactory(),
                 ),
             ),
         );
@@ -354,6 +358,10 @@ class TelegramBotServiceProvider extends ServiceProvider
         $this->app->singleton(TgModuleRegistry::class);
         $this->app->singleton(OutboundMiddlewareRegistry::class);
         $this->app->singleton(TgCommandRegistry::class);
+        $this->app->singleton(TgWebUiRegistry::class);
+        $this->app->singleton(TgWebApiRegistry::class);
+        $this->app->singleton(TgWebResourceRegistry::class);
+        $this->app->singleton(TgWebPermissionRegistry::class);
         $this->app->singleton(
             AttributedComponentsScanner::class,
             fn ($app): AttributedComponentsScanner => new AttributedComponentsScanner(
@@ -376,6 +384,10 @@ class TelegramBotServiceProvider extends ServiceProvider
                 registrar: $app->make(TgModuleRegistrar::class),
                 registry: $app->make(TgModuleRegistry::class),
                 logger: $app->make(ASKLogWrapper::class),
+                webUiRegistry: $app->make(TgWebUiRegistry::class),
+                webApiRegistry: $app->make(TgWebApiRegistry::class),
+                webResourceRegistry: $app->make(TgWebResourceRegistry::class),
+                webPermissionRegistry: $app->make(TgWebPermissionRegistry::class),
             ),
         );
 
@@ -388,8 +400,8 @@ class TelegramBotServiceProvider extends ServiceProvider
                 $factory = $app->make(TgBotSetupFactory::class);
 
                 return new RegisteredUpdateProcessorSelector(
-                    serviceConfig: new TgServiceConfig,
-                    botSetup: $factory->create(serviceConfig: new TgServiceConfig),
+                    serviceConfig: new TgServiceConfig(),
+                    botSetup: $factory->create(serviceConfig: new TgServiceConfig()),
                     moduleEnablement: $app->bound(ModuleEnablementContract::class)
                         ? $app->make(ModuleEnablementContract::class)
                         : null,
@@ -402,7 +414,7 @@ class TelegramBotServiceProvider extends ServiceProvider
             TgWebhookRequestParser::class,
             function ($app): TgWebhookRequestParser {
                 $factory = $app->make(TgBotSetupFactory::class);
-                $config = new TgServiceConfig;
+                $config = new TgServiceConfig();
 
                 return new TgWebhookRequestParser(
                     tgApiDTOMapper: $factory->dtoMapper($config),

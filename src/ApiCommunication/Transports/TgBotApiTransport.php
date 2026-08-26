@@ -20,10 +20,11 @@ final class TgBotApiTransport implements TgBotApiTransportContract, WithASKTicka
 {
     public function __construct(
         private readonly HttpTransportContract $httpTransport,
-        private readonly TgRequestFactory $requestFactory = new TgRequestFactory,
-        private readonly TgResponseDecoder $decoder = new TgResponseDecoder,
+        private readonly TgRequestFactory $requestFactory = new TgRequestFactory(),
+        private readonly TgResponseDecoder $decoder = new TgResponseDecoder(),
         private readonly ?ASKPromiseResolverContract $promiseResolver = null,
-    ) {}
+    ) {
+    }
 
     public function request(
         TgBotConfig $config,

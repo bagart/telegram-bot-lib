@@ -23,7 +23,7 @@ final class OutboundQueueRegistry
 
     public static function build(): self
     {
-        $registry = new self;
+        $registry = new self();
 
         foreach (self::$default as $type => $class) {
             $registry->register($class, $type);

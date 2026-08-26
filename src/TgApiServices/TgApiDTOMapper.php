@@ -20,7 +20,8 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
     public function __construct(
         private TgApiDTORegistryContract $tgApiDTORegistry,
         private ?ASKLogWrapper $logger = null,
-    ) {}
+    ) {
+    }
 
     public function toArray(TgApiDTOContract $dto): array
     {
@@ -160,6 +161,8 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
         }
 
         $phpTypes = $this->categorizeTypes($phpTypes);
+        // oneOf unions: try discriminator-matched variants first, then the rest
+        $phpTypes = $this->prioritizeDiscriminatorMatches($phpTypes, $propValue);
 
         foreach ($phpTypes as $phpType) {
             if (is_array($phpType)) {
@@ -183,7 +186,8 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
             if (str_ends_with($phpType, 'DTO')) {
                 try {
                     return $this->fromArray($phpType, $propValue);
-                } catch (TgUnexpectedDataFormatException $e) {
+                } catch (TgUnexpectedDataFormatException|\ArgumentCountError|\TypeError) {
+                    // candidate does not fit the payload (oneOf union) — try next
                     continue;
                 }
             }
@@ -211,6 +215,61 @@ readonly class TgApiDTOMapper implements TgApiDTOMapperContract
             $phpTypes,
             $propValue,
         );
+    }
+
+    /**
+     * oneOf unions hydrate several constructor-compatible candidates; variants
+     * carrying a TgApiOneOfVariantContract whose discriminator literals match
+     * the payload must be tried first, otherwise the first hydratable class
+     * would win regardless of the data.
+     *
+     * @param  array<string|list<string>>  $phpTypes
+     */
+    private function prioritizeDiscriminatorMatches(array $phpTypes, mixed $propValue): array
+    {
+        if (! is_array($propValue)) {
+            return $phpTypes;
+        }
+
+        $matched = [];
+        $rest = [];
+        foreach ($phpTypes as $type) {
+            $candidates = is_array($type) ? $type : [$type];
+            $hit = [];
+            foreach ($candidates as $candidate) {
+                if (
+                    is_string($candidate)
+                    && str_ends_with($candidate, 'DTO')
+                    && is_subclass_of($candidate, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract::class)
+                    && $this->discriminatorsMatch($candidate, $propValue)
+                ) {
+                    $hit[] = $candidate;
+                }
+            }
+
+            if ($hit !== [] && is_array($type)) {
+                // array-of union: matched variants first inside the nested list
+                $rest[] = array_values(array_merge($hit, array_diff($candidates, $hit)));
+            } elseif ($hit !== []) {
+                $matched = array_merge($matched, $hit);
+            } else {
+                $rest[] = $type;
+            }
+        }
+
+        return array_merge($matched, $rest);
+    }
+
+    private function discriminatorsMatch(string $class, array $data): bool
+    {
+        foreach ($class::tgDiscriminators() as $field => $literals) {
+            $actual = $data[$field] ?? null;
+            if (! is_string($actual) || ! in_array($actual, $literals, true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function categorizeTypes(array $phpTypes): array

@@ -14,7 +14,9 @@ use BAGArt\TelegramBot\Outbound\OutboundTaskState;
 /** Hand-rollable fake clock for ExpiryMiddleware. */
 class ExpiryClock implements ASKClockContract
 {
-    public function __construct(public int $time = 1000000) {}
+    public function __construct(public int $time = 1000000)
+    {
+    }
 
     public function advance(int $seconds): void
     {
@@ -41,7 +43,9 @@ class ExpiryClock implements ASKClockContract
         return $this->time * ASKClockContract::NS_PER_SEC;
     }
 
-    public function sleep(int $microseconds): void {}
+    public function sleep(int $microseconds): void
+    {
+    }
 
     public function getSecondsFromInterval(DateInterval $interval): int
     {
@@ -52,14 +56,14 @@ class ExpiryClock implements ASKClockContract
 /** Spy $next: returns [handler, box]; box->called — whether it was called. */
 function makeNextSpy(): array
 {
-    $box = new class
-    {
+    $box = new class () {
         public bool $called = false;
     };
 
-    $spy = new class($box) implements OutboundNextHandlerContract
-    {
-        public function __construct(private readonly object $box) {}
+    $spy = new class ($box) implements OutboundNextHandlerContract {
+        public function __construct(private readonly object $box)
+        {
+        }
 
         public function handle(OutboundEnvelope $envelope): void
         {
@@ -73,7 +77,7 @@ function makeNextSpy(): array
 function makeTaskForExpiry(int $createdAtOffset): OutboundTask
 {
     // createdAt = now - offset; age(envelope) is computed relative to clock->time().
-    $createdAt = (new DateTimeImmutable)->setTimestamp(1000000 - $createdAtOffset);
+    $createdAt = (new DateTimeImmutable())->setTimestamp(1000000 - $createdAtOffset);
 
     return new OutboundTask(
         id: 't1',
@@ -92,7 +96,7 @@ function makeEnvelopeForExpiry(int $attempt): OutboundEnvelope
             botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
             dtoClass: 'App\\SendMessage',
             dtoData: [],
-            createdAt: (new DateTimeImmutable)->setTimestamp(1000000),
+            createdAt: (new DateTimeImmutable())->setTimestamp(1000000),
         ),
         state: new OutboundTaskState(attempt: $attempt),
     );
@@ -109,7 +113,7 @@ describe('ExpiryMiddleware', function () {
             botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
             dtoClass: 'App\\Send',
             dtoData: [],
-            createdAt: (new DateTimeImmutable)->setTimestamp(1000000),
+            createdAt: (new DateTimeImmutable())->setTimestamp(1000000),
         );
         $envelope = new OutboundEnvelope($task, new OutboundTaskState(attempt: 0));
 
@@ -129,7 +133,7 @@ describe('ExpiryMiddleware', function () {
             botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
             dtoClass: 'App\\Send',
             dtoData: [],
-            createdAt: (new DateTimeImmutable)->setTimestamp(1000000 - 4000),
+            createdAt: (new DateTimeImmutable())->setTimestamp(1000000 - 4000),
         );
         $envelope = new OutboundEnvelope($task, new OutboundTaskState(attempt: 2));
 
@@ -150,7 +154,7 @@ describe('ExpiryMiddleware', function () {
             botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
             dtoClass: 'App\\Send',
             dtoData: [],
-            createdAt: (new DateTimeImmutable)->setTimestamp(1000000 - 4000),
+            createdAt: (new DateTimeImmutable())->setTimestamp(1000000 - 4000),
         );
         $envelope = new OutboundEnvelope($task, new OutboundTaskState(attempt: 1));
 
@@ -170,7 +174,7 @@ describe('ExpiryMiddleware', function () {
             botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
             dtoClass: 'App\\Send',
             dtoData: [],
-            createdAt: (new DateTimeImmutable)->setTimestamp(1000000 - 100),
+            createdAt: (new DateTimeImmutable())->setTimestamp(1000000 - 100),
         );
         $envelope = new OutboundEnvelope($task, new OutboundTaskState(attempt: 5));
 
@@ -191,7 +195,7 @@ describe('ExpiryMiddleware', function () {
             botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
             dtoClass: 'App\\Send',
             dtoData: [],
-            createdAt: (new DateTimeImmutable)->setTimestamp(1000000),
+            createdAt: (new DateTimeImmutable())->setTimestamp(1000000),
         );
         $envelope = new OutboundEnvelope($task, new OutboundTaskState(attempt: 2));
 
@@ -208,7 +212,7 @@ describe('ExpiryMiddleware', function () {
             botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'),
             dtoClass: 'App\\Send',
             dtoData: [],
-            createdAt: (new DateTimeImmutable)->setTimestamp(1000000 - 100),
+            createdAt: (new DateTimeImmutable())->setTimestamp(1000000 - 100),
         );
         $envelope = new OutboundEnvelope($task, new OutboundTaskState(attempt: 1));
 

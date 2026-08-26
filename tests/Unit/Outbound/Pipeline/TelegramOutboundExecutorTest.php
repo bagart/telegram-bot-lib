@@ -71,8 +71,7 @@ class ExecutorMapper implements TgApiDTOMapperContract
         $this->lastData = $data;
 
         // Stub DTO — executor does not use its content, only passes to dtoClient.
-        return new class implements TgApiMethodDTOContract
-        {
+        return new class () implements TgApiMethodDTOContract {
             public static function getReturnTypes(): array
             {
                 return [];
@@ -121,7 +120,9 @@ class ExecutorRateLimiter implements OutboundRateLimiterContract
         $this->registered[$key] = $seconds;
     }
 
-    public function markSent(string $key): void {}
+    public function markSent(string $key): void
+    {
+    }
 }
 
 // ----- Helpers -----
@@ -139,8 +140,8 @@ function makeExecutorTask(): OutboundTask
 
 function makeExecutor(
     ExecutorDtoClient $client,
-    ExecutorRateLimiter $limiter = new ExecutorRateLimiter,
-    ExecutorMapper $mapper = new ExecutorMapper,
+    ExecutorRateLimiter $limiter = new ExecutorRateLimiter(),
+    ExecutorMapper $mapper = new ExecutorMapper(),
 ): TelegramOutboundExecutor {
     return new TelegramOutboundExecutor($client, $limiter, $mapper);
 }
@@ -153,14 +154,14 @@ function makeExecutor(
  */
 function makeExecutorSpy(): array
 {
-    $box = new class
-    {
+    $box = new class () {
         public bool $called = false;
     };
 
-    $spy = new class($box) implements OutboundNextHandlerContract
-    {
-        public function __construct(private readonly object $box) {}
+    $spy = new class ($box) implements OutboundNextHandlerContract {
+        public function __construct(private readonly object $box)
+        {
+        }
 
         public function handle(OutboundEnvelope $envelope): void
         {
@@ -173,13 +174,13 @@ function makeExecutorSpy(): array
 
 describe('TelegramOutboundExecutor', function () {
     it('resolves the DTO, resolves the token, and calls dtoClient->request on success', function () {
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn (TgBotConfig $c, TgApiMethodDTOContract $d) => new TgApiResponse(true, [], null);
-        $mapper = new ExecutorMapper;
+        $mapper = new ExecutorMapper();
         $middleware = makeExecutor($client, mapper: $mapper);
 
         [$spy, $box] = makeExecutorSpy();
-        $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState), $spy);
+        $middleware->handle(new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()), $spy);
 
         expect($box->called)->toBeFalse() // executor is final — $next is NOT called.
             ->and($mapper->lastDtoClass)->toBe('App\\SendMessageDTO')
@@ -188,14 +189,14 @@ describe('TelegramOutboundExecutor', function () {
     });
 
     it('classifies 429 as telegram_rate_limit retry with retryAfter from the exception', function () {
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn () => throw new TgApiRateLimitException('sendMessage', retryAfter: 42);
-        $limiter = new ExecutorRateLimiter;
+        $limiter = new ExecutorRateLimiter();
         $middleware = makeExecutor($client, limiter: $limiter);
 
         try {
             $middleware->handle(
-                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState),
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
                 makeExecutorSpy()[0]
             );
             expect('should have thrown')->toBe('threw');
@@ -206,14 +207,14 @@ describe('TelegramOutboundExecutor', function () {
     });
 
     it('calls registerRetryAfter on 429 — fixes the dead-code bug', function () {
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn () => throw new TgApiRateLimitException('sendMessage', retryAfter: 42);
-        $limiter = new ExecutorRateLimiter;
+        $limiter = new ExecutorRateLimiter();
         $middleware = makeExecutor($client, limiter: $limiter);
 
         try {
             $middleware->handle(
-                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState),
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
                 makeExecutorSpy()[0]
             );
         } catch (OutboundRetryException) {
@@ -226,13 +227,13 @@ describe('TelegramOutboundExecutor', function () {
     });
 
     it('defaults retryAfter to 30 when the exception has none', function () {
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn () => throw new TgApiRateLimitException('sendMessage'); // retryAfter = null
         $middleware = makeExecutor($client);
 
         try {
             $middleware->handle(
-                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState),
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
                 makeExecutorSpy()[0]
             );
         } catch (OutboundRetryException $e) {
@@ -241,13 +242,13 @@ describe('TelegramOutboundExecutor', function () {
     });
 
     it('classifies 409 conflict as retry with delay 5', function () {
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn () => throw new TgApiConflictException('getUpdates');
         $middleware = makeExecutor($client);
 
         try {
             $middleware->handle(
-                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState),
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
                 makeExecutorSpy()[0]
             );
         } catch (OutboundRetryException $e) {
@@ -257,13 +258,13 @@ describe('TelegramOutboundExecutor', function () {
     });
 
     it('classifies network error as retry with delay 10', function () {
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn () => throw new TgApiNetworkException('sendMessage');
         $middleware = makeExecutor($client);
 
         try {
             $middleware->handle(
-                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState),
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
                 makeExecutorSpy()[0]
             );
         } catch (OutboundRetryException $e) {
@@ -273,13 +274,13 @@ describe('TelegramOutboundExecutor', function () {
     });
 
     it('classifies 400 bad request as business error (DLQ)', function () {
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn () => throw new TgBadRequestException('Chat not found');
         $middleware = makeExecutor($client);
 
         try {
             $middleware->handle(
-                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState),
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
                 makeExecutorSpy()[0]
             );
         } catch (OutboundBusinessErrorException $e) {
@@ -289,13 +290,13 @@ describe('TelegramOutboundExecutor', function () {
     });
 
     it('classifies unknown exceptions as retry (best-effort, not DLQ)', function () {
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn () => throw new RuntimeException('mystery');
         $middleware = makeExecutor($client);
 
         try {
             $middleware->handle(
-                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState),
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
                 makeExecutorSpy()[0]
             );
         } catch (OutboundRetryException $e) {
@@ -306,13 +307,13 @@ describe('TelegramOutboundExecutor', function () {
 
     it('preserves the original exception as previous in the wrapping control-flow exception', function () {
         $original = new TgApiNetworkException('sendMessage', 'timeout');
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn () => throw $original;
         $middleware = makeExecutor($client);
 
         try {
             $middleware->handle(
-                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState),
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
                 makeExecutorSpy()[0]
             );
         } catch (OutboundRetryException $e) {
@@ -323,14 +324,14 @@ describe('TelegramOutboundExecutor', function () {
     it('uses the same key format as RateLimitMiddleware (single bucket)', function () {
         // Sanity: both Executor.registerRetryAfter and RateLimitMiddleware.getRetryDelay
         // should build the same key for one envelope.
-        $client = new ExecutorDtoClient;
+        $client = new ExecutorDtoClient();
         $client->requestHandler = fn () => throw new TgApiRateLimitException('sendMessage', retryAfter: 1);
-        $limiter = new ExecutorRateLimiter;
+        $limiter = new ExecutorRateLimiter();
         $middleware = makeExecutor($client, limiter: $limiter);
 
         try {
             $middleware->handle(
-                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState),
+                new OutboundEnvelope(makeExecutorTask(), new OutboundTaskState()),
                 makeExecutorSpy()[0]
             );
         } catch (OutboundRetryException) {

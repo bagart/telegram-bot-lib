@@ -15,7 +15,8 @@ final class TgBotApiClient implements TgBotApiClientContract
 {
     public function __construct(
         private readonly TgBotApiTransportContract $transport,
-    ) {}
+    ) {
+    }
 
     public static function build(HttpTransportContract $httpTransport): self
     {

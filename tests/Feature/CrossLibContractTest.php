@@ -130,10 +130,25 @@ function glob_recursive_php(string $dir): array
     foreach ($iterator as $item) {
         /** @var SplFileInfo $item */
         if ($item->isFile() && $item->getExtension() === 'php'
-            && ! str_contains($item->getPathname(), 'TgApi')) {
+            && ! str_contains($item->getPathname(), 'TgApi')
+            && ! bagart_is_excluded_tree($item->getPathname())) {
             $files[] = str_replace('\\', '/', $item->getPathname());
         }
     }
 
     return $files;
+}
+
+/**
+ * Trees that must not participate in the live-contract scan: vendored
+ * dependencies and the frozen tg-bot-manager snapshot, which carries its own
+ * nested copy of the platform namespaces that is intentionally not
+ * autoloadable.
+ */
+function bagart_is_excluded_tree(string $path): bool
+{
+    $normalized = str_replace('\\', '/', $path);
+
+    return str_contains($normalized, '/vendor/')
+        || str_contains($normalized, '/tg-bot-manager/');
 }

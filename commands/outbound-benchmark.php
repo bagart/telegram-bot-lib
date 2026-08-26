@@ -99,9 +99,9 @@ $customHost = (string) ($options['host'] ?? '');
 function transportFactories(): array
 {
     return [
-        CurlMultiTransportAdapter::TYPE => fn () => new CurlMultiTransportAdapter,
-        GuzzleTransportAdapter::TYPE => fn () => new GuzzleTransportAdapter,
-        ASKSocketTransportAdapter::TYPE => fn () => new ASKSocketTransportAdapter,
+        CurlMultiTransportAdapter::TYPE => fn () => new CurlMultiTransportAdapter(),
+        GuzzleTransportAdapter::TYPE => fn () => new GuzzleTransportAdapter(),
+        ASKSocketTransportAdapter::TYPE => fn () => new ASKSocketTransportAdapter(),
     ];
 }
 
@@ -173,7 +173,8 @@ final class BenchmarkRateLimiter implements OutboundRateLimiterContract
 
     public function __construct(
         private readonly int $rate,
-    ) {}
+    ) {
+    }
 
     public function getRetryDelay(string $key): float
     {
@@ -195,7 +196,9 @@ final class BenchmarkRateLimiter implements OutboundRateLimiterContract
         $this->windows[$key][] = microtime(true);
     }
 
-    public function registerRetryAfter(string $key, float $seconds): void {}
+    public function registerRetryAfter(string $key, float $seconds): void
+    {
+    }
 
     public function resetKey(string $key): void
     {
@@ -230,7 +233,8 @@ final class BenchmarkOutboundExecutor implements OutboundMiddleware
         private readonly HttpTransportContract $transport,
         private readonly OutboundRateLimiterContract $rateLimiter,
         private readonly string $targetUrl,
-    ) {}
+    ) {
+    }
 
     public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
     {
@@ -269,9 +273,13 @@ final class NoopCircuitBreaker implements OutboundCircuitBreakerContract
         return true;
     }
 
-    public function recordFailure(string $botId): void {}
+    public function recordFailure(string $botId): void
+    {
+    }
 
-    public function recordSuccess(string $botId): void {}
+    public function recordSuccess(string $botId): void
+    {
+    }
 
     public function getState(string $botId): CircuitBreakerState
     {
@@ -337,9 +345,9 @@ function runKernelPhase(
     int $durationSec,
     int $taskMultiplier = 10,
 ): array {
-    $clock = new ASKClock;
+    $clock = new ASKClock();
     $logger = new ASKLogWrapper(minLevel: 'debug');
-    $resolver = new ASKPromiseResolver;
+    $resolver = new ASKPromiseResolver();
 
     $config = new OutboundWorkerConfig(
         maxAttempts: 5,
@@ -347,7 +355,7 @@ function runKernelPhase(
     );
 
     $cache = new ASKCacheWrapper(new InMemoryCache($clock));
-    $locker = new InMemoryLocker;
+    $locker = new InMemoryLocker();
     $outboundCache = new KernelCacheAdapter($cache, $locker);
 
     $queue = new InMemoryOutboundQueue($clock, 200_000);
@@ -366,9 +374,9 @@ function runKernelPhase(
     ]);
 
     $stats = new TgOutboundStats($outboundCache, 1);
-    $circuitBreaker = new NoopCircuitBreaker;
+    $circuitBreaker = new NoopCircuitBreaker();
     $leaseRenewer = new LeaseRenewer($queue, $clock, 3600, 0);
-    $scheduler = new ASKFiberScheduler;
+    $scheduler = new ASKFiberScheduler();
 
     $daemon = new TgOutboundDaemon(
         queue: $queue,

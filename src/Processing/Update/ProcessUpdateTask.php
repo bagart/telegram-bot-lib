@@ -16,7 +16,8 @@ final class ProcessUpdateTask implements OrderedTaskContract
     public function __construct(
         private readonly UpdateRouter $router,
         private readonly UpdateContext $updateContext,
-    ) {}
+    ) {
+    }
 
     public function execute(): void
     {

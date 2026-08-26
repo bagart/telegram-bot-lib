@@ -33,11 +33,12 @@ final class LaravelQueueAdapter implements OutboundQueueContract
 
     public function __construct(
         private readonly LaravelQueueContract $queue,
-    ) {}
+    ) {
+    }
 
     public function push(OutboundTask $task): void
     {
-        $envelope = new OutboundEnvelope($task, new OutboundTaskState);
+        $envelope = new OutboundEnvelope($task, new OutboundTaskState());
         $payload = json_encode($envelope, JSON_THROW_ON_ERROR);
 
         // Marker-job passes through opaque payload; Laravel serializes it.

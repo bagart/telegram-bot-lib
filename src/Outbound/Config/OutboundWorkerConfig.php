@@ -20,6 +20,7 @@ final class OutboundWorkerConfig
         public readonly int $defaultRetryDelaySec = 3,
         public readonly int $maxConcurrentFibers = 500,
         public readonly int $maxDlqRedeliveries = 3,
+        public readonly int $pressureQueueCapacity = 256,
     ) {
     }
 }

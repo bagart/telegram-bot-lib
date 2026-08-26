@@ -73,6 +73,20 @@ final class TgOutboundStats
         $this->cache->incrementWithTtl("{$hour}:dlq_purged", $count, $this->retentionHours * 3600);
     }
 
+    /** Push-side shedding: task parked in the delayed set (zero loss). */
+    public function recordShedDeferred(): void
+    {
+        $this->cache->incrementWithTtl($this->hourKey().':shed:deferred', 1, $this->retentionHours * 3600);
+    }
+
+    /** Push-side shedding: low-lane task routed to DLQ with reason load_shed. */
+    public function recordShedDropped(string $botId): void
+    {
+        $hour = $this->hourKey();
+        $this->cache->incrementWithTtl("{$hour}:shed:dropped", 1, $this->retentionHours * 3600);
+        $this->cache->incrementWithTtl("{$hour}:shed:dropped:{$botId}", 1, $this->retentionHours * 3600);
+    }
+
     /**
      * Aggregated metrics for all bots over a time range.
      *
@@ -105,11 +119,11 @@ final class TgOutboundStats
             $hour = date('YmdH', time() - $i * 3600);
             $hourKey = self::KEY_PREFIX.$hour;
 
-            $global = (int)$this->cache->get("{$hourKey}:sent:global");
-            $dlqPushed = (int)$this->cache->get("{$hourKey}:dlq_pushed:total");
-            $dlqRetried = (int)$this->cache->get("{$hourKey}:dlq_retried:total");
-            $businessError = (int)$this->cache->get("{$hourKey}:business_error:400");
-            $retryRateLimit = (int)$this->cache->get("{$hourKey}:retry:telegram_rate_limit");
+            $global = (int) $this->cache->get("{$hourKey}:sent:global");
+            $dlqPushed = (int) $this->cache->get("{$hourKey}:dlq_pushed:total");
+            $dlqRetried = (int) $this->cache->get("{$hourKey}:dlq_retried:total");
+            $businessError = (int) $this->cache->get("{$hourKey}:business_error:400");
+            $retryRateLimit = (int) $this->cache->get("{$hourKey}:retry:telegram_rate_limit");
 
             $hasActivity = $global > 0 || $dlqPushed > 0 || $dlqRetried > 0
                 || $businessError > 0 || $retryRateLimit > 0;
@@ -117,11 +131,11 @@ final class TgOutboundStats
                 $state["hour_{$hour}"] = [
                     'sent_global' => $global,
                     'retry_total' => $retryRateLimit,
-                    'failed_total' => (int)$this->cache->get("{$hourKey}:failed:fatal_worker_error"),
+                    'failed_total' => (int) $this->cache->get("{$hourKey}:failed:fatal_worker_error"),
                     'business_error' => $businessError,
                     'dlq_pushed' => $dlqPushed,
                     'dlq_retried' => $dlqRetried,
-                    'dlq_purged' => (int)$this->cache->get("{$hourKey}:dlq_purged"),
+                    'dlq_purged' => (int) $this->cache->get("{$hourKey}:dlq_purged"),
                 ];
             }
         }
@@ -145,27 +159,27 @@ final class TgOutboundStats
             // global: sent:global, retry:{reason}, failed:{reason}, business_error:{code}, dlq_*:{suffix}
             // per-bot: sent:{botId}:total, retry:{botId}:total, failed:{botId}:total, ...
             $sent = $botId === null
-                ? (int)$this->cache->get("{$hk}:sent:global")
-                : (int)$this->cache->get("{$hk}:sent:{$botId}:total");
+                ? (int) $this->cache->get("{$hk}:sent:global")
+                : (int) $this->cache->get("{$hk}:sent:{$botId}:total");
 
             if ($botId === null) {
-                $retryRateLimit = (int)$this->cache->get("{$hk}:retry:telegram_rate_limit");
-                $failedNetwork = (int)$this->cache->get("{$hk}:failed:network_timeout");
-                $businessErrors = (int)$this->cache->get("{$hk}:business_error:400");
+                $retryRateLimit = (int) $this->cache->get("{$hk}:retry:telegram_rate_limit");
+                $failedNetwork = (int) $this->cache->get("{$hk}:failed:network_timeout");
+                $businessErrors = (int) $this->cache->get("{$hk}:business_error:400");
             } else {
-                $retryRateLimit = (int)$this->cache->get("{$hk}:retry:{$botId}:total");
-                $failedNetwork = (int)$this->cache->get("{$hk}:failed:{$botId}:total");
-                $businessErrors = (int)$this->cache->get("{$hk}:business_error:{$botId}:total");
+                $retryRateLimit = (int) $this->cache->get("{$hk}:retry:{$botId}:total");
+                $failedNetwork = (int) $this->cache->get("{$hk}:failed:{$botId}:total");
+                $businessErrors = (int) $this->cache->get("{$hk}:business_error:{$botId}:total");
             }
-            $retryCircuit = (int)$this->cache->get("{$hk}:retry:circuit_breaker");
-            $failedFatal = (int)$this->cache->get("{$hk}:failed:fatal_worker_error");
-            $dlqPushed = (int)$this->cache->get("{$hk}:dlq_pushed:".($botId ?? 'total'));
-            $dlqRetried = (int)$this->cache->get("{$hk}:dlq_retried:".($botId ?? 'total'));
-            $dlqPurged = (int)$this->cache->get("{$hk}:dlq_purged");
+            $retryCircuit = (int) $this->cache->get("{$hk}:retry:circuit_breaker");
+            $failedFatal = (int) $this->cache->get("{$hk}:failed:fatal_worker_error");
+            $dlqPushed = (int) $this->cache->get("{$hk}:dlq_pushed:".($botId ?? 'total'));
+            $dlqRetried = (int) $this->cache->get("{$hk}:dlq_retried:".($botId ?? 'total'));
+            $dlqPurged = (int) $this->cache->get("{$hk}:dlq_purged");
 
             $hasActivity = $sent > 0 || $retryRateLimit > 0 || $failedNetwork > 0
                 || $businessErrors > 0 || $dlqPushed > 0 || $dlqRetried > 0 || $dlqPurged > 0;
-            if (!$hasActivity) {
+            if (! $hasActivity) {
                 continue;
             }
 

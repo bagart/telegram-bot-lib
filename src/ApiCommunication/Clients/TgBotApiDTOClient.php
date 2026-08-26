@@ -28,7 +28,8 @@ final class TgBotApiDTOClient implements TgBotApiDTOClientContract
         private readonly TgApiDTOMapperContract $tgApiDTOMapper,
         private readonly TgResponseParser $returnParser,
         private readonly ?TgBotApiTransportContract $transport = null,
-    ) {}
+    ) {
+    }
 
     public static function build(
         TgBotApiTransportContract $transport,

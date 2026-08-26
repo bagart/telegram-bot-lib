@@ -10,7 +10,8 @@ final class RetryMiddleware implements TgMiddlewareContract
 {
     public function __construct(
         private int $maxRetries = 2,
-    ) {}
+    ) {
+    }
 
     public function handle(TgEnvelope $env, TgNextHandlerContract $next): mixed
     {

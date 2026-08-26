@@ -27,8 +27,7 @@ use BAGArt\TelegramBot\TgApiServices\TgEntityToDTORegistry;
 
 function tbCapturingTransport(): HttpTransportContract
 {
-    return new class implements HttpTransportContract
-    {
+    return new class () implements HttpTransportContract {
         public ?ASKHttpRequest $last = null;
 
         public function request(ASKHttpRequest $request): ASKHttpResponse
@@ -89,7 +88,7 @@ describe('Track B multipart threading', function () {
     });
 
     it('threads files from the factory into the ASK request', function () {
-        $factory = new TgRequestFactory;
+        $factory = new TgRequestFactory();
 
         $request = $factory->make(
             tgMethodName: 'sendVoice',
@@ -127,11 +126,11 @@ describe('Track B multipart threading', function () {
         $tgTransport = new TgBotApiTransport($transport);
 
         $client = new TgBotApiDTOClient(
-            new class($tgTransport) implements TgBotApiClientContract
-            {
+            new class ($tgTransport) implements TgBotApiClientContract {
                 public function __construct(
                     private readonly TgBotApiTransportContract $inner,
-                ) {}
+                ) {
+                }
 
                 public function request(TgBotConfig $config, string $method, array $params = [], array $files = []): array
                 {

@@ -20,7 +20,7 @@ function processorDaemonValidToken(): string
 
 function processorDaemonLogger(): ASKLogWrapper
 {
-    return new ASKLogWrapper(logger: new NullLogger);
+    return new ASKLogWrapper(logger: new NullLogger());
 }
 
 describe('ProcessorDaemon', function () {

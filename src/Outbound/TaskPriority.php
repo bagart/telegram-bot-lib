@@ -7,9 +7,10 @@ namespace BAGArt\TelegramBot\Outbound;
 /**
  * Outbound task priority.
  *
- * Used as the high-order part of score in Redis sorted set
- * (score = priority.value * 1e10 + createdAt). Pop selects by score DESC,
- * so higher priority goes first; within the same priority — FIFO by createdAt.
+ * Static lane of the task. Queue scores are computed by the fairness policy
+ * ({@see OutboundFairnessPolicyContract}; default: aging — a waiting task's
+ * score grows until it crosses into fresher higher lanes, preventing
+ * starvation). Pop selects by score DESC.
  */
 enum TaskPriority: int
 {

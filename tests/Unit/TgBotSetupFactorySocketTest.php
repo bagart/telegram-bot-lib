@@ -61,7 +61,7 @@ describe('TgBotSetupFactory socket pool', function (): void {
         return $method->invoke(
             null,
             $config,
-            new ASKLogWrapper,
+            new ASKLogWrapper(),
             $env,
             Mockery::mock(AskDnsAdapterContract::class),
         );
@@ -100,11 +100,11 @@ describe('TgBotSetupFactory socket pool', function (): void {
     });
 
     it('skips warmup when WARM_CONNECTIONS <= 0', function (): void {
-        $transport = new ASKSocketTransportAdapter;
+        $transport = new ASKSocketTransportAdapter();
 
         $warmed = TgBotSetupFactory::warmSocketPool(
             $transport,
-            new ASKLogWrapper,
+            new ASKLogWrapper(),
             ['TG_OUTBOUND_WARM_CONNECTIONS' => '0'],
         );
 
@@ -112,11 +112,11 @@ describe('TgBotSetupFactory socket pool', function (): void {
     });
 
     it('skips warmup when WARM_HOST is empty', function (): void {
-        $transport = new ASKSocketTransportAdapter;
+        $transport = new ASKSocketTransportAdapter();
 
         $warmed = TgBotSetupFactory::warmSocketPool(
             $transport,
-            new ASKLogWrapper,
+            new ASKLogWrapper(),
             ['TG_OUTBOUND_WARM_CONNECTIONS' => '4', 'TG_OUTBOUND_WARM_HOST' => ''],
         );
 

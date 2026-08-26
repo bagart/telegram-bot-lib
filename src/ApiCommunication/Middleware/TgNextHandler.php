@@ -15,7 +15,8 @@ final class TgNextHandler implements TgNextHandlerContract
     public function __construct(
         private readonly TgMiddlewareContract $middleware,
         private readonly TgNextHandlerContract $next,
-    ) {}
+    ) {
+    }
 
     public function handle(TgEnvelope $env): mixed
     {

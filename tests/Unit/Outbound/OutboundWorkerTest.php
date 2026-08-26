@@ -31,8 +31,7 @@ if (! class_exists('ControllableClock') || ! function_exists('makeCacheWrapper')
 
 function okMiddleware(): OutboundMiddleware
 {
-    return new class implements OutboundMiddleware
-    {
+    return new class () implements OutboundMiddleware {
         public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
         {
             $next->handle($envelope);
@@ -55,19 +54,19 @@ function makeWorker(
     ?ASKFiberScheduler $scheduler = null,
     ?OutboundCircuitBreaker $circuitBreaker = null,
 ): TgOutboundDaemon {
-    $clock = new ControllableClock;
-    $config = new OutboundWorkerConfig;
-    $scheduler ??= new ASKFiberScheduler;
+    $clock = new ControllableClock();
+    $config = new OutboundWorkerConfig();
+    $scheduler ??= new ASKFiberScheduler();
     $queue ??= new InMemoryOutboundQueue($clock);
     $pipeline ??= new OutboundPipeline([okMiddleware()]);
     $cache = new KernelCacheAdapter(
         makeCacheWrapper(),
-        new InMemoryLocker,
+        new InMemoryLocker(),
     );
     $stats = new TgOutboundStats($cache);
     $circuitBreaker ??= new OutboundCircuitBreaker($cache);
     $leaseRenewer = new LeaseRenewer($queue, $clock);
-    $logger = new ASKLogWrapper;
+    $logger = new ASKLogWrapper();
 
     return new TgOutboundDaemon(
         queue: $queue,
@@ -83,7 +82,7 @@ function makeWorker(
 
 describe('OutboundWorker', function () {
     it('pops a task from the queue and processes it', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock);
+        $queue = new InMemoryOutboundQueue(new ControllableClock());
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
@@ -107,7 +106,7 @@ describe('OutboundWorker', function () {
     });
 
     it('returns early when shutting down (no pop)', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock);
+        $queue = new InMemoryOutboundQueue(new ControllableClock());
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
@@ -127,10 +126,10 @@ describe('OutboundWorker', function () {
     });
 
     it('handles circuit breaker — releases when CB is open', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock);
+        $queue = new InMemoryOutboundQueue(new ControllableClock());
         $cache = new KernelCacheAdapter(
             makeCacheWrapper(),
-            new InMemoryLocker,
+            new InMemoryLocker(),
         );
         $cb = new OutboundCircuitBreaker($cache);
         $cb->recordFailure('bot1');
@@ -164,7 +163,7 @@ describe('OutboundWorker', function () {
     });
 
     it('isIdle returns false when there are inflight tasks', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock);
+        $queue = new InMemoryOutboundQueue(new ControllableClock());
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
@@ -183,7 +182,7 @@ describe('OutboundWorker', function () {
     });
 
     it('shutdown returns false when inflight tasks exist', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock);
+        $queue = new InMemoryOutboundQueue(new ControllableClock());
         $worker = makeWorker(queue: $queue);
         $worker->startup();
 
@@ -234,17 +233,16 @@ describe('OutboundWorker', function () {
     });
 
     it('processes via pipeline — successful send', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock);
+        $queue = new InMemoryOutboundQueue(new ControllableClock());
 
-        $executed = new class
-        {
+        $executed = new class () {
             public bool $called = false;
         };
-        $testMiddleware = new class($executed) implements OutboundMiddleware
-        {
+        $testMiddleware = new class ($executed) implements OutboundMiddleware {
             public function __construct(
                 private readonly object $executed,
-            ) {}
+            ) {
+            }
 
             public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
@@ -274,9 +272,8 @@ describe('OutboundWorker', function () {
     });
 
     it('handles OutboundSkipException — moves to DLQ', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock);
-        $skipMiddleware = new class implements OutboundMiddleware
-        {
+        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        $skipMiddleware = new class () implements OutboundMiddleware {
             public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new OutboundSkipException('expired');
@@ -304,9 +301,8 @@ describe('OutboundWorker', function () {
     });
 
     it('handles poison pill (Throwable) gracefully', function () {
-        $queue = new InMemoryOutboundQueue(new ControllableClock);
-        $poisonMiddleware = new class implements OutboundMiddleware
-        {
+        $queue = new InMemoryOutboundQueue(new ControllableClock());
+        $poisonMiddleware = new class () implements OutboundMiddleware {
             public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new RuntimeException('something broke');
@@ -336,13 +332,14 @@ describe('OutboundWorker', function () {
         // Bare queue without AtomicDlqQueueContract — simulates LaravelQueueAdapter.
         // Neither atomic DLQ nor fallback exists ⇒ the task must still be ack'd
         // (poison-pill log path), never silently lost.
-        $bareQueue = new class implements OutboundQueueContract
-        {
+        $bareQueue = new class () implements OutboundQueueContract {
             public ?OutboundEnvelope $next = null;
 
             public array $acked = [];
 
-            public function push(OutboundTask $task): void {}
+            public function push(OutboundTask $task): void
+            {
+            }
 
             public function pop(int $visibilityTimeoutSec = 60): ?OutboundEnvelope
             {
@@ -357,7 +354,9 @@ describe('OutboundWorker', function () {
                 $this->acked[] = $envelope->deliveryId;
             }
 
-            public function release(OutboundEnvelope $envelope, int $delaySec): void {}
+            public function release(OutboundEnvelope $envelope, int $delaySec): void
+            {
+            }
 
             public function size(): int
             {
@@ -365,8 +364,7 @@ describe('OutboundWorker', function () {
             }
         };
 
-        $skipMiddleware = new class implements OutboundMiddleware
-        {
+        $skipMiddleware = new class () implements OutboundMiddleware {
             public function handle(OutboundEnvelope $envelope, OutboundNextHandlerContract $next): void
             {
                 throw new OutboundSkipException('expired');
@@ -379,21 +377,21 @@ describe('OutboundWorker', function () {
             dtoClass: 'D',
             dtoData: []
         );
-        $bareQueue->next = new OutboundEnvelope($task, new OutboundTaskState, 'del1');
+        $bareQueue->next = new OutboundEnvelope($task, new OutboundTaskState(), 'del1');
 
-        $scheduler = new ASKFiberScheduler;
+        $scheduler = new ASKFiberScheduler();
         $cache = new KernelCacheAdapter(
             makeCacheWrapper(),
-            new InMemoryLocker,
+            new InMemoryLocker(),
         );
         $worker = new TgOutboundDaemon(
             queue: $bareQueue,
             pipeline: new OutboundPipeline([$skipMiddleware]),
             circuitBreaker: new OutboundCircuitBreaker($cache),
             stats: new TgOutboundStats($cache),
-            leaseRenewer: new LeaseRenewer($bareQueue, new ControllableClock),
-            logger: new ASKLogWrapper,
-            config: new OutboundWorkerConfig,
+            leaseRenewer: new LeaseRenewer($bareQueue, new ControllableClock()),
+            logger: new ASKLogWrapper(),
+            config: new OutboundWorkerConfig(),
             scheduler: $scheduler,
         );
         $worker->startup();

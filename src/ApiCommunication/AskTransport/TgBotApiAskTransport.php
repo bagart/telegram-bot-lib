@@ -29,9 +29,10 @@ final class TgBotApiAskTransport implements ASKTransportContract
 {
     public function __construct(
         private readonly ApiClientContract $apiClient,
-        private readonly TgRequestFactory $requestFactory = new TgRequestFactory,
-        private readonly TgResponseDecoder $decoder = new TgResponseDecoder,
-    ) {}
+        private readonly TgRequestFactory $requestFactory = new TgRequestFactory(),
+        private readonly TgResponseDecoder $decoder = new TgResponseDecoder(),
+    ) {
+    }
 
     public function execute(object $operation, ASKContextContract $context): ASKFutureContract
     {

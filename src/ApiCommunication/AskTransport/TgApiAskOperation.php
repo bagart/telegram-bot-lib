@@ -23,5 +23,6 @@ final class TgApiAskOperation
         public readonly array $params = [],
         public readonly ?int $timeout = null,
         public readonly array $files = [],
-    ) {}
+    ) {
+    }
 }

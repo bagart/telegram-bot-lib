@@ -22,10 +22,11 @@ final class UpdateRouter implements UpdateRouterContract
         private readonly TgServiceConfig $serviceConfig,
         private readonly TgBotSetup $botSetup,
         private readonly ProcessingErrorConsumer $errorConsumer,
-        private readonly ASKSchedulerContract $scheduler = new ASKFiberScheduler,
-        private readonly ASKSchedulerContract $processorsScheduler = new ASKFiberScheduler,
-        private readonly OrderedExecutionCoordinator $coordinator = new OrderedExecutionCoordinator,
-    ) {}
+        private readonly ASKSchedulerContract $scheduler = new ASKFiberScheduler(),
+        private readonly ASKSchedulerContract $processorsScheduler = new ASKFiberScheduler(),
+        private readonly OrderedExecutionCoordinator $coordinator = new OrderedExecutionCoordinator(),
+    ) {
+    }
 
     public function dispatch(UpdateContext $updateContext): void
     {

@@ -8,13 +8,20 @@ use BAGArt\AsyncKernel\Contracts\ASKClockContract;
 use BAGArt\TelegramBot\Contracts\Outbound\AtomicDlqQueueContract;
 use BAGArt\TelegramBot\Contracts\Outbound\ChannelDiscoverableQueueContract;
 use BAGArt\TelegramBot\Contracts\Outbound\LeaseRenewableQueueContract;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundFairnessPolicyContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundOrderingQueueContract;
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundShedPolicyContract;
+use BAGArt\TelegramBot\Contracts\Outbound\PressureAwareQueueContract;
 use BAGArt\TelegramBot\Contracts\Outbound\PurgeableQueueContract;
 use BAGArt\TelegramBot\Outbound\DeadLetterEntry;
+use BAGArt\TelegramBot\Outbound\Fairness\AgingFairnessPolicy;
 use BAGArt\TelegramBot\Outbound\OutboundBackpressureException;
 use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
 use BAGArt\TelegramBot\Outbound\OutboundTask;
 use BAGArt\TelegramBot\Outbound\OutboundTaskState;
+use BAGArt\TelegramBot\Outbound\Shedding\ShedDecision;
+use BAGArt\TelegramBot\Outbound\TaskPriority;
+use BAGArt\TelegramBot\Outbound\TgOutboundStats;
 
 /**
  * In-memory outbound queue implementation — all 6 interfaces.
@@ -25,14 +32,23 @@ use BAGArt\TelegramBot\Outbound\OutboundTaskState;
  *
  * Structures mirror RedisOutboundQueue:
  *   - queues:     array<string, list<string>> [orderingKey => [envelopeJson, ...]]
- *   - readyKeys:  array<string, int> [orderingKey => priority] — sorted via asort
+ *   - readyKeys:  array<string, float> [orderingKey => lane score] — sorted via arsort
  *   - delayed:    array<string, int> [deliveryId => availableAt]
  *   - delayedData: array<string, string> [deliveryId => envelopeJson]
  *   - inflight:   array<string, array{orderingKey, envelopeJson, leaseExpiry}>
- *   - global:     array<string, int> [envelopeJson => priority] — sorted via asort
+ *   - global:     array<string, float> [envelopeJson => lane score] — sorted via arsort
  *   - dlq:        array<string, array<string, string>> [channel => [entryId => entryJson]]
+ *
+ * Lane scores come from the fairness policy (default: aging — older tasks
+ * climb over fresher higher-priority lanes instead of starving).
  */
-final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDiscoverableQueueContract, LeaseRenewableQueueContract, OutboundOrderingQueueContract, PurgeableQueueContract
+final class InMemoryOutboundQueue implements
+    AtomicDlqQueueContract,
+    ChannelDiscoverableQueueContract,
+    LeaseRenewableQueueContract,
+    OutboundOrderingQueueContract,
+    PressureAwareQueueContract,
+    PurgeableQueueContract
 {
     public const string TYPE = 'in_memory';
 
@@ -69,7 +85,11 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
     public function __construct(
         private readonly ASKClockContract $clock,
         private readonly int $maxSize = 10000,
-    ) {}
+        private readonly OutboundFairnessPolicyContract $fairness = new AgingFairnessPolicy(),
+        private readonly ?OutboundShedPolicyContract $shedPolicy = null,
+        private readonly ?TgOutboundStats $stats = null,
+    ) {
+    }
 
     public static function build(
         ASKClockContract $clock,
@@ -82,21 +102,45 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
 
     public function push(OutboundTask $task): void
     {
+        $decision = $this->shedPolicy?->decide($task->priority, $this->size(), $this->maxSize)
+            ?? ShedDecision::Accept();
+
+        if ($decision->isDrop()) {
+            $this->pushToDeadLetter(new OutboundEnvelope($task, new OutboundTaskState()), $decision->reason);
+            $this->stats?->recordShedDropped($task->botConfig->botId);
+
+            return;
+        }
+
+        if ($decision->isDefer()) {
+            $this->stats?->recordShedDeferred();
+            $deliveryId = (string)(++$this->seq);
+            $envelopeJson = json_encode(new OutboundEnvelope($task, new OutboundTaskState()), JSON_THROW_ON_ERROR);
+            if ($task->orderingKey !== null && $task->orderingKey !== '') {
+                $this->delayedData[$deliveryId] = $envelopeJson;
+                $this->delayed[$deliveryId] = $this->clock->time() + $decision->delaySec;
+            } else {
+                $this->globalDelayed[$envelopeJson] = $this->clock->time() + $decision->delaySec;
+            }
+
+            return;
+        }
+
         $this->guardCapacity();
 
-        $envelope = new OutboundEnvelope($task, new OutboundTaskState);
+        $envelope = new OutboundEnvelope($task, new OutboundTaskState());
         $envelopeJson = json_encode($envelope, JSON_THROW_ON_ERROR);
-        $priority = $task->priority->value;
+        $score = $this->fairness->score($task->priority, $task->createdAt, $this->clock->time());
         $orderingKey = $task->orderingKey;
 
         if ($orderingKey !== null && $orderingKey !== '') {
             $this->queues[$orderingKey][] = $envelopeJson;
             if (count($this->queues[$orderingKey]) === 1) {
-                $this->readyKeys[$orderingKey] = $priority;
+                $this->readyKeys[$orderingKey] = $score;
                 $this->sortReadyKeys();
             }
         } else {
-            $this->global[$envelopeJson] = $priority;
+            $this->global[$envelopeJson] = $score;
             $this->sortGlobal();
         }
     }
@@ -109,7 +153,7 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
         $this->reclaimExpired();
         $this->hydrateDelayed();
 
-        $deliveryId = (string) (++$this->seq);
+        $deliveryId = (string)(++$this->seq);
 
         $orderingKey = $this->lockNextReadyKey();
 
@@ -137,7 +181,7 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
 
         $globalMin = $this->global !== [] ? array_key_first($this->global) : null;
         if ($globalMin !== null) {
-            $envelopeJson = (string) $globalMin;
+            $envelopeJson = (string)$globalMin;
             unset($this->global[$envelopeJson]);
 
             $this->inflight[$deliveryId] = [
@@ -155,6 +199,70 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
         return null;
     }
 
+    public function popWithLaneFloor(int $visibilityTimeoutSec, TaskPriority $floor): ?OutboundEnvelope
+    {
+        $this->reclaimExpired();
+        $this->hydrateDelayed();
+
+        $minScore = $floor->value * 1e10;
+        $now = $this->clock->time();
+        $leaseExpiry = $now + max(1, $visibilityTimeoutSec);
+        $deliveryId = (string)(++$this->seq);
+
+        $candidates = array_filter(
+            $this->readyKeys,
+            fn (float|int $score): bool => $score >= $minScore,
+        );
+        arsort($candidates, SORT_NUMERIC);
+        $orderingKey = array_key_first($candidates);
+
+        if ($orderingKey !== null) {
+            $envelopeJson = array_shift($this->queues[$orderingKey]);
+            if ($this->queues[$orderingKey] === []) {
+                unset($this->queues[$orderingKey]);
+            }
+            unset($this->readyKeys[$orderingKey]);
+
+            if ($envelopeJson === null) {
+                return null;
+            }
+
+            $this->inflight[$deliveryId] = [
+                'orderingKey' => (string)$orderingKey,
+                'envelopeJson' => $envelopeJson,
+                'leaseExpiry' => $leaseExpiry,
+            ];
+
+            $envelope = OutboundEnvelope::fromJson(json_decode((string)$envelopeJson, true));
+            $envelope->deliveryId = $deliveryId;
+
+            return $envelope;
+        }
+
+        $globalCandidates = array_filter(
+            $this->global,
+            fn (float|int $score): bool => $score >= $minScore,
+        );
+        arsort($globalCandidates, SORT_NUMERIC);
+        $envelopeJson = array_key_first($globalCandidates);
+
+        if ($envelopeJson === null) {
+            return null;
+        }
+
+        unset($this->global[$envelopeJson]);
+        $this->inflight[$deliveryId] = [
+            'orderingKey' => '',
+            'envelopeJson' => (string)$envelopeJson,
+            'leaseExpiry' => $leaseExpiry,
+        ];
+
+        $envelope = OutboundEnvelope::fromJson(json_decode((string)$envelopeJson, true));
+        $envelope->deliveryId = $deliveryId;
+
+        return $envelope;
+    }
+
     public function ack(OutboundEnvelope $envelope): void
     {
         $deliveryId = $envelope->deliveryId;
@@ -162,14 +270,14 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
             return;
         }
 
-        if (! isset($this->inflight[$deliveryId])) {
+        if (!isset($this->inflight[$deliveryId])) {
             return;
         }
 
         $data = $this->inflight[$deliveryId];
         unset($this->inflight[$deliveryId]);
 
-        if (! empty($data['orderingKey'])) {
+        if (!empty($data['orderingKey'])) {
             $this->refreshKeyState($data['orderingKey']);
         }
     }
@@ -181,7 +289,7 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
             return;
         }
 
-        if (! isset($this->inflight[$deliveryId])) {
+        if (!isset($this->inflight[$deliveryId])) {
             return;
         }
 
@@ -189,20 +297,19 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
         unset($this->inflight[$deliveryId]);
 
         if ($delaySec > 0) {
-            if (! empty($data['orderingKey'])) {
+            if (!empty($data['orderingKey'])) {
                 $this->delayedData[$deliveryId] = $data['envelopeJson'];
                 $this->delayed[$deliveryId] = $this->clock->time() + $delaySec;
             } else {
                 $this->globalDelayed[$data['envelopeJson']] = $this->clock->time() + $delaySec;
             }
         } else {
-            if (! empty($data['orderingKey'])) {
+            if (!empty($data['orderingKey'])) {
                 array_unshift($this->queues[$data['orderingKey']], $data['envelopeJson']);
                 $this->refreshKeyState($data['orderingKey']);
             } else {
-                $envelopeData = json_decode($data['envelopeJson'], true);
-                $priority = $envelopeData['task']['priority']['value'] ?? 0;
-                $this->global[$data['envelopeJson']] = $priority;
+                $score = $this->laneScoreFromEnvelopeData(json_decode($data['envelopeJson'], true));
+                $this->global[$data['envelopeJson']] = $score;
                 $this->sortGlobal();
             }
         }
@@ -211,7 +318,7 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
     public function renewLease(OutboundEnvelope $envelope, int $seconds): bool
     {
         $deliveryId = $envelope->deliveryId;
-        if ($deliveryId === null || ! isset($this->inflight[$deliveryId])) {
+        if ($deliveryId === null || !isset($this->inflight[$deliveryId])) {
             return false;
         }
         $this->inflight[$deliveryId]['leaseExpiry'] = $this->clock->time() + max(1, $seconds);
@@ -237,7 +344,7 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
 
     public function atomicFetchAndRemoveFromDlq(string $channel, string $entryId): ?string
     {
-        if (! isset($this->dlq[$channel][$entryId])) {
+        if (!isset($this->dlq[$channel][$entryId])) {
             return null;
         }
         $json = $this->dlq[$channel][$entryId];
@@ -311,15 +418,15 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
     {
         $purged = 0;
         foreach ($this->dlq as $channel => $entries) {
-            if (! fnmatch($channelPattern, $channel)) {
+            if (!fnmatch($channelPattern, $channel)) {
                 continue;
             }
             foreach ($entries as $entryId => $entryJson) {
                 $data = json_decode($entryJson, true);
-                if (! is_array($data) || ! isset($data['failedAt'])) {
+                if (!is_array($data) || !isset($data['failedAt'])) {
                     continue;
                 }
-                $failedAtTs = (new \DateTimeImmutable((string) $data['failedAt']))->getTimestamp();
+                $failedAtTs = (new \DateTimeImmutable((string)$data['failedAt']))->getTimestamp();
                 if ($failedAtTs < $beforeTimestamp) {
                     unset($this->dlq[$channel][$entryId]);
                     $purged++;
@@ -334,6 +441,22 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
     }
 
     // ----- helpers -----
+
+    /**
+     * Lane score of a stored envelope JSON — mirrors AgingFairnessPolicy.
+     *
+     * @param  array<string, mixed>  $envelopeData  Decoded envelope JSON.
+     */
+    private function laneScoreFromEnvelopeData(array $envelopeData): float
+    {
+        $baseRaw = $envelopeData['task']['priority']['value']
+            ?? $envelopeData['task']['priority']
+            ?? TaskPriority::Normal->value;
+        $base = TaskPriority::from((int)$baseRaw);
+        $createdAt = new \DateTimeImmutable((string)($envelopeData['task']['createdAt'] ?? 'now'));
+
+        return $this->fairness->score($base, $createdAt, $this->clock->time());
+    }
 
     private function sortReadyKeys(): void
     {
@@ -367,7 +490,7 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
         }
 
         reset($this->readyKeys);
-        $orderingKey = (string) key($this->readyKeys);
+        $orderingKey = (string)key($this->readyKeys);
         unset($this->readyKeys[$orderingKey]);
 
         return $orderingKey;
@@ -375,17 +498,14 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
 
     public function refreshKeyState(string $orderingKey): void
     {
-        if (! isset($this->queues[$orderingKey]) || $this->queues[$orderingKey] === []) {
+        if (!isset($this->queues[$orderingKey]) || $this->queues[$orderingKey] === []) {
             return;
         }
 
         $nextTaskJson = $this->queues[$orderingKey][0];
-        $nextTask = json_decode($nextTaskJson, true);
-        $priority = (isset($nextTask['task']['priority']['value']))
-            ? (int) $nextTask['task']['priority']['value']
-            : 0;
+        $score = $this->laneScoreFromEnvelopeData(json_decode($nextTaskJson, true));
 
-        $this->readyKeys[$orderingKey] = $priority;
+        $this->readyKeys[$orderingKey] = $score;
         $this->sortReadyKeys();
     }
 
@@ -408,13 +528,13 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
 
             $envelopeData = json_decode($envelopeJson, true);
             $orderingKey = $envelopeData['task']['orderingKey'] ?? null;
-            $priority = $envelopeData['task']['priority']['value'] ?? 0;
+            $score = $this->laneScoreFromEnvelopeData($envelopeData);
 
             if ($orderingKey !== null && $orderingKey !== '') {
                 $this->queues[$orderingKey][] = $envelopeJson;
                 $this->refreshKeyState($orderingKey);
             } else {
-                $this->global[$envelopeJson] = $priority;
+                $this->global[$envelopeJson] = $score;
                 $this->sortGlobal();
             }
 
@@ -429,8 +549,8 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
             }
 
             $envelopeData = json_decode($envelopeJson, true);
-            $priority = $envelopeData['task']['priority']['value'] ?? 0;
-            $this->global[$envelopeJson] = $priority;
+            $score = $this->laneScoreFromEnvelopeData($envelopeData);
+            $this->global[$envelopeJson] = $score;
             $this->sortGlobal();
             unset($this->globalDelayed[$envelopeJson]);
             $moved++;
@@ -449,14 +569,13 @@ final class InMemoryOutboundQueue implements AtomicDlqQueueContract, ChannelDisc
                 continue;
             }
 
-            if (! empty($data['orderingKey'])) {
+            if (!empty($data['orderingKey'])) {
                 $this->queues[$data['orderingKey']][] = $data['envelopeJson'];
                 unset($this->inflight[$deliveryId]);
                 $this->refreshKeyState($data['orderingKey']);
             } else {
-                $envelopeData = json_decode($data['envelopeJson'], true);
-                $priority = $envelopeData['task']['priority']['value'] ?? 0;
-                $this->global[$data['envelopeJson']] = $priority;
+                $score = $this->laneScoreFromEnvelopeData(json_decode($data['envelopeJson'], true));
+                $this->global[$data['envelopeJson']] = $score;
                 $this->sortGlobal();
                 unset($this->inflight[$deliveryId]);
             }

@@ -22,7 +22,8 @@ final class TgMwLogMiddleware implements TgMiddlewareContract
     public function __construct(
         private readonly stdClass $log,
         private readonly string $name,
-    ) {}
+    ) {
+    }
 
     public function handle(TgEnvelope $env, TgNextHandlerContract $next): mixed
     {
@@ -43,7 +44,8 @@ final class TgMwShortCircuitMiddleware implements TgMiddlewareContract
     public function __construct(
         private readonly mixed $value,
         private readonly stdClass $log,
-    ) {}
+    ) {
+    }
 
     public function handle(TgEnvelope $env, TgNextHandlerContract $next): mixed
     {
@@ -57,11 +59,11 @@ final class TgMwShortCircuitMiddleware implements TgMiddlewareContract
 
 describe('TgMiddlewarePipeline', function () {
     it('wraps the core in list order: first middleware is outermost', function () {
-        $log = new stdClass;
+        $log = new stdClass();
         $log->entries = [];
         $log->handlers = [];
 
-        $pipeline = new TgMiddlewarePipeline;
+        $pipeline = new TgMiddlewarePipeline();
         $pipeline
             ->add(new TgMwLogMiddleware($log, 'a'))
             ->add(new TgMwLogMiddleware($log, 'b'));
@@ -86,11 +88,11 @@ describe('TgMiddlewarePipeline', function () {
     });
 
     it('passes typed next-handlers implementing the contract', function () {
-        $log = new stdClass;
+        $log = new stdClass();
         $log->entries = [];
         $log->handlers = [];
 
-        $pipeline = new TgMiddlewarePipeline;
+        $pipeline = new TgMiddlewarePipeline();
         $pipeline
             ->add(new TgMwLogMiddleware($log, 'outer'))
             ->add(new TgMwLogMiddleware($log, 'inner'));
@@ -106,11 +108,11 @@ describe('TgMiddlewarePipeline', function () {
     });
 
     it('allows a middleware to short-circuit without calling $next', function () {
-        $log = new stdClass;
+        $log = new stdClass();
         $log->entries = [];
         $log->handlers = [];
 
-        $pipeline = new TgMiddlewarePipeline;
+        $pipeline = new TgMiddlewarePipeline();
         $pipeline
             ->add(new TgMwShortCircuitMiddleware('cached', $log))
             ->add(new TgMwLogMiddleware($log, 'never'));
@@ -125,9 +127,8 @@ describe('TgMiddlewarePipeline', function () {
     });
 
     it('propagates envelope mutations downstream to the core', function () {
-        $pipeline = new TgMiddlewarePipeline;
-        $pipeline->add(new class implements TgMiddlewareContract
-        {
+        $pipeline = new TgMiddlewarePipeline();
+        $pipeline->add(new class () implements TgMiddlewareContract {
             public function handle(TgEnvelope $env, TgNextHandlerContract $next): mixed
             {
                 $env->context->tags[] = 'tagged';
@@ -152,7 +153,7 @@ describe('TgMiddlewarePipeline', function () {
     it('retries through the built-in RetryMiddleware before failing', function () {
         $attempts = 0;
 
-        $pipeline = new TgMiddlewarePipeline;
+        $pipeline = new TgMiddlewarePipeline();
         $pipeline->add(new RetryMiddleware(maxRetries: 2));
 
         $result = $pipeline->execute(
@@ -173,7 +174,7 @@ describe('TgMiddlewarePipeline', function () {
     });
 
     it('rethrows when the retry budget is exhausted', function () {
-        $pipeline = new TgMiddlewarePipeline;
+        $pipeline = new TgMiddlewarePipeline();
         $pipeline->add(new RetryMiddleware(maxRetries: 1));
 
         $pipeline->execute(
@@ -183,10 +184,10 @@ describe('TgMiddlewarePipeline', function () {
     })->throws(LogicException::class);
 
     it('accepts the placeholder stack middlewares as pass-throughs', function () {
-        $pipeline = new TgMiddlewarePipeline;
+        $pipeline = new TgMiddlewarePipeline();
         $pipeline
-            ->add(new RateLimitMiddleware)
-            ->add(new CircuitBreakerMiddleware);
+            ->add(new RateLimitMiddleware())
+            ->add(new CircuitBreakerMiddleware());
 
         $result = $pipeline->execute(
             new TgEnvelope(new TgOperation('getMe'), new TgExecutionContext('t-7')),
