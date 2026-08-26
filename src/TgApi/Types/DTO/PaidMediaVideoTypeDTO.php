@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The paid media is a video.')]
 #[See('https://core.telegram.org/bots/api#paidmediavideo')]
-class PaidMediaVideoTypeDTO implements TgApiTypeDTOContract
+class PaidMediaVideoTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class PaidMediaVideoTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['video']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that isn"t currently a member of the chat, but may join it themselves.')]
 #[See('https://core.telegram.org/bots/api#chatmemberleft')]
-class ChatMemberLeftTypeDTO implements TgApiTypeDTOContract
+class ChatMemberLeftTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -21,7 +21,7 @@ class ChatMemberLeftTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the user')]
-        public UserTypeDTO $user,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user,
         #[Description('The member"s status in the chat, always “left”')]
         public string $status = 'left',
     ) {
@@ -39,6 +39,10 @@ class ChatMemberLeftTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['status' => ['left']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

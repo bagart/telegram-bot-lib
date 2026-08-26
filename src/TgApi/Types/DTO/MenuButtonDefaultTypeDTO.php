@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes that no specific value for the menu button was set.')]
 #[See('https://core.telegram.org/bots/api#menubuttondefault')]
-class MenuButtonDefaultTypeDTO implements TgApiTypeDTOContract
+class MenuButtonDefaultTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -37,6 +37,10 @@ class MenuButtonDefaultTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['default']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

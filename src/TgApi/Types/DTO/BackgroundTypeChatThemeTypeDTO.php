@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The background is taken directly from a built-in chat theme.')]
 #[See('https://core.telegram.org/bots/api#backgroundtypechattheme')]
-class BackgroundTypeChatThemeTypeDTO implements TgApiTypeDTOContract
+class BackgroundTypeChatThemeTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class BackgroundTypeChatThemeTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['chat_theme']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

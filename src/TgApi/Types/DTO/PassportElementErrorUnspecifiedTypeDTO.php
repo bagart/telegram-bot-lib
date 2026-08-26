@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an issue in an unspecified place. The error is considered resolved when new data is added.')]
 #[See('https://core.telegram.org/bots/api#passportelementerrorunspecified')]
-class PassportElementErrorUnspecifiedTypeDTO implements TgApiTypeDTOContract
+class PassportElementErrorUnspecifiedTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -43,6 +43,10 @@ class PassportElementErrorUnspecifiedTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['unspecified']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

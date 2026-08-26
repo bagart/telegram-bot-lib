@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that was banned in the chat and can"t return to the chat or view chat messages.')]
 #[See('https://core.telegram.org/bots/api#chatmemberbanned')]
-class ChatMemberBannedTypeDTO implements TgApiTypeDTOContract
+class ChatMemberBannedTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -21,7 +21,7 @@ class ChatMemberBannedTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the user')]
-        public UserTypeDTO $user,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user,
         #[Description('Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever')]
         public int $untilDate,
         #[Description('The member"s status in the chat, always “kicked”')]
@@ -41,6 +41,10 @@ class ChatMemberBannedTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['status' => ['kicked']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

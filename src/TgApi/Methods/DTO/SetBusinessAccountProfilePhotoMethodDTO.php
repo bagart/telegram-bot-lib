@@ -6,9 +6,8 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\InputProfilePhotoTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -24,7 +23,7 @@ class SetBusinessAccountProfilePhotoMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the business connection')]
         public string $businessConnectionId,
         #[Description('The new profile photo to set')]
-        public InputProfilePhotoTypeDTO $photo,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputProfilePhotoAnimatedTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InputProfilePhotoStaticTypeDTO $photo,
         #[Description('Pass _True_ to set the public photo, which will be visible even if the main photo is hidden by the business account"s privacy settings. An account can have only one public photo.')]
         public ?bool $isPublic = null,
     ) {
@@ -54,7 +53,7 @@ class SetBusinessAccountProfilePhotoMethodDTO implements TgApiMethodDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"business_connection_id":{"property":"businessConnectionId","tgPropName":"business_connection_id","types":["string"],"tgTypes":[{"type":"str"}],"nullable":false,"required":true},"photo":{"property":"photo","tgPropName":"photo","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputProfilePhotoTypeDTO"],"tgTypes":[{"type":"api-type","name":"InputProfilePhoto"}],"nullable":false,"required":true},"is_public":{"property":"isPublic","tgPropName":"is_public","types":["bool"],"tgTypes":[{"type":"bool"}],"nullable":true,"required":false}}
+{"business_connection_id":{"property":"businessConnectionId","tgPropName":"business_connection_id","types":["string"],"tgTypes":[{"type":"str"}],"nullable":false,"required":true},"photo":{"property":"photo","tgPropName":"photo","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputProfilePhotoAnimatedTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputProfilePhotoStaticTypeDTO"],"tgTypes":[{"type":"api-type","name":"InputProfilePhoto"}],"nullable":false,"required":true},"is_public":{"property":"isPublic","tgPropName":"is_public","types":["bool"],"tgTypes":[{"type":"bool"}],"nullable":true,"required":false}}
 XJSON,
             true,
             20,

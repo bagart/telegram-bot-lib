@@ -7,14 +7,13 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\Enum\ParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents a general file to be sent.')]
 #[See('https://core.telegram.org/bots/api#inputmediadocument')]
-class InputMediaDocumentTypeDTO implements TgApiTypeDTOContract
+class InputMediaDocumentTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -30,7 +29,7 @@ class InputMediaDocumentTypeDTO implements TgApiTypeDTOContract
         #[Description('Caption of the document to be sent, 0-1024 characters after entities parsing')]
         public ?string $caption = null,
         #[Description('Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?ParseModeEnum $parseMode = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\Enum\ParseModeEnum $parseMode = null,
         #[Description('List of special entities that appear in the caption, which can be specified instead of _parse\_mode_')]
         public ?array $captionEntities = null,
         #[Description('Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always _True_, if the document is sent as part of an album.')]
@@ -50,6 +49,10 @@ class InputMediaDocumentTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['document']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

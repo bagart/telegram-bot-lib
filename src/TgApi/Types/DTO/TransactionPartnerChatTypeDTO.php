@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a transaction with a chat.')]
 #[See('https://core.telegram.org/bots/api#transactionpartnerchat')]
-class TransactionPartnerChatTypeDTO implements TgApiTypeDTOContract
+class TransactionPartnerChatTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -41,6 +41,10 @@ class TransactionPartnerChatTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['chat']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

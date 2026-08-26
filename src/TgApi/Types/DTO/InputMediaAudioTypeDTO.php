@@ -7,14 +7,13 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\Enum\ParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an audio file to be treated as music to be sent.')]
 #[See('https://core.telegram.org/bots/api#inputmediaaudio')]
-class InputMediaAudioTypeDTO implements TgApiTypeDTOContract
+class InputMediaAudioTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -30,7 +29,7 @@ class InputMediaAudioTypeDTO implements TgApiTypeDTOContract
         #[Description('Caption of the audio to be sent, 0-1024 characters after entities parsing')]
         public ?string $caption = null,
         #[Description('Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?ParseModeEnum $parseMode = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\Enum\ParseModeEnum $parseMode = null,
         #[Description('List of special entities that appear in the caption, which can be specified instead of _parse\_mode_')]
         public ?array $captionEntities = null,
         #[Description('Duration of the audio in seconds')]
@@ -54,6 +53,10 @@ class InputMediaAudioTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['audio']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The reaction is paid.')]
 #[See('https://core.telegram.org/bots/api#reactiontypepaid')]
-class ReactionTypePaidTypeDTO implements TgApiTypeDTOContract
+class ReactionTypePaidTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -37,6 +37,10 @@ class ReactionTypePaidTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['paid']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

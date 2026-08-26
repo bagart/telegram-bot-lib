@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
+use BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberAdministratorTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberBannedTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberLeftTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberMemberTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberOwnerTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberRestrictedTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -32,7 +37,12 @@ class GetChatAdministratorsMethodDTO implements TgApiMethodDTOContract
     {
         return [
             [
-                ChatMemberTypeDTO::class,
+                ChatMemberOwnerTypeDTO::class,
+                ChatMemberAdministratorTypeDTO::class,
+                ChatMemberMemberTypeDTO::class,
+                ChatMemberRestrictedTypeDTO::class,
+                ChatMemberLeftTypeDTO::class,
+                ChatMemberBannedTypeDTO::class,
             ],
         ];
     }

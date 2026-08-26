@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The reaction is based on an emoji.')]
 #[See('https://core.telegram.org/bots/api#reactiontypeemoji')]
-class ReactionTypeEmojiTypeDTO implements TgApiTypeDTOContract
+class ReactionTypeEmojiTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class ReactionTypeEmojiTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['emoji']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

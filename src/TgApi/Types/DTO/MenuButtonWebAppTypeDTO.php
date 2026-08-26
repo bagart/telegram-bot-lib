@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents a menu button, which launches a [Web App](https://core.telegram.org/bots/webapps).')]
 #[See('https://core.telegram.org/bots/api#menubuttonwebapp')]
-class MenuButtonWebAppTypeDTO implements TgApiTypeDTOContract
+class MenuButtonWebAppTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -23,7 +23,7 @@ class MenuButtonWebAppTypeDTO implements TgApiTypeDTOContract
         #[Description('Text on the button')]
         public string $text,
         #[Description('Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [answerWebAppQuery](https://core.telegram.org/bots/api#answerwebappquery). Alternatively, a `t.me` link to a Web App of the bot can be specified in the object instead of the Web App"s URL, in which case the Web App will be opened as if the user pressed the link.')]
-        public WebAppInfoTypeDTO $webApp,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\WebAppInfoTypeDTO $webApp,
         #[Description('Type of the button, must be _web\_app_')]
         public string $type = 'web_app',
     ) {
@@ -41,6 +41,10 @@ class MenuButtonWebAppTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['web_app']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas.')]
 #[See('https://core.telegram.org/bots/api#storyareatypesuggestedreaction')]
-class StoryAreaTypeSuggestedReactionTypeDTO implements TgApiTypeDTOContract
+class StoryAreaTypeSuggestedReactionTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -21,7 +21,7 @@ class StoryAreaTypeSuggestedReactionTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Type of the reaction')]
-        public ReactionTypeTypeDTO $reactionType,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\ReactionTypeCustomEmojiTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReactionTypeEmojiTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReactionTypePaidTypeDTO $reactionType,
         #[Description('Type of the area, always “suggested\_reaction”')]
         public string $type = 'suggested_reaction',
         #[Description('Pass _True_ if the reaction area has a dark background')]
@@ -43,12 +43,16 @@ class StoryAreaTypeSuggestedReactionTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['suggested_reaction']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"type":{"property":"type","tgPropName":"type","types":["string"],"tgTypes":[{"type":"str","literal":"suggested_reaction"}],"nullable":false,"required":true},"reaction_type":{"property":"reactionType","tgPropName":"reaction_type","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypeTypeDTO"],"tgTypes":[{"type":"api-type","name":"ReactionType"}],"nullable":false,"required":true},"is_dark":{"property":"isDark","tgPropName":"is_dark","types":["bool"],"tgTypes":[{"type":"bool"}],"nullable":true,"required":false},"is_flipped":{"property":"isFlipped","tgPropName":"is_flipped","types":["bool"],"tgTypes":[{"type":"bool"}],"nullable":true,"required":false}}
+{"type":{"property":"type","tgPropName":"type","types":["string"],"tgTypes":[{"type":"str","literal":"suggested_reaction"}],"nullable":false,"required":true},"reaction_type":{"property":"reactionType","tgPropName":"reaction_type","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypeCustomEmojiTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypeEmojiTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypePaidTypeDTO"],"tgTypes":[{"type":"api-type","name":"ReactionType"}],"nullable":false,"required":true},"is_dark":{"property":"isDark","tgPropName":"is_dark","types":["bool"],"tgTypes":[{"type":"bool"}],"nullable":true,"required":false},"is_flipped":{"property":"isFlipped","tgPropName":"is_flipped","types":["bool"],"tgTypes":[{"type":"bool"}],"nullable":true,"required":false}}
 XJSON,
             true,
             20,

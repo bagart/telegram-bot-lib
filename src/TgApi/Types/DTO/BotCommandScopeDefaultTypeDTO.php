@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents the default [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands. Default commands are used if no commands with a [narrower scope](https://core.telegram.org/bots/api#determining-list-of-commands) are specified for the user.')]
 #[See('https://core.telegram.org/bots/api#botcommandscopedefault')]
-class BotCommandScopeDefaultTypeDTO implements TgApiTypeDTOContract
+class BotCommandScopeDefaultTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -37,6 +37,10 @@ class BotCommandScopeDefaultTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['default']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

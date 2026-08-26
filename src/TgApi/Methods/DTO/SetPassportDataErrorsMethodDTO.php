@@ -6,8 +6,8 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -51,7 +51,7 @@ class SetPassportDataErrorsMethodDTO implements TgApiMethodDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"user_id":{"property":"userId","tgPropName":"user_id","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"errors":{"property":"errors","tgPropName":"errors","types":[["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorTypeDTO"]],"tgTypes":[{"type":"array","of":{"type":"api-type","name":"PassportElementError"}}],"nullable":false,"required":true}}
+{"user_id":{"property":"userId","tgPropName":"user_id","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"errors":{"property":"errors","tgPropName":"errors","types":[["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorDataFieldTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorFrontSideTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorReverseSideTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorSelfieTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorFileTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorFilesTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorTranslationFileTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorTranslationFilesTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PassportElementErrorUnspecifiedTypeDTO"]],"tgTypes":[{"type":"array","of":{"type":"api-type","name":"PassportElementError"}}],"nullable":false,"required":true}}
 XJSON,
             true,
             20,

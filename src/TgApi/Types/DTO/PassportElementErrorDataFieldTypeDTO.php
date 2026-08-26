@@ -7,14 +7,13 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorDataFieldPropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field"s value changes.')]
 #[See('https://core.telegram.org/bots/api#passportelementerrordatafield')]
-class PassportElementErrorDataFieldTypeDTO implements TgApiTypeDTOContract
+class PassportElementErrorDataFieldTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -22,7 +21,7 @@ class PassportElementErrorDataFieldTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The section of the user"s Telegram Passport which has the error, one of “personal\_details”, “passport”, “driver\_license”, “identity\_card”, “internal\_passport”, “address”')]
-        public PassportElementErrorDataFieldPropTypeEnum $type,
+        public \BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorDataFieldPropTypeEnum $type,
         #[Description('Name of the data field which has the error')]
         public string $fieldName,
         #[Description('Base64-encoded data hash')]
@@ -46,6 +45,10 @@ class PassportElementErrorDataFieldTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['data']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

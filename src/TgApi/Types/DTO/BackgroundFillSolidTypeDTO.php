@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The background is filled using the selected color.')]
 #[See('https://core.telegram.org/bots/api#backgroundfillsolid')]
-class BackgroundFillSolidTypeDTO implements TgApiTypeDTOContract
+class BackgroundFillSolidTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class BackgroundFillSolidTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['solid']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

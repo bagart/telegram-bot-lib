@@ -27,7 +27,7 @@ class ChatBoostRemovedTypeDTO implements TgApiTypeDTOContract
         #[Description('Point in time (Unix timestamp) when the boost was removed')]
         public int $removeDate,
         #[Description('Source of the removed boost')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatBoostSourceTypeDTO $source,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatBoostSourceGiftCodeTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ChatBoostSourceGiveawayTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ChatBoostSourcePremiumTypeDTO $source,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();
@@ -48,7 +48,7 @@ class ChatBoostRemovedTypeDTO implements TgApiTypeDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"chat":{"property":"chat","tgPropName":"chat","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatTypeDTO"],"tgTypes":[{"type":"api-type","name":"Chat"}],"nullable":false,"required":true},"boost_id":{"property":"boostId","tgPropName":"boost_id","types":["string"],"tgTypes":[{"type":"str"}],"nullable":false,"required":true},"remove_date":{"property":"removeDate","tgPropName":"remove_date","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"source":{"property":"source","tgPropName":"source","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatBoostSourceTypeDTO"],"tgTypes":[{"type":"api-type","name":"ChatBoostSource"}],"nullable":false,"required":true}}
+{"chat":{"property":"chat","tgPropName":"chat","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatTypeDTO"],"tgTypes":[{"type":"api-type","name":"Chat"}],"nullable":false,"required":true},"boost_id":{"property":"boostId","tgPropName":"boost_id","types":["string"],"tgTypes":[{"type":"str"}],"nullable":false,"required":true},"remove_date":{"property":"removeDate","tgPropName":"remove_date","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"source":{"property":"source","tgPropName":"source","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatBoostSourceGiftCodeTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatBoostSourceGiveawayTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatBoostSourcePremiumTypeDTO"],"tgTypes":[{"type":"api-type","name":"ChatBoostSource"}],"nullable":false,"required":true}}
 XJSON,
             true,
             20,

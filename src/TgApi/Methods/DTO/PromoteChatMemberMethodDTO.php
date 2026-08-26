@@ -6,8 +6,8 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -30,7 +30,7 @@ class PromoteChatMemberMethodDTO implements TgApiMethodDTOContract
         public ?bool $canManageChat = null,
         #[Description('Pass _True_ if the administrator can delete messages of other users')]
         public ?bool $canDeleteMessages = null,
-        #[Description('Pass _True_ if the administrator can manage video tg_chats')]
+        #[Description('Pass _True_ if the administrator can manage video chats')]
         public ?bool $canManageVideoChats = null,
         #[Description('Pass _True_ if the administrator can restrict, ban or unban chat members, or access supergroup statistics. For backward compatibility, defaults to _True_ for promotions of channel administrators')]
         public ?bool $canRestrictMembers = null,

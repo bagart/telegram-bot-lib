@@ -11,9 +11,9 @@ use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup tg_chats.')]
+#[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chats.')]
 #[See('https://core.telegram.org/bots/api#botcommandscopeallgroupchats')]
-class BotCommandScopeAllGroupChatsTypeDTO implements TgApiTypeDTOContract
+class BotCommandScopeAllGroupChatsTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -37,6 +37,10 @@ class BotCommandScopeAllGroupChatsTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['all_group_chats']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

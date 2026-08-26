@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The withdrawal succeeded.')]
 #[See('https://core.telegram.org/bots/api#revenuewithdrawalstatesucceeded')]
-class RevenueWithdrawalStateSucceededTypeDTO implements TgApiTypeDTOContract
+class RevenueWithdrawalStateSucceededTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -41,6 +41,10 @@ class RevenueWithdrawalStateSucceededTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['succeeded']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

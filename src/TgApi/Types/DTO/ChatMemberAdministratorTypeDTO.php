@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that has some additional privileges.')]
 #[See('https://core.telegram.org/bots/api#chatmemberadministrator')]
-class ChatMemberAdministratorTypeDTO implements TgApiTypeDTOContract
+class ChatMemberAdministratorTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -21,7 +21,7 @@ class ChatMemberAdministratorTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the user')]
-        public UserTypeDTO $user,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user,
         #[Description('_True_, if the bot is allowed to edit administrator privileges of that user')]
         public bool $canBeEdited,
         #[Description('_True_, if the user"s presence in the chat is hidden')]
@@ -30,7 +30,7 @@ class ChatMemberAdministratorTypeDTO implements TgApiTypeDTOContract
         public bool $canManageChat,
         #[Description('_True_, if the administrator can delete messages of other users')]
         public bool $canDeleteMessages,
-        #[Description('_True_, if the administrator can manage video tg_chats')]
+        #[Description('_True_, if the administrator can manage video chats')]
         public bool $canManageVideoChats,
         #[Description('_True_, if the administrator can restrict, ban or unban chat members, or access supergroup statistics')]
         public bool $canRestrictMembers,
@@ -77,6 +77,10 @@ class ChatMemberAdministratorTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['status' => ['administrator']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

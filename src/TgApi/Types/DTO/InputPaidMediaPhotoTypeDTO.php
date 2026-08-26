@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The paid media to send is a photo.')]
 #[See('https://core.telegram.org/bots/api#inputpaidmediaphoto')]
-class InputPaidMediaPhotoTypeDTO implements TgApiTypeDTOContract
+class InputPaidMediaPhotoTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class InputPaidMediaPhotoTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['photo']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

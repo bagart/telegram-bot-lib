@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The background is a gradient fill.')]
 #[See('https://core.telegram.org/bots/api#backgroundfillgradient')]
-class BackgroundFillGradientTypeDTO implements TgApiTypeDTOContract
+class BackgroundFillGradientTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -43,6 +43,10 @@ class BackgroundFillGradientTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['gradient']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

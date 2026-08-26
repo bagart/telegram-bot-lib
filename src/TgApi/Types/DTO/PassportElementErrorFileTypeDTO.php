@@ -7,14 +7,13 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorFilePropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an issue with a document scan. The error is considered resolved when the file with the document scan changes.')]
 #[See('https://core.telegram.org/bots/api#passportelementerrorfile')]
-class PassportElementErrorFileTypeDTO implements TgApiTypeDTOContract
+class PassportElementErrorFileTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -22,7 +21,7 @@ class PassportElementErrorFileTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The section of the user"s Telegram Passport which has the issue, one of “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration”, “temporary\_registration”')]
-        public PassportElementErrorFilePropTypeEnum $type,
+        public \BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorFilePropTypeEnum $type,
         #[Description('Base64-encoded file hash')]
         public string $fileHash,
         #[Description('Error message')]
@@ -44,6 +43,10 @@ class PassportElementErrorFileTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['file']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

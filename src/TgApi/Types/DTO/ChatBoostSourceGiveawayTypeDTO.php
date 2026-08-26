@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and _prize\_star\_count_ / 500 times for one year for Telegram Star giveaways.')]
 #[See('https://core.telegram.org/bots/api#chatboostsourcegiveaway')]
-class ChatBoostSourceGiveawayTypeDTO implements TgApiTypeDTOContract
+class ChatBoostSourceGiveawayTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -25,7 +25,7 @@ class ChatBoostSourceGiveawayTypeDTO implements TgApiTypeDTOContract
         #[Description('Source of the boost, always “giveaway”')]
         public string $source = 'giveaway',
         #[Description('User that won the prize in the giveaway if any; for Telegram Premium giveaways only')]
-        public ?UserTypeDTO $user = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user = null,
         #[Description('The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only')]
         public ?int $prizeStarCount = null,
         #[Description('_True_, if the giveaway was completed, but there was no user to win the prize')]
@@ -45,6 +45,10 @@ class ChatBoostSourceGiveawayTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['giveaway']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

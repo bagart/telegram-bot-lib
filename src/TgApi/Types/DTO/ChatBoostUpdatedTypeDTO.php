@@ -21,9 +21,9 @@ class ChatBoostUpdatedTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Chat which was boosted')]
-        public ChatTypeDTO $chat,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
         #[Description('Information about the chat boost')]
-        public ChatBoostTypeDTO $boost,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatBoostTypeDTO $boost,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

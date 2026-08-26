@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('An animated profile photo in the MPEG4 format.')]
 #[See('https://core.telegram.org/bots/api#inputprofilephotoanimated')]
-class InputProfilePhotoAnimatedTypeDTO implements TgApiTypeDTOContract
+class InputProfilePhotoAnimatedTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -41,6 +41,10 @@ class InputProfilePhotoAnimatedTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['animated']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a story area pointing to an HTTP or tg:// link. Currently, a story can have up to 3 link areas.')]
 #[See('https://core.telegram.org/bots/api#storyareatypelink')]
-class StoryAreaTypeLinkTypeDTO implements TgApiTypeDTOContract
+class StoryAreaTypeLinkTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class StoryAreaTypeLinkTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['link']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

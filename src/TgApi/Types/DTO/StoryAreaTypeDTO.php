@@ -21,9 +21,9 @@ class StoryAreaTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Position of the area')]
-        public StoryAreaPositionTypeDTO $position,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\StoryAreaPositionTypeDTO $position,
         #[Description('Type of the area')]
-        public StoryAreaTypeTypeDTO $type,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\StoryAreaTypeLinkTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\StoryAreaTypeLocationTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\StoryAreaTypeSuggestedReactionTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\StoryAreaTypeUniqueGiftTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\StoryAreaTypeWeatherTypeDTO $type,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();
@@ -44,7 +44,7 @@ class StoryAreaTypeDTO implements TgApiTypeDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"position":{"property":"position","tgPropName":"position","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\StoryAreaPositionTypeDTO"],"tgTypes":[{"type":"api-type","name":"StoryAreaPosition"}],"nullable":false,"required":true},"type":{"property":"type","tgPropName":"type","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\StoryAreaTypeTypeDTO"],"tgTypes":[{"type":"api-type","name":"StoryAreaType"}],"nullable":false,"required":true}}
+{"position":{"property":"position","tgPropName":"position","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\StoryAreaPositionTypeDTO"],"tgTypes":[{"type":"api-type","name":"StoryAreaPosition"}],"nullable":false,"required":true},"type":{"property":"type","tgPropName":"type","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\StoryAreaTypeLinkTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\StoryAreaTypeLocationTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\StoryAreaTypeSuggestedReactionTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\StoryAreaTypeUniqueGiftTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\StoryAreaTypeWeatherTypeDTO"],"tgTypes":[{"type":"api-type","name":"StoryAreaType"}],"nullable":false,"required":true}}
 XJSON,
             true,
             20,

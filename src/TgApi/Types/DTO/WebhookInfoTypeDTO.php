@@ -11,7 +11,7 @@ use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Describes the current status of a tg_webhook.')]
+#[Description('Describes the current status of a webhook.')]
 #[See('https://core.telegram.org/bots/api#webhookinfo')]
 class WebhookInfoTypeDTO implements TgApiTypeDTOContract
 {
@@ -20,21 +20,21 @@ class WebhookInfoTypeDTO implements TgApiTypeDTOContract
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('Webhook URL, may be empty if tg_webhook is not set up')]
+        #[Description('Webhook URL, may be empty if webhook is not set up')]
         public string $url,
-        #[Description('_True_, if a custom certificate was provided for tg_webhook certificate checks')]
+        #[Description('_True_, if a custom certificate was provided for webhook certificate checks')]
         public bool $hasCustomCertificate,
         #[Description('Number of updates awaiting delivery')]
         public int $pendingUpdateCount,
-        #[Description('Currently used tg_webhook IP address')]
+        #[Description('Currently used webhook IP address')]
         public ?string $ipAddress = null,
-        #[Description('Unix time for the most recent error that happened when trying to deliver an update via tg_webhook')]
+        #[Description('Unix time for the most recent error that happened when trying to deliver an update via webhook')]
         public ?int $lastErrorDate = null,
-        #[Description('Error message in human-readable format for the most recent error that happened when trying to deliver an update via tg_webhook')]
+        #[Description('Error message in human-readable format for the most recent error that happened when trying to deliver an update via webhook')]
         public ?string $lastErrorMessage = null,
         #[Description('Unix time of the most recent error that happened when trying to synchronize available updates with Telegram datacenters')]
         public ?int $lastSynchronizationErrorDate = null,
-        #[Description('The maximum allowed number of simultaneous HTTPS connections to the tg_webhook for update delivery')]
+        #[Description('The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery')]
         public ?int $maxConnections = null,
         #[Description('A list of update types the bot is subscribed to. Defaults to all update types except _chat\_member_')]
         public ?array $allowedUpdates = null,

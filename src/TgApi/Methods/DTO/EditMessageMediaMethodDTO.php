@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\InputMediaTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -24,7 +22,7 @@ class EditMessageMediaMethodDTO implements TgApiMethodDTOContract
 
     public function __construct(
         #[Description('An object for a new media content of the message')]
-        public InputMediaTypeDTO $media,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputMediaAnimationTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InputMediaAudioTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InputMediaDocumentTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InputMediaPhotoTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InputMediaVideoTypeDTO $media,
         #[Description('Unique identifier of the business connection on behalf of which the message to be edited was sent')]
         public ?string $businessConnectionId = null,
         #[Description('Required if _inline\_message\_id_ is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)')]
@@ -34,7 +32,7 @@ class EditMessageMediaMethodDTO implements TgApiMethodDTOContract
         #[Description('Required if _chat\_id_ and _message\_id_ are not specified. Identifier of the inline message')]
         public ?string $inlineMessageId = null,
         #[Description('An object for a new [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards).')]
-        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();
@@ -63,7 +61,7 @@ class EditMessageMediaMethodDTO implements TgApiMethodDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"business_connection_id":{"property":"businessConnectionId","tgPropName":"business_connection_id","types":["string"],"tgTypes":[{"type":"str"}],"nullable":true,"required":false},"chat_id":{"property":"chatId","tgPropName":"chat_id","types":["string"],"tgTypes":[{"type":"int32"},{"type":"str"}],"nullable":true,"required":false},"message_id":{"property":"messageId","tgPropName":"message_id","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":true,"required":false},"inline_message_id":{"property":"inlineMessageId","tgPropName":"inline_message_id","types":["string"],"tgTypes":[{"type":"str"}],"nullable":true,"required":false},"media":{"property":"media","tgPropName":"media","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputMediaTypeDTO"],"tgTypes":[{"type":"api-type","name":"InputMedia"}],"nullable":false,"required":true},"reply_markup":{"property":"replyMarkup","tgPropName":"reply_markup","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InlineKeyboardMarkupTypeDTO"],"tgTypes":[{"type":"api-type","name":"InlineKeyboardMarkup"}],"nullable":true,"required":false}}
+{"business_connection_id":{"property":"businessConnectionId","tgPropName":"business_connection_id","types":["string"],"tgTypes":[{"type":"str"}],"nullable":true,"required":false},"chat_id":{"property":"chatId","tgPropName":"chat_id","types":["string"],"tgTypes":[{"type":"int32"},{"type":"str"}],"nullable":true,"required":false},"message_id":{"property":"messageId","tgPropName":"message_id","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":true,"required":false},"inline_message_id":{"property":"inlineMessageId","tgPropName":"inline_message_id","types":["string"],"tgTypes":[{"type":"str"}],"nullable":true,"required":false},"media":{"property":"media","tgPropName":"media","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputMediaAnimationTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputMediaAudioTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputMediaDocumentTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputMediaPhotoTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputMediaVideoTypeDTO"],"tgTypes":[{"type":"api-type","name":"InputMedia"}],"nullable":false,"required":true},"reply_markup":{"property":"replyMarkup","tgPropName":"reply_markup","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InlineKeyboardMarkupTypeDTO"],"tgTypes":[{"type":"api-type","name":"InlineKeyboardMarkup"}],"nullable":true,"required":false}}
 XJSON,
             true,
             20,

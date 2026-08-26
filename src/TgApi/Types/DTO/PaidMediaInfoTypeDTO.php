@@ -44,7 +44,7 @@ class PaidMediaInfoTypeDTO implements TgApiTypeDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"star_count":{"property":"starCount","tgPropName":"star_count","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"paid_media":{"property":"paidMedia","tgPropName":"paid_media","types":[["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PaidMediaTypeDTO"]],"tgTypes":[{"type":"array","of":{"type":"api-type","name":"PaidMedia"}}],"nullable":false,"required":true}}
+{"star_count":{"property":"starCount","tgPropName":"star_count","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"paid_media":{"property":"paidMedia","tgPropName":"paid_media","types":[["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PaidMediaPreviewTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PaidMediaPhotoTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\PaidMediaVideoTypeDTO"]],"tgTypes":[{"type":"array","of":{"type":"api-type","name":"PaidMedia"}}],"nullable":false,"required":true}}
 XJSON,
             true,
             20,

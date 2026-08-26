@@ -7,7 +7,6 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\Enum\PollPropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -34,7 +33,7 @@ class PollTypeDTO implements TgApiTypeDTOContract
         #[Description('_True_, if the poll is anonymous')]
         public bool $isAnonymous,
         #[Description('Poll type, currently can be “regular” or “quiz”')]
-        public PollPropTypeEnum $type,
+        public \BAGArt\TelegramBot\TgApi\Types\Enum\PollPropTypeEnum $type,
         #[Description('_True_, if the poll allows multiple answers')]
         public bool $allowsMultipleAnswers,
         #[Description('Special entities that appear in the _question_. Currently, only custom emoji entities are allowed in poll questions')]

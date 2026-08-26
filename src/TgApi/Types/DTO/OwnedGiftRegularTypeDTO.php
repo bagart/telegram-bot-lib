@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a regular gift owned by a user or a chat.')]
 #[See('https://core.telegram.org/bots/api#ownedgiftregular')]
-class OwnedGiftRegularTypeDTO implements TgApiTypeDTOContract
+class OwnedGiftRegularTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -65,6 +65,10 @@ class OwnedGiftRegularTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['regular']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a story area pointing to a location. Currently, a story can have up to 10 location areas.')]
 #[See('https://core.telegram.org/bots/api#storyareatypelocation')]
-class StoryAreaTypeLocationTypeDTO implements TgApiTypeDTOContract
+class StoryAreaTypeLocationTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -27,7 +27,7 @@ class StoryAreaTypeLocationTypeDTO implements TgApiTypeDTOContract
         #[Description('Type of the area, always “location”')]
         public string $type = 'location',
         #[Description('Address of the location')]
-        public ?LocationAddressTypeDTO $address = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\LocationAddressTypeDTO $address = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();
@@ -43,6 +43,10 @@ class StoryAreaTypeLocationTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['location']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

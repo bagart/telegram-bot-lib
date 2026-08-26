@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The paid media isn"t available before the payment.')]
 #[See('https://core.telegram.org/bots/api#paidmediapreview')]
-class PaidMediaPreviewTypeDTO implements TgApiTypeDTOContract
+class PaidMediaPreviewTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -43,6 +43,10 @@ class PaidMediaPreviewTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['preview']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

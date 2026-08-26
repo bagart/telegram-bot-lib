@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes the affiliate program that issued the affiliate commission received via this transaction.')]
 #[See('https://core.telegram.org/bots/api#transactionpartneraffiliateprogram')]
-class TransactionPartnerAffiliateProgramTypeDTO implements TgApiTypeDTOContract
+class TransactionPartnerAffiliateProgramTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -41,6 +41,10 @@ class TransactionPartnerAffiliateProgramTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['affiliate_program']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

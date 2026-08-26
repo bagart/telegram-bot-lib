@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -23,13 +21,13 @@ class SendGameMethodDTO implements TgApiMethodDTOContract
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('Unique identifier for the target chat. Games can"t be sent to channel direct messages tg_chats and channel tg_chats.')]
+        #[Description('Unique identifier for the target chat. Games can"t be sent to channel direct messages chats and channel chats.')]
         public int $chatId,
         #[Description('Short name of the game, serves as the unique identifier for the game. Set up your games via [@BotFather](https://t.me/botfather).')]
         public string $gameShortName,
         #[Description('Unique identifier of the business connection on behalf of which the message will be sent')]
         public ?string $businessConnectionId = null,
-        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private tg_chats of bots with forum topic mode enabled only')]
+        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only')]
         public ?int $messageThreadId = null,
         #[Description('Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound.')]
         public ?bool $disableNotification = null,
@@ -37,12 +35,12 @@ class SendGameMethodDTO implements TgApiMethodDTOContract
         public ?bool $protectContent = null,
         #[Description('Pass _True_ to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot"s balance')]
         public ?bool $allowPaidBroadcast = null,
-        #[Description('Unique identifier of the message effect to be added to the message; for private tg_chats only')]
+        #[Description('Unique identifier of the message effect to be added to the message; for private chats only')]
         public ?string $messageEffectId = null,
         #[Description('Description of the message to reply to')]
-        public ?ReplyParametersTypeDTO $replyParameters = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO $replyParameters = null,
         #[Description('An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one "Play game\_title" button will be shown. If not empty, the first button must launch the game.')]
-        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

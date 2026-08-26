@@ -6,9 +6,8 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\Enum\TextParseModeEnum;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -21,7 +20,7 @@ class SendGiftMethodDTO implements TgApiMethodDTOContract
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('Identifier of the gift; limited gifts can"t be sent to channel tg_chats')]
+        #[Description('Identifier of the gift; limited gifts can"t be sent to channel chats')]
         public string $giftId,
         #[Description('Required if _chat\_id_ is not specified. Unique identifier of the target user who will receive the gift.')]
         public ?int $userId = null,
@@ -32,7 +31,7 @@ class SendGiftMethodDTO implements TgApiMethodDTOContract
         #[Description('Text that will be shown along with the gift; 0-128 characters')]
         public ?string $text = null,
         #[Description('Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored.')]
-        public ?TextParseModeEnum $textParseMode = null,
+        public ?\BAGArt\TelegramBot\TgApi\Methods\Enum\TextParseModeEnum $textParseMode = null,
         #[Description('An array of special entities that appear in the gift text. It can be specified instead of _text\_parse\_mode_. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom\_emoji” are ignored.')]
         public ?array $textEntities = null,
     ) {

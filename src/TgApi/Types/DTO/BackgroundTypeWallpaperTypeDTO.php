@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The background is a wallpaper in the JPEG format.')]
 #[See('https://core.telegram.org/bots/api#backgroundtypewallpaper')]
-class BackgroundTypeWallpaperTypeDTO implements TgApiTypeDTOContract
+class BackgroundTypeWallpaperTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -45,6 +45,10 @@ class BackgroundTypeWallpaperTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['wallpaper']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

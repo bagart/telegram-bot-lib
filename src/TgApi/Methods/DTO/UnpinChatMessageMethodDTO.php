@@ -6,12 +6,12 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Use this method to remove a message from the list of pinned messages in a chat. In private tg_chats and channel direct messages tg_chats, all messages can be unpinned. Conversely, the bot must be an administrator with the "can\_pin\_messages" right or the "can\_edit\_messages" right to unpin messages in groups and channels respectively. Returns _True_ on success.')]
+#[Description('Use this method to remove a message from the list of pinned messages in a chat. In private chats and channel direct messages chats, all messages can be unpinned. Conversely, the bot must be an administrator with the "can\_pin\_messages" right or the "can\_edit\_messages" right to unpin messages in groups and channels respectively. Returns _True_ on success.')]
 #[See('https://core.telegram.org/bots/api#unpinchatmessage')]
 class UnpinChatMessageMethodDTO implements TgApiMethodDTOContract
 {

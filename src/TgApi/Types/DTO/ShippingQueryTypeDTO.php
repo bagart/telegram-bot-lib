@@ -23,11 +23,11 @@ class ShippingQueryTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique query identifier')]
         public string $id,
         #[Description('User who sent the query')]
-        public UserTypeDTO $from,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $from,
         #[Description('Bot-specified invoice payload')]
         public string $invoicePayload,
         #[Description('User specified shipping address')]
-        public ShippingAddressTypeDTO $shippingAddress,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\ShippingAddressTypeDTO $shippingAddress,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes.')]
 #[See('https://core.telegram.org/bots/api#passportelementerrorfrontside')]
-class PassportElementErrorFrontSideTypeDTO implements TgApiTypeDTOContract
+class PassportElementErrorFrontSideTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -43,6 +43,10 @@ class PassportElementErrorFrontSideTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['front_side']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

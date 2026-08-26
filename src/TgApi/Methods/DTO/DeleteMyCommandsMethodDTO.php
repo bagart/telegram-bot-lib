@@ -6,9 +6,8 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -22,7 +21,7 @@ class DeleteMyCommandsMethodDTO implements TgApiMethodDTOContract
 
     public function __construct(
         #[Description('An object, describing scope of users for which the commands are relevant. Defaults to [BotCommandScopeDefault](https://core.telegram.org/bots/api#botcommandscopedefault).')]
-        public ?BotCommandScopeTypeDTO $scope = null,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeAllChatAdministratorsTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeAllGroupChatsTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeAllPrivateChatsTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeChatAdministratorsTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeChatMemberTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeChatTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BotCommandScopeDefaultTypeDTO|null $scope = null,
         #[Description('A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands')]
         public ?string $languageCode = null,
     ) {
@@ -52,7 +51,7 @@ class DeleteMyCommandsMethodDTO implements TgApiMethodDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"scope":{"property":"scope","tgPropName":"scope","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BotCommandScopeTypeDTO"],"tgTypes":[{"type":"api-type","name":"BotCommandScope"}],"nullable":true,"required":false},"language_code":{"property":"languageCode","tgPropName":"language_code","types":["string"],"tgTypes":[{"type":"str"}],"nullable":true,"required":false}}
+{"scope":{"property":"scope","tgPropName":"scope","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BotCommandScopeAllChatAdministratorsTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BotCommandScopeAllGroupChatsTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BotCommandScopeAllPrivateChatsTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BotCommandScopeChatAdministratorsTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BotCommandScopeChatMemberTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BotCommandScopeChatTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BotCommandScopeDefaultTypeDTO"],"tgTypes":[{"type":"api-type","name":"BotCommandScope"}],"nullable":true,"required":false},"language_code":{"property":"languageCode","tgPropName":"language_code","types":["string"],"tgTypes":[{"type":"str"}],"nullable":true,"required":false}}
 XJSON,
             true,
             20,

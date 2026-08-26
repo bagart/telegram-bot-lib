@@ -7,7 +7,6 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\Enum\StickerTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -26,11 +25,11 @@ class StickerSetTypeDTO implements TgApiTypeDTOContract
         #[Description('Sticker set title')]
         public string $title,
         #[Description('Type of stickers in the set, currently one of “regular”, “mask”, “custom\_emoji”')]
-        public StickerTypeEnum $stickerType,
+        public \BAGArt\TelegramBot\TgApi\Types\Enum\StickerTypeEnum $stickerType,
         #[Description('List of all set stickers')]
         public array $stickers,
         #[Description('Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format')]
-        public ?PhotoSizeTypeDTO $thumbnail = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PhotoSizeTypeDTO $thumbnail = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

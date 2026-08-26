@@ -7,14 +7,13 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorTranslationFilePropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an issue with one of the files that constitute the translation of a document. The error is considered resolved when the file changes.')]
 #[See('https://core.telegram.org/bots/api#passportelementerrortranslationfile')]
-class PassportElementErrorTranslationFileTypeDTO implements TgApiTypeDTOContract
+class PassportElementErrorTranslationFileTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -22,7 +21,7 @@ class PassportElementErrorTranslationFileTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Type of element of the user"s Telegram Passport which has the issue, one of “passport”, “driver\_license”, “identity\_card”, “internal\_passport”, “utility\_bill”, “bank\_statement”, “rental\_agreement”, “passport\_registration”, “temporary\_registration”')]
-        public PassportElementErrorTranslationFilePropTypeEnum $type,
+        public \BAGArt\TelegramBot\TgApi\Types\Enum\PassportElementErrorTranslationFilePropTypeEnum $type,
         #[Description('Base64-encoded file hash')]
         public string $fileHash,
         #[Description('Error message')]
@@ -44,6 +43,10 @@ class PassportElementErrorTranslationFileTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['translation_file']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

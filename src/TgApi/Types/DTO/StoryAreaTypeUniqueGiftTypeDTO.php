@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a story area pointing to a unique gift. Currently, a story can have at most 1 unique gift area.')]
 #[See('https://core.telegram.org/bots/api#storyareatypeuniquegift')]
-class StoryAreaTypeUniqueGiftTypeDTO implements TgApiTypeDTOContract
+class StoryAreaTypeUniqueGiftTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class StoryAreaTypeUniqueGiftTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['unique_gift']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

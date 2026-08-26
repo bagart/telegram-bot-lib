@@ -22,13 +22,13 @@ class SwitchInlineQueryChosenChatTypeDTO implements TgApiTypeDTOContract
     public function __construct(
         #[Description('The default inline query to be inserted in the input field. If left empty, only the bot"s username will be inserted')]
         public ?string $query = null,
-        #[Description('_True_, if private tg_chats with users can be chosen')]
+        #[Description('_True_, if private chats with users can be chosen')]
         public ?bool $allowUserChats = null,
-        #[Description('_True_, if private tg_chats with bots can be chosen')]
+        #[Description('_True_, if private chats with bots can be chosen')]
         public ?bool $allowBotChats = null,
-        #[Description('_True_, if group and supergroup tg_chats can be chosen')]
+        #[Description('_True_, if group and supergroup chats can be chosen')]
         public ?bool $allowGroupChats = null,
-        #[Description('_True_, if channel tg_chats can be chosen')]
+        #[Description('_True_, if channel chats can be chosen')]
         public ?bool $allowChannelChats = null,
     ) {
         $this->dto = static::tgApiEntity();

@@ -21,7 +21,7 @@ class ReactionCountTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Type of the reaction')]
-        public ReactionTypeTypeDTO $type,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\ReactionTypeCustomEmojiTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReactionTypeEmojiTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReactionTypePaidTypeDTO $type,
         #[Description('Number of times the reaction was added')]
         public int $totalCount,
     ) {
@@ -44,7 +44,7 @@ class ReactionCountTypeDTO implements TgApiTypeDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"type":{"property":"type","tgPropName":"type","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypeTypeDTO"],"tgTypes":[{"type":"api-type","name":"ReactionType"}],"nullable":false,"required":true},"total_count":{"property":"totalCount","tgPropName":"total_count","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true}}
+{"type":{"property":"type","tgPropName":"type","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypeCustomEmojiTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypeEmojiTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypePaidTypeDTO"],"tgTypes":[{"type":"api-type","name":"ReactionType"}],"nullable":false,"required":true},"total_count":{"property":"totalCount","tgPropName":"total_count","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true}}
 XJSON,
             true,
             20,

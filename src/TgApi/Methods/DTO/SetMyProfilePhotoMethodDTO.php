@@ -6,9 +6,8 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\InputProfilePhotoTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -22,7 +21,7 @@ class SetMyProfilePhotoMethodDTO implements TgApiMethodDTOContract
 
     public function __construct(
         #[Description('The new profile photo to set')]
-        public InputProfilePhotoTypeDTO $photo,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputProfilePhotoAnimatedTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InputProfilePhotoStaticTypeDTO $photo,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();
@@ -50,7 +49,7 @@ class SetMyProfilePhotoMethodDTO implements TgApiMethodDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"photo":{"property":"photo","tgPropName":"photo","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputProfilePhotoTypeDTO"],"tgTypes":[{"type":"api-type","name":"InputProfilePhoto"}],"nullable":false,"required":true}}
+{"photo":{"property":"photo","tgPropName":"photo","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputProfilePhotoAnimatedTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InputProfilePhotoStaticTypeDTO"],"tgTypes":[{"type":"api-type","name":"InputProfilePhoto"}],"nullable":false,"required":true}}
 XJSON,
             true,
             20,

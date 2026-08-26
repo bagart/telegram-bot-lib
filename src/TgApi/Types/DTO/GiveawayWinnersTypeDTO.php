@@ -21,7 +21,7 @@ class GiveawayWinnersTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The chat that created the giveaway')]
-        public ChatTypeDTO $chat,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
         #[Description('Identifier of the message with the giveaway in the chat')]
         public int $giveawayMessageId,
         #[Description('Point in time (Unix timestamp) when winners of the giveaway were selected')]
@@ -30,7 +30,7 @@ class GiveawayWinnersTypeDTO implements TgApiTypeDTOContract
         public int $winnerCount,
         #[Description('List of up to 100 winners of the giveaway')]
         public array $winners,
-        #[Description('The number of other tg_chats the user had to join in order to be eligible for the giveaway')]
+        #[Description('The number of other chats the user had to join in order to be eligible for the giveaway')]
         public ?int $additionalChatCount = null,
         #[Description('The number of Telegram Stars that were split between giveaway winners; for Telegram Star giveaways only')]
         public ?int $prizeStarCount = null,
@@ -38,7 +38,7 @@ class GiveawayWinnersTypeDTO implements TgApiTypeDTOContract
         public ?int $premiumSubscriptionMonthCount = null,
         #[Description('Number of undistributed prizes')]
         public ?int $unclaimedPrizeCount = null,
-        #[Description('_True_, if only users who had joined the tg_chats after the giveaway started were eligible to win')]
+        #[Description('_True_, if only users who had joined the chats after the giveaway started were eligible to win')]
         public ?bool $onlyNewMembers = true,
         #[Description('_True_, if the giveaway was canceled because the payment for it was refunded')]
         public ?bool $wasRefunded = true,

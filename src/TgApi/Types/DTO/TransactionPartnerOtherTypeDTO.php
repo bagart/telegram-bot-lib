@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a transaction with an unknown source or recipient.')]
 #[See('https://core.telegram.org/bots/api#transactionpartnerother')]
-class TransactionPartnerOtherTypeDTO implements TgApiTypeDTOContract
+class TransactionPartnerOtherTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -37,6 +37,10 @@ class TransactionPartnerOtherTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['other']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

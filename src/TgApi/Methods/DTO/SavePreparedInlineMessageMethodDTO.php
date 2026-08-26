@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
+use BAGArt\TelegramBot\TgApi\Types\DTO\PreparedInlineMessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\InlineQueryResultTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\PreparedInlineMessageTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -25,14 +24,14 @@ class SavePreparedInlineMessageMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the target user that can use the prepared message')]
         public int $userId,
         #[Description('An object describing the message to be sent')]
-        public InlineQueryResultTypeDTO $result,
-        #[Description('Pass _True_ if the message can be sent to private tg_chats with users')]
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\InlineQueryResultTypeDTO $result,
+        #[Description('Pass _True_ if the message can be sent to private chats with users')]
         public ?bool $allowUserChats = null,
-        #[Description('Pass _True_ if the message can be sent to private tg_chats with bots')]
+        #[Description('Pass _True_ if the message can be sent to private chats with bots')]
         public ?bool $allowBotChats = null,
-        #[Description('Pass _True_ if the message can be sent to group and supergroup tg_chats')]
+        #[Description('Pass _True_ if the message can be sent to group and supergroup chats')]
         public ?bool $allowGroupChats = null,
-        #[Description('Pass _True_ if the message can be sent to channel tg_chats')]
+        #[Description('Pass _True_ if the message can be sent to channel chats')]
         public ?bool $allowChannelChats = null,
     ) {
         $this->dto = static::tgApiEntity();

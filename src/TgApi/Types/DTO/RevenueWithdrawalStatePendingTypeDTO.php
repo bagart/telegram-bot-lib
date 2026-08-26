@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The withdrawal is in progress.')]
 #[See('https://core.telegram.org/bots/api#revenuewithdrawalstatepending')]
-class RevenueWithdrawalStatePendingTypeDTO implements TgApiTypeDTOContract
+class RevenueWithdrawalStatePendingTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -37,6 +37,10 @@ class RevenueWithdrawalStatePendingTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['pending']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

@@ -13,14 +13,14 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering a specific member of a group or supergroup chat.')]
 #[See('https://core.telegram.org/bots/api#botcommandscopechatmember')]
-class BotCommandScopeChatMemberTypeDTO implements TgApiTypeDTOContract
+class BotCommandScopeChatMemberTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
     public readonly TgApiEntityScopeEnum $entityScope;
 
     public function __construct(
-        #[Description('Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages tg_chats and channel tg_chats aren"t supported.')]
+        #[Description('Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren"t supported.')]
         public string $chatId,
         #[Description('Unique identifier of the target user')]
         public int $userId,
@@ -41,6 +41,10 @@ class BotCommandScopeChatMemberTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['chat_member']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

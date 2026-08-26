@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.')]
 #[See('https://core.telegram.org/bots/api#inputmediaanimation')]
-class InputMediaAnimationTypeDTO implements TgApiTypeDTOContract
+class InputMediaAnimationTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -57,6 +57,10 @@ class InputMediaAnimationTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['animation']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

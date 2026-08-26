@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes.')]
 #[See('https://core.telegram.org/bots/api#passportelementerrorreverseside')]
-class PassportElementErrorReverseSideTypeDTO implements TgApiTypeDTOContract
+class PassportElementErrorReverseSideTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -43,6 +43,10 @@ class PassportElementErrorReverseSideTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['reverse_side']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

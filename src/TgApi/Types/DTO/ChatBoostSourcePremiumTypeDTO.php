@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user.')]
 #[See('https://core.telegram.org/bots/api#chatboostsourcepremium')]
-class ChatBoostSourcePremiumTypeDTO implements TgApiTypeDTOContract
+class ChatBoostSourcePremiumTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class ChatBoostSourcePremiumTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['premium']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

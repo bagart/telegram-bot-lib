@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The background is a freeform gradient that rotates after every message in the chat.')]
 #[See('https://core.telegram.org/bots/api#backgroundfillfreeformgradient')]
-class BackgroundFillFreeformGradientTypeDTO implements TgApiTypeDTOContract
+class BackgroundFillFreeformGradientTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class BackgroundFillFreeformGradientTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['freeform_gradient']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

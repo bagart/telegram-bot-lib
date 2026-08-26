@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a story area containing weather information. Currently, a story can have up to 3 weather areas.')]
 #[See('https://core.telegram.org/bots/api#storyareatypeweather')]
-class StoryAreaTypeWeatherTypeDTO implements TgApiTypeDTOContract
+class StoryAreaTypeWeatherTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -43,6 +43,10 @@ class StoryAreaTypeWeatherTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['weather']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

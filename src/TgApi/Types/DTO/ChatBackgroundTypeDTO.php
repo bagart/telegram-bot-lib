@@ -21,7 +21,7 @@ class ChatBackgroundTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Type of the background')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundTypeTypeDTO $type,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundTypeChatThemeTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundTypeFillTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundTypePatternTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundTypeWallpaperTypeDTO $type,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();
@@ -42,7 +42,7 @@ class ChatBackgroundTypeDTO implements TgApiTypeDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"type":{"property":"type","tgPropName":"type","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundTypeTypeDTO"],"tgTypes":[{"type":"api-type","name":"BackgroundType"}],"nullable":false,"required":true}}
+{"type":{"property":"type","tgPropName":"type","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundTypeChatThemeTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundTypeFillTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundTypePatternTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundTypeWallpaperTypeDTO"],"tgTypes":[{"type":"api-type","name":"BackgroundType"}],"nullable":false,"required":true}}
 XJSON,
             true,
             20,

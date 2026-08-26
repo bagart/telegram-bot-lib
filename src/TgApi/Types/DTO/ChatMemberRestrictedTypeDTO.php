@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that is under certain restrictions in the chat. Supergroups only.')]
 #[See('https://core.telegram.org/bots/api#chatmemberrestricted')]
-class ChatMemberRestrictedTypeDTO implements TgApiTypeDTOContract
+class ChatMemberRestrictedTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -75,6 +75,10 @@ class ChatMemberRestrictedTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['status' => ['restricted']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

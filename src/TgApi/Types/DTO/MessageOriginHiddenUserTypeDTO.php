@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The message was originally sent by an unknown user.')]
 #[See('https://core.telegram.org/bots/api#messageoriginhiddenuser')]
-class MessageOriginHiddenUserTypeDTO implements TgApiTypeDTOContract
+class MessageOriginHiddenUserTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -41,6 +41,10 @@ class MessageOriginHiddenUserTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['hidden_user']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

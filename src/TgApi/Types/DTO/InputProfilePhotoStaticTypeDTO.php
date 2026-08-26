@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('A static profile photo in the .JPG format.')]
 #[See('https://core.telegram.org/bots/api#inputprofilephotostatic')]
-class InputProfilePhotoStaticTypeDTO implements TgApiTypeDTOContract
+class InputProfilePhotoStaticTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class InputProfilePhotoStaticTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['static']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The background is automatically filled based on the selected colors.')]
 #[See('https://core.telegram.org/bots/api#backgroundtypefill')]
-class BackgroundTypeFillTypeDTO implements TgApiTypeDTOContract
+class BackgroundTypeFillTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -21,7 +21,7 @@ class BackgroundTypeFillTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('The background fill')]
-        public BackgroundFillTypeDTO $fill,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundFillFreeformGradientTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundFillGradientTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundFillSolidTypeDTO $fill,
         #[Description('Dimming of the background in dark themes, as a percentage; 0-100')]
         public int $darkThemeDimming,
         #[Description('Type of the background, always “fill”')]
@@ -41,12 +41,16 @@ class BackgroundTypeFillTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['fill']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"type":{"property":"type","tgPropName":"type","types":["string"],"tgTypes":[{"type":"str","literal":"fill"}],"nullable":false,"required":true},"fill":{"property":"fill","tgPropName":"fill","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundFillTypeDTO"],"tgTypes":[{"type":"api-type","name":"BackgroundFill"}],"nullable":false,"required":true},"dark_theme_dimming":{"property":"darkThemeDimming","tgPropName":"dark_theme_dimming","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true}}
+{"type":{"property":"type","tgPropName":"type","types":["string"],"tgTypes":[{"type":"str","literal":"fill"}],"nullable":false,"required":true},"fill":{"property":"fill","tgPropName":"fill","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundFillFreeformGradientTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundFillGradientTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundFillSolidTypeDTO"],"tgTypes":[{"type":"api-type","name":"BackgroundFill"}],"nullable":false,"required":true},"dark_theme_dimming":{"property":"darkThemeDimming","tgPropName":"dark_theme_dimming","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true}}
 XJSON,
             true,
             20,

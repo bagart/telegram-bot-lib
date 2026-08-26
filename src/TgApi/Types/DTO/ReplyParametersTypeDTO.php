@@ -7,7 +7,6 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\Enum\QuoteParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -23,14 +22,14 @@ class ReplyParametersTypeDTO implements TgApiTypeDTOContract
     public function __construct(
         #[Description('Identifier of the message that will be replied to in the current chat, or in the chat _chat\_id_ if it is specified')]
         public int $messageId,
-        #[Description('If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account and messages from channel direct messages tg_chats.')]
+        #[Description('If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.')]
         public ?string $chatId = null,
         #[Description('Pass _True_ if the message should be sent even if the specified message to be replied to is not found. Always _False_ for replies in another chat or forum topic. Always _True_ for messages sent on behalf of a business account.')]
         public ?bool $allowSendingWithoutReply = null,
         #[Description('Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including _bold_, _italic_, _underline_, _strikethrough_, _spoiler_, and _custom\_emoji_ entities. The message will fail to send if the quote isn"t found in the original message.')]
         public ?string $quote = null,
         #[Description('Mode for parsing entities in the quote. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.')]
-        public ?QuoteParseModeEnum $quoteParseMode = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\Enum\QuoteParseModeEnum $quoteParseMode = null,
         #[Description('An array of special entities that appear in the quote. It can be specified instead of _quote\_parse\_mode_.')]
         public ?array $quoteEntities = null,
         #[Description('Position of the quote in the original message in UTF-16 code units')]

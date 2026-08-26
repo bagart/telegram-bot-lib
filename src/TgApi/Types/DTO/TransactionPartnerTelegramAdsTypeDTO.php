@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a withdrawal transaction to the Telegram Ads platform.')]
 #[See('https://core.telegram.org/bots/api#transactionpartnertelegramads')]
-class TransactionPartnerTelegramAdsTypeDTO implements TgApiTypeDTOContract
+class TransactionPartnerTelegramAdsTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -37,6 +37,10 @@ class TransactionPartnerTelegramAdsTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['telegram_ads']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

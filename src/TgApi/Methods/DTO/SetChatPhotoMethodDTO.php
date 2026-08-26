@@ -6,12 +6,12 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Use this method to set a new profile photo for the chat. Photos can"t be changed for private tg_chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns _True_ on success.')]
+#[Description('Use this method to set a new profile photo for the chat. Photos can"t be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns _True_ on success.')]
 #[See('https://core.telegram.org/bots/api#setchatphoto')]
 class SetChatPhotoMethodDTO implements TgApiMethodDTOContract
 {

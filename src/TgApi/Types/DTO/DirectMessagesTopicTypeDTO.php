@@ -23,7 +23,7 @@ class DirectMessagesTopicTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier of the topic.')]
         public string $topicId,
         #[Description('Information about the user that created the topic. Currently, it is always present')]
-        public ?UserTypeDTO $user = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

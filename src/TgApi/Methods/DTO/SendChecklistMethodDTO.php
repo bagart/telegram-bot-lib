@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\InputChecklistTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -29,7 +26,7 @@ class SendChecklistMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier for the target chat')]
         public int $chatId,
         #[Description('An object for the checklist to send')]
-        public InputChecklistTypeDTO $checklist,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\InputChecklistTypeDTO $checklist,
         #[Description('Sends the message silently. Users will receive a notification with no sound.')]
         public ?bool $disableNotification = null,
         #[Description('Protects the contents of the sent message from forwarding and saving')]
@@ -37,9 +34,9 @@ class SendChecklistMethodDTO implements TgApiMethodDTOContract
         #[Description('Unique identifier of the message effect to be added to the message')]
         public ?string $messageEffectId = null,
         #[Description('An object for description of the message to reply to')]
-        public ?ReplyParametersTypeDTO $replyParameters = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO $replyParameters = null,
         #[Description('An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards)')]
-        public ?InlineKeyboardMarkupTypeDTO $replyMarkup = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

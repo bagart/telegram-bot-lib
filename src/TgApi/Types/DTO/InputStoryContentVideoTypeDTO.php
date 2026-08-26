@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a video to post as a story.')]
 #[See('https://core.telegram.org/bots/api#inputstorycontentvideo')]
-class InputStoryContentVideoTypeDTO implements TgApiTypeDTOContract
+class InputStoryContentVideoTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -45,6 +45,10 @@ class InputStoryContentVideoTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['video']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

@@ -46,7 +46,7 @@ class OwnedGiftsTypeDTO implements TgApiTypeDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"total_count":{"property":"totalCount","tgPropName":"total_count","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"gifts":{"property":"gifts","tgPropName":"gifts","types":[["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\OwnedGiftTypeDTO"]],"tgTypes":[{"type":"array","of":{"type":"api-type","name":"OwnedGift"}}],"nullable":false,"required":true},"next_offset":{"property":"nextOffset","tgPropName":"next_offset","types":["string"],"tgTypes":[{"type":"str"}],"nullable":true,"required":false}}
+{"total_count":{"property":"totalCount","tgPropName":"total_count","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"gifts":{"property":"gifts","tgPropName":"gifts","types":[["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\OwnedGiftRegularTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\OwnedGiftUniqueTypeDTO"]],"tgTypes":[{"type":"array","of":{"type":"api-type","name":"OwnedGift"}}],"nullable":false,"required":true},"next_offset":{"property":"nextOffset","tgPropName":"next_offset","types":["string"],"tgTypes":[{"type":"str"}],"nullable":true,"required":false}}
 XJSON,
             true,
             20,

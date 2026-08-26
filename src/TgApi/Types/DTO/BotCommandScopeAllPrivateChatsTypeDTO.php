@@ -11,9 +11,9 @@ use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
-#[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all private tg_chats.')]
+#[Description('Represents the [scope](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all private chats.')]
 #[See('https://core.telegram.org/bots/api#botcommandscopeallprivatechats')]
-class BotCommandScopeAllPrivateChatsTypeDTO implements TgApiTypeDTOContract
+class BotCommandScopeAllPrivateChatsTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -37,6 +37,10 @@ class BotCommandScopeAllPrivateChatsTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['all_private_chats']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

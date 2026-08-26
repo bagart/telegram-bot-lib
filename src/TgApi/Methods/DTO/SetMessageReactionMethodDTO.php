@@ -6,8 +6,8 @@ namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -55,7 +55,7 @@ class SetMessageReactionMethodDTO implements TgApiMethodDTOContract
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"chat_id":{"property":"chatId","tgPropName":"chat_id","types":["string"],"tgTypes":[{"type":"int32"},{"type":"str"}],"nullable":false,"required":true},"message_id":{"property":"messageId","tgPropName":"message_id","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"reaction":{"property":"reaction","tgPropName":"reaction","types":[["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypeTypeDTO"]],"tgTypes":[{"type":"array","of":{"type":"api-type","name":"ReactionType"}}],"nullable":true,"required":false},"is_big":{"property":"isBig","tgPropName":"is_big","types":["bool"],"tgTypes":[{"type":"bool"}],"nullable":true,"required":false}}
+{"chat_id":{"property":"chatId","tgPropName":"chat_id","types":["string"],"tgTypes":[{"type":"int32"},{"type":"str"}],"nullable":false,"required":true},"message_id":{"property":"messageId","tgPropName":"message_id","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"reaction":{"property":"reaction","tgPropName":"reaction","types":[["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypeEmojiTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypeCustomEmojiTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ReactionTypePaidTypeDTO"]],"tgTypes":[{"type":"array","of":{"type":"api-type","name":"ReactionType"}}],"nullable":true,"required":false},"is_big":{"property":"isBig","tgPropName":"is_big","types":["bool"],"tgTypes":[{"type":"bool"}],"nullable":true,"required":false}}
 XJSON,
             true,
             20,

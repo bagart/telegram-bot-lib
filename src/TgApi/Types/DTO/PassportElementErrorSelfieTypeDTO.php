@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes.')]
 #[See('https://core.telegram.org/bots/api#passportelementerrorselfie')]
-class PassportElementErrorSelfieTypeDTO implements TgApiTypeDTOContract
+class PassportElementErrorSelfieTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -43,6 +43,10 @@ class PassportElementErrorSelfieTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['selfie']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

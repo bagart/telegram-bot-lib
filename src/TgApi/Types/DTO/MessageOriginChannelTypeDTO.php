@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The message was originally sent to a channel chat.')]
 #[See('https://core.telegram.org/bots/api#messageoriginchannel')]
-class MessageOriginChannelTypeDTO implements TgApiTypeDTOContract
+class MessageOriginChannelTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -23,7 +23,7 @@ class MessageOriginChannelTypeDTO implements TgApiTypeDTOContract
         #[Description('Date the message was sent originally in Unix time')]
         public int $date,
         #[Description('Channel chat to which the message was originally sent')]
-        public ChatTypeDTO $chat,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO $chat,
         #[Description('Unique message identifier inside the chat')]
         public int $messageId,
         #[Description('Type of the message origin, always “channel”')]
@@ -45,6 +45,10 @@ class MessageOriginChannelTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['channel']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

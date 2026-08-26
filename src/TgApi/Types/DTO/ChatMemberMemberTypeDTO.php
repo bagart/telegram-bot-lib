@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that has no additional privileges or restrictions.')]
 #[See('https://core.telegram.org/bots/api#chatmembermember')]
-class ChatMemberMemberTypeDTO implements TgApiTypeDTOContract
+class ChatMemberMemberTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -21,7 +21,7 @@ class ChatMemberMemberTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the user')]
-        public UserTypeDTO $user,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $user,
         #[Description('The member"s status in the chat, always “member”')]
         public string $status = 'member',
         #[Description('Tag of the member')]
@@ -43,6 +43,10 @@ class ChatMemberMemberTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['status' => ['member']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

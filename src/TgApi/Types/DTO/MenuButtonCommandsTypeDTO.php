@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents a menu button, which opens the bot"s list of commands.')]
 #[See('https://core.telegram.org/bots/api#menubuttoncommands')]
-class MenuButtonCommandsTypeDTO implements TgApiTypeDTOContract
+class MenuButtonCommandsTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -37,6 +37,10 @@ class MenuButtonCommandsTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['commands']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

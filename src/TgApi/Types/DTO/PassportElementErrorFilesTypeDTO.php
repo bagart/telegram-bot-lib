@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes.')]
 #[See('https://core.telegram.org/bots/api#passportelementerrorfiles')]
-class PassportElementErrorFilesTypeDTO implements TgApiTypeDTOContract
+class PassportElementErrorFilesTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -43,6 +43,10 @@ class PassportElementErrorFilesTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['source' => ['files']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

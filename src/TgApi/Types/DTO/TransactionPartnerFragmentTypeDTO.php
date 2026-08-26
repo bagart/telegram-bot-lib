@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a withdrawal transaction with Fragment.')]
 #[See('https://core.telegram.org/bots/api#transactionpartnerfragment')]
-class TransactionPartnerFragmentTypeDTO implements TgApiTypeDTOContract
+class TransactionPartnerFragmentTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -23,7 +23,7 @@ class TransactionPartnerFragmentTypeDTO implements TgApiTypeDTOContract
         #[Description('Type of the transaction partner, always “fragment”')]
         public string $type = 'fragment',
         #[Description('State of the transaction if the transaction is outgoing')]
-        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\RevenueWithdrawalStateTypeDTO $withdrawalState = null,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\RevenueWithdrawalStateFailedTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\RevenueWithdrawalStatePendingTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\RevenueWithdrawalStateSucceededTypeDTO|null $withdrawalState = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();
@@ -39,12 +39,16 @@ class TransactionPartnerFragmentTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['fragment']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"type":{"property":"type","tgPropName":"type","types":["string"],"tgTypes":[{"type":"str","literal":"fragment"}],"nullable":false,"required":true},"withdrawal_state":{"property":"withdrawalState","tgPropName":"withdrawal_state","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\RevenueWithdrawalStateTypeDTO"],"tgTypes":[{"type":"api-type","name":"RevenueWithdrawalState"}],"nullable":true,"required":false}}
+{"type":{"property":"type","tgPropName":"type","types":["string"],"tgTypes":[{"type":"str","literal":"fragment"}],"nullable":false,"required":true},"withdrawal_state":{"property":"withdrawalState","tgPropName":"withdrawal_state","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\RevenueWithdrawalStateFailedTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\RevenueWithdrawalStatePendingTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\RevenueWithdrawalStateSucceededTypeDTO"],"tgTypes":[{"type":"api-type","name":"RevenueWithdrawalState"}],"nullable":true,"required":false}}
 XJSON,
             true,
             20,

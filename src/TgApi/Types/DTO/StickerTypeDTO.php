@@ -7,7 +7,6 @@ namespace BAGArt\TelegramBot\TgApi\Types\DTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\Enum\StickerPropTypeEnum;
 use BAGArt\TelegramBot\TgApi\Types\TgApiTypesEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
@@ -26,7 +25,7 @@ class StickerTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier for this file, which is supposed to be the same over time and for different bots. Can"t be used to download or reuse the file.')]
         public string $fileUniqueId,
         #[Description('Type of the sticker, currently one of “regular”, “mask”, “custom\_emoji”. The type of the sticker is independent from its format, which is determined by the fields _is\_animated_ and _is\_video_.')]
-        public StickerPropTypeEnum $type,
+        public \BAGArt\TelegramBot\TgApi\Types\Enum\StickerPropTypeEnum $type,
         #[Description('Sticker width')]
         public int $width,
         #[Description('Sticker height')]
@@ -36,15 +35,15 @@ class StickerTypeDTO implements TgApiTypeDTOContract
         #[Description('_True_, if the sticker is a [video sticker](https://telegram.org/blog/video-stickers-better-reactions)')]
         public bool $isVideo,
         #[Description('Sticker thumbnail in the .WEBP or .JPG format')]
-        public ?PhotoSizeTypeDTO $thumbnail = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\PhotoSizeTypeDTO $thumbnail = null,
         #[Description('Emoji associated with the sticker')]
         public ?string $emoji = null,
         #[Description('Name of the sticker set to which the sticker belongs')]
         public ?string $setName = null,
         #[Description('For premium regular stickers, premium animation for the sticker')]
-        public ?FileTypeDTO $premiumAnimation = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\FileTypeDTO $premiumAnimation = null,
         #[Description('For mask stickers, the position where the mask should be placed')]
-        public ?MaskPositionTypeDTO $maskPosition = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\MaskPositionTypeDTO $maskPosition = null,
         #[Description('For custom emoji stickers, unique identifier of the custom emoji')]
         public ?string $customEmojiId = null,
         #[Description('_True_, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places')]

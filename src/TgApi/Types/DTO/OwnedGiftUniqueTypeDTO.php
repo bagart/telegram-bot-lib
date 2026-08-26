@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a unique gift received and owned by a user or a chat.')]
 #[See('https://core.telegram.org/bots/api#ownedgiftunique')]
-class OwnedGiftUniqueTypeDTO implements TgApiTypeDTOContract
+class OwnedGiftUniqueTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -21,7 +21,7 @@ class OwnedGiftUniqueTypeDTO implements TgApiTypeDTOContract
 
     public function __construct(
         #[Description('Information about the unique gift')]
-        public UniqueGiftTypeDTO $gift,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\UniqueGiftTypeDTO $gift,
         #[Description('Date the gift was sent in Unix time')]
         public int $sendDate,
         #[Description('Type of the gift, always “unique”')]
@@ -29,7 +29,7 @@ class OwnedGiftUniqueTypeDTO implements TgApiTypeDTOContract
         #[Description('Unique identifier of the received gift for the bot; for gifts received on behalf of business accounts only')]
         public ?string $ownedGiftId = null,
         #[Description('Sender of the gift if it is a known user')]
-        public ?UserTypeDTO $senderUser = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO $senderUser = null,
         #[Description('_True_, if the gift is displayed on the account"s profile page; for gifts received on behalf of business accounts only')]
         public ?bool $isSaved = true,
         #[Description('_True_, if the gift can be transferred to another owner; for gifts received on behalf of business accounts only')]
@@ -53,6 +53,10 @@ class OwnedGiftUniqueTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['unique']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

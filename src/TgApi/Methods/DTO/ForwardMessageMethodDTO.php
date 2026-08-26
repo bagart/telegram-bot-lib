@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -28,7 +27,7 @@ class ForwardMessageMethodDTO implements TgApiMethodDTOContract
         public string $fromChatId,
         #[Description('Message identifier in the chat specified in _from\_chat\_id_')]
         public int $messageId,
-        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private tg_chats of bots with forum topic mode enabled only')]
+        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only')]
         public ?int $messageThreadId = null,
         #[Description('Identifier of the direct messages topic to which the message will be forwarded; required if the message is forwarded to a direct messages chat')]
         public ?int $directMessagesTopicId = null,
@@ -38,10 +37,10 @@ class ForwardMessageMethodDTO implements TgApiMethodDTOContract
         public ?bool $disableNotification = null,
         #[Description('Protects the contents of the forwarded message from forwarding and saving')]
         public ?bool $protectContent = null,
-        #[Description('Unique identifier of the message effect to be added to the message; only available when forwarding to private tg_chats')]
+        #[Description('Unique identifier of the message effect to be added to the message; only available when forwarding to private chats')]
         public ?string $messageEffectId = null,
-        #[Description('An object containing the parameters of the suggested post to send; for direct messages tg_chats only')]
-        public ?SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
+        #[Description('An object containing the parameters of the suggested post to send; for direct messages chats only')]
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

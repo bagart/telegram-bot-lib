@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('The background is a .PNG or .TGV (gzipped subset of SVG with MIME type “application/x-tgwallpattern”) pattern to be combined with the background fill chosen by the user.')]
 #[See('https://core.telegram.org/bots/api#backgroundtypepattern')]
-class BackgroundTypePatternTypeDTO implements TgApiTypeDTOContract
+class BackgroundTypePatternTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -23,7 +23,7 @@ class BackgroundTypePatternTypeDTO implements TgApiTypeDTOContract
         #[Description('Document with the pattern')]
         public \BAGArt\TelegramBot\TgApi\Types\DTO\DocumentTypeDTO $document,
         #[Description('The background fill that is combined with the pattern')]
-        public \BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundFillTypeDTO $fill,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundFillFreeformGradientTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundFillGradientTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\BackgroundFillSolidTypeDTO $fill,
         #[Description('Intensity of the pattern when it is shown above the filled background; 0-100')]
         public int $intensity,
         #[Description('Type of the background, always “pattern”')]
@@ -47,12 +47,16 @@ class BackgroundTypePatternTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['pattern']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {
         $metaByProp = json_decode(
             <<<'XJSON'
-{"type":{"property":"type","tgPropName":"type","types":["string"],"tgTypes":[{"type":"str","literal":"pattern"}],"nullable":false,"required":true},"document":{"property":"document","tgPropName":"document","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\DocumentTypeDTO"],"tgTypes":[{"type":"api-type","name":"Document"}],"nullable":false,"required":true},"fill":{"property":"fill","tgPropName":"fill","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundFillTypeDTO"],"tgTypes":[{"type":"api-type","name":"BackgroundFill"}],"nullable":false,"required":true},"intensity":{"property":"intensity","tgPropName":"intensity","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"is_inverted":{"property":"isInverted","tgPropName":"is_inverted","types":["bool"],"tgTypes":[{"type":"bool","literal":true}],"nullable":true,"required":false},"is_moving":{"property":"isMoving","tgPropName":"is_moving","types":["bool"],"tgTypes":[{"type":"bool","literal":true}],"nullable":true,"required":false}}
+{"type":{"property":"type","tgPropName":"type","types":["string"],"tgTypes":[{"type":"str","literal":"pattern"}],"nullable":false,"required":true},"document":{"property":"document","tgPropName":"document","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\DocumentTypeDTO"],"tgTypes":[{"type":"api-type","name":"Document"}],"nullable":false,"required":true},"fill":{"property":"fill","tgPropName":"fill","types":["\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundFillFreeformGradientTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundFillGradientTypeDTO","\\BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\BackgroundFillSolidTypeDTO"],"tgTypes":[{"type":"api-type","name":"BackgroundFill"}],"nullable":false,"required":true},"intensity":{"property":"intensity","tgPropName":"intensity","types":["int"],"tgTypes":[{"type":"int32"}],"nullable":false,"required":true},"is_inverted":{"property":"isInverted","tgPropName":"is_inverted","types":["bool"],"tgTypes":[{"type":"bool","literal":true}],"nullable":true,"required":false},"is_moving":{"property":"isMoving","tgPropName":"is_moving","types":["bool"],"tgTypes":[{"type":"bool","literal":true}],"nullable":true,"required":false}}
 XJSON,
             true,
             20,

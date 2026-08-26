@@ -4,17 +4,11 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
+use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO;
-use BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -35,7 +29,7 @@ class SendContactMethodDTO implements TgApiMethodDTOContract
         public string $firstName,
         #[Description('Unique identifier of the business connection on behalf of which the message will be sent')]
         public ?string $businessConnectionId = null,
-        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private tg_chats of bots with forum topic mode enabled only')]
+        #[Description('Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only')]
         public ?int $messageThreadId = null,
         #[Description('Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat')]
         public ?int $directMessagesTopicId = null,
@@ -49,14 +43,14 @@ class SendContactMethodDTO implements TgApiMethodDTOContract
         public ?bool $protectContent = null,
         #[Description('Pass _True_ to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot"s balance')]
         public ?bool $allowPaidBroadcast = null,
-        #[Description('Unique identifier of the message effect to be added to the message; for private tg_chats only')]
+        #[Description('Unique identifier of the message effect to be added to the message; for private chats only')]
         public ?string $messageEffectId = null,
-        #[Description('An object containing the parameters of the suggested post to send; for direct messages tg_chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.')]
-        public ?SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
+        #[Description('An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.')]
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\SuggestedPostParametersTypeDTO $suggestedPostParameters = null,
         #[Description('Description of the message to reply to')]
-        public ?ReplyParametersTypeDTO $replyParameters = null,
+        public ?\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyParametersTypeDTO $replyParameters = null,
         #[Description('Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user')]
-        public ForceReplyTypeDTO|InlineKeyboardMarkupTypeDTO|ReplyKeyboardMarkupTypeDTO|ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
+        public \BAGArt\TelegramBot\TgApi\Types\DTO\ForceReplyTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardMarkupTypeDTO|\BAGArt\TelegramBot\TgApi\Types\DTO\ReplyKeyboardRemoveTypeDTO|null $replyMarkup = null,
     ) {
         $this->dto = static::tgApiEntity();
         $this->entityScope = static::tgEntityScope();

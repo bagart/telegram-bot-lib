@@ -46,9 +46,9 @@ class UserTypeDTO implements TgApiTypeDTOContract
         public ?bool $canConnectToBusiness = null,
         #[Description('_True_, if the bot has a main Web App. Returned only in [getMe](https://core.telegram.org/bots/api#getme).')]
         public ?bool $hasMainWebApp = null,
-        #[Description('_True_, if the bot has forum topic mode enabled in private tg_chats. Returned only in [getMe](https://core.telegram.org/bots/api#getme).')]
+        #[Description('_True_, if the bot has forum topic mode enabled in private chats. Returned only in [getMe](https://core.telegram.org/bots/api#getme).')]
         public ?bool $hasTopicsEnabled = null,
-        #[Description('_True_, if the bot allows users to create and delete topics in private tg_chats. Returned only in [getMe](https://core.telegram.org/bots/api#getme).')]
+        #[Description('_True_, if the bot allows users to create and delete topics in private chats. Returned only in [getMe](https://core.telegram.org/bots/api#getme).')]
         public ?bool $allowsUsersToCreateTopics = null,
     ) {
         $this->dto = static::tgApiEntity();

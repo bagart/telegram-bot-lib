@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\TgApi\Methods\DTO;
 
+use BAGArt\TelegramBot\TgApi\Types\DTO\MenuButtonCommandsTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MenuButtonDefaultTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\DTO\MenuButtonWebAppTypeDTO;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiEntityEnumContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiMethodDTOContract;
-use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApi\TgApiEntityScopeEnum;
-use BAGArt\TelegramBot\TgApi\Types\DTO\MenuButtonTypeDTO;
+use BAGArt\TelegramBot\TgApi\Methods\TgApiMethodsEnum;
 use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
@@ -31,7 +33,9 @@ class GetChatMenuButtonMethodDTO implements TgApiMethodDTOContract
     public static function getReturnTypes(): array
     {
         return [
-            MenuButtonTypeDTO::class,
+            MenuButtonCommandsTypeDTO::class,
+            MenuButtonDefaultTypeDTO::class,
+            MenuButtonWebAppTypeDTO::class,
         ];
     }
 

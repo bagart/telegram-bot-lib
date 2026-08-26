@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Describes a photo to post as a story.')]
 #[See('https://core.telegram.org/bots/api#inputstorycontentphoto')]
-class InputStoryContentPhotoTypeDTO implements TgApiTypeDTOContract
+class InputStoryContentPhotoTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -39,6 +39,10 @@ class InputStoryContentPhotoTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['type' => ['photo']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {

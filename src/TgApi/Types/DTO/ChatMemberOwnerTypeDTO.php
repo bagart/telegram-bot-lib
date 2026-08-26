@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgApiServices\TgApiProperty;
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('Represents a [chat member](https://core.telegram.org/bots/api#chatmember) that owns the chat and has all administrator privileges.')]
 #[See('https://core.telegram.org/bots/api#chatmemberowner')]
-class ChatMemberOwnerTypeDTO implements TgApiTypeDTOContract
+class ChatMemberOwnerTypeDTO implements TgApiTypeDTOContract, \BAGArt\TelegramBot\Contracts\TgApi\TgApiOneOfVariantContract
 {
     public readonly TgApiEntityEnumContract $dto;
 
@@ -43,6 +43,10 @@ class ChatMemberOwnerTypeDTO implements TgApiTypeDTOContract
         return TgApiEntityScopeEnum::Type;
     }
 
+    public static function tgDiscriminators(): array
+    {
+        return ['status' => ['creator']];
+    }
     /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {
