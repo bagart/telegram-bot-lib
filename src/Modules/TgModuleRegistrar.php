@@ -46,4 +46,33 @@ interface TgModuleRegistrar
      * @param  class-string<TgModuleContract>  $providerClass
      */
     public function registerAttributed(string $providerClass): self;
+
+    /**
+     * Declare a UI manifest class (raw store; owner = current module id).
+     * Hard contract checks happen in the UI host module's refinement pass.
+     *
+     * @param  class-string  $uiClass
+     */
+    public function webUi(string $uiClass): self;
+
+    /**
+     * Declare a web API handler class (raw store; owner = current module id).
+     *
+     * @param  class-string  $handlerClass
+     */
+    public function webApi(string $handlerClass): self;
+
+    /**
+     * Declare a resource provider class (raw store; owner = current module id).
+     *
+     * @param  class-string  $providerClass
+     */
+    public function webResource(string $providerClass): self;
+
+    /**
+     * Declare a permission resolver class (raw store; owner = current module id).
+     *
+     * @param  class-string  $resolverClass
+     */
+    public function webPermissions(string $resolverClass): self;
 }

@@ -16,7 +16,7 @@ use BAGArt\TelegramBotManagement\Models\TgBot;
 use BAGArt\TelegramBotManagement\Models\TgModuleEnablement;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Modules\Example\ExampleMessageProcessor;
+use BAGArt\TelegramBotExample\ExampleMessageProcessor;
 
 beforeEach(function () {
     config('telegram.modules');

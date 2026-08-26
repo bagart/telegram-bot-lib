@@ -9,7 +9,7 @@ use BAGArt\TelegramBot\Outbound\OutboundSkipException;
 use BAGArt\TelegramBot\Outbound\OutboundTask;
 use BAGArt\TelegramBot\Outbound\OutboundTaskState;
 use BAGArt\TelegramBot\TgBotSetupFactory;
-use Modules\Example\ExampleOutboundMiddleware;
+use BAGArt\TelegramBotExample\ExampleOutboundMiddleware;
 
 beforeEach(function () {
     config('telegram.modules'); // forces the module config scan

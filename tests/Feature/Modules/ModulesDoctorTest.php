@@ -83,3 +83,29 @@ it('fails when conflicting modules are discovered together (Q7)', function () {
         ->expectsOutputToContain("Module 'conflicting' conflicts with 'example' which is also discovered")
         ->assertFailed();
 });
+
+it('accepts map-shaped requirements with the any-version constraint', function () {
+    // Descriptor contract shape: requiresModules is id => constraint
+    // (e.g. the mafia module's ['menu' => '*']).
+    app(TgModuleRegistry::class)->add(new TgModuleDescriptor(
+        id: 'map_consumer',
+        name: 'MapConsumer',
+        version: '1.0.0',
+        requiresModules: ['example' => '*', 'menu' => '>=0.1'],
+    ));
+
+    $this->artisan('tg:modules:doctor')->assertSuccessful();
+});
+
+it('fails on an unsatisfied map-shaped version constraint', function () {
+    app(TgModuleRegistry::class)->add(new TgModuleDescriptor(
+        id: 'map_consumer',
+        name: 'MapConsumer',
+        version: '1.0.0',
+        requiresModules: ['example' => '>=99.0'],
+    ));
+
+    $this->artisan('tg:modules:doctor')
+        ->expectsOutputToContain("Module 'map_consumer' requires 'example@>=99.0' but version")
+        ->assertFailed();
+});

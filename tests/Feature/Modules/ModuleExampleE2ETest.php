@@ -12,7 +12,7 @@ use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\Enum\ChatPropTypeEnum;
 use BAGArt\TelegramBot\TgBotSetupFactory;
-use Modules\Example\ExampleMessageProcessor;
+use BAGArt\TelegramBotExample\ExampleMessageProcessor;
 
 beforeEach(function () {
     config('telegram.modules'); // forces the module config scan (require_once of module sources)

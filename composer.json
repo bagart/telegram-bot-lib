@@ -35,7 +35,7 @@
     },
     "require-dev": {
         "pestphp/pest": "^4.0",
-        "bagart/telegram-devops-baseline": "@dev"
+        "bagart/telegram-platform-devops-baseline": "@dev"
     },
     "repositories": [
         {
@@ -48,7 +48,7 @@
         },
         {
             "type": "path",
-            "url": "../telegram-devops-baseline"
+            "url": "../telegram-platform-devops-baseline"
         }
     ],
     "autoload": {

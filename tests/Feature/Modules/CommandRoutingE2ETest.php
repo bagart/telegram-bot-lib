@@ -14,8 +14,8 @@ use BAGArt\TelegramBot\TgApi\Types\Enum\ChatPropTypeEnum;
 use BAGArt\TelegramBot\TgBotSetupFactory;
 use BAGArt\TelegramBotManagement\Models\TgBot;
 use BAGArt\TelegramBotManagement\Models\TgModuleEnablement;
-use Modules\Example\ExampleMessageProcessor;
-use Modules\Example\ExamplePingCommandProcessor;
+use BAGArt\TelegramBotExample\ExampleMessageProcessor;
+use BAGArt\TelegramBotExample\ExamplePingCommandProcessor;
 
 beforeEach(function () {
     config('telegram.modules'); // forces the module config scan

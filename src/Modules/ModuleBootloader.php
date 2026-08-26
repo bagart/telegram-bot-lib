@@ -21,11 +21,29 @@ class ModuleBootloader
     /** @var array<string, bool> module ids already booted */
     private array $booted = [];
 
+    /** @var list<string> module ids whose register() threw */
+    private array $failed = [];
+
     public function __construct(
         private readonly TgModuleRegistrar $registrar,
         private readonly TgModuleRegistry $registry,
         private readonly ASKLogWrapper $logger,
+        private readonly ?TgWebUiRegistry $webUiRegistry = null,
+        private readonly ?TgWebApiRegistry $webApiRegistry = null,
+        private readonly ?TgWebResourceRegistry $webResourceRegistry = null,
+        private readonly ?TgWebPermissionRegistry $webPermissionRegistry = null,
     ) {
+    }
+
+    /**
+     * Module ids whose register() threw during boot (components skipped,
+     * descriptor retained). Consumed by UI-host refinement and doctor tooling.
+     *
+     * @return list<string>
+     */
+    public function failed(): array
+    {
+        return $this->failed;
     }
 
     /**
@@ -86,8 +104,17 @@ class ModuleBootloader
         }
 
         try {
-            $providerClass::register($this->registrar);
+            $scoped = new ModuleScopedRegistrar(
+                inner: $this->registrar,
+                moduleId: $descriptor->id,
+                webUiRegistry: $this->webUiRegistry,
+                webApiRegistry: $this->webApiRegistry,
+                webResourceRegistry: $this->webResourceRegistry,
+                webPermissionRegistry: $this->webPermissionRegistry,
+            );
+            $providerClass::register($scoped);
         } catch (Throwable $e) {
+            $this->failed[] = $descriptor->id;
             $this->logger->error('Module registration failed, module skipped', [
                 'module' => $descriptor->id,
                 'provider' => $providerClass,

@@ -16,7 +16,7 @@ use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UserTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\Enum\ChatPropTypeEnum;
 use BAGArt\TelegramBot\TgBotSetupFactory;
-use Modules\Example\ExampleValidationRule;
+use BAGArt\TelegramBotExample\ExampleValidationRule;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 

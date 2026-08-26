@@ -25,7 +25,8 @@ final class TypedModuleRegistrar implements TgModuleRegistrar
         private readonly ?OutboundMiddlewareRegistry $outboundMiddlewareRegistry = null,
         private readonly ?TgCommandRegistry $commandRegistry = null,
         private readonly ?AttributedComponentsScanner $attributedScanner = null,
-    ) {}
+    ) {
+    }
 
     public function processor(string $dtoClass, string $processorClass): self
     {
@@ -79,10 +80,9 @@ final class TypedModuleRegistrar implements TgModuleRegistrar
 
     public function command(string $name, string $processorClass): self
     {
-        assert(
-            is_a($processorClass, TgTypeDTOProcessorContract::class, true),
-            "$processorClass must implement TgTypeDTOProcessorContract",
-        );
+        if (! is_a($processorClass, TgTypeDTOProcessorContract::class, true)) {
+            throw new LogicException("$processorClass must implement ".TgTypeDTOProcessorContract::class);
+        }
 
         if ($this->commandRegistry === null) {
             throw new LogicException(
@@ -98,6 +98,10 @@ final class TypedModuleRegistrar implements TgModuleRegistrar
 
     public function registerAttributed(string $providerClass): self
     {
+        if (! class_exists($providerClass)) {
+            throw new LogicException("$providerClass does not exist");
+        }
+
         if ($this->attributedScanner === null) {
             throw new LogicException(
                 'registerAttributed() requires an AttributedComponentsScanner — '
@@ -108,5 +112,48 @@ final class TypedModuleRegistrar implements TgModuleRegistrar
         $this->attributedScanner->scanAndRegister($providerClass, $this);
 
         return $this;
+    }
+
+    public function webUi(string $uiClass): self
+    {
+        $this->assertWebClassExists($uiClass);
+
+        throw self::moduleScopeRequired(__FUNCTION__);
+    }
+
+    public function webApi(string $handlerClass): self
+    {
+        $this->assertWebClassExists($handlerClass);
+
+        throw self::moduleScopeRequired(__FUNCTION__);
+    }
+
+    public function webResource(string $providerClass): self
+    {
+        $this->assertWebClassExists($providerClass);
+
+        throw self::moduleScopeRequired(__FUNCTION__);
+    }
+
+    public function webPermissions(string $resolverClass): self
+    {
+        $this->assertWebClassExists($resolverClass);
+
+        throw self::moduleScopeRequired(__FUNCTION__);
+    }
+
+    private function assertWebClassExists(string $class): void
+    {
+        if (! class_exists($class)) {
+            throw new LogicException("$class does not exist");
+        }
+    }
+
+    private static function moduleScopeRequired(string $method): LogicException
+    {
+        return new LogicException(
+            "$method() requires module ownership context — register through "
+            .'the ModuleScopedRegistrar provided by '.ModuleBootloader::class.'.',
+        );
     }
 }

@@ -44,6 +44,7 @@ use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiTransportContract;
 use BAGArt\TelegramBot\Contracts\ApiCommunication\TgResponseNormalizerContract;
 use BAGArt\TelegramBot\Contracts\BotServices\TgBotsSecretServiceContract;
+use BAGArt\TelegramBot\Contracts\Modules\CommandRouteContract;
 use BAGArt\TelegramBot\Contracts\Modules\ModuleEnablementContract;
 use BAGArt\TelegramBot\Contracts\Outbound\BotTokenResolverContract;
 use BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract;
@@ -405,6 +406,9 @@ class TelegramBotServiceProvider extends ServiceProvider
                     moduleEnablement: $app->bound(ModuleEnablementContract::class)
                         ? $app->make(ModuleEnablementContract::class)
                         : null,
+                    commandRoutes: $app->bound(CommandRouteContract::class)
+                        ? $app->make(CommandRouteContract::class)
+                        : null,
                 );
             },
         );
@@ -439,9 +443,20 @@ class TelegramBotServiceProvider extends ServiceProvider
      * composer-installed providers (config('telegram.modules_providers'))
      * both resolve to TgModuleContract class-strings and are booted through
      * the ModuleBootloader with per-module fault isolation.
+     *
+     * Deprecated: when the Telegram Module Engine is installed its
+     * config/tg_modules.php makes config('tg_modules') non-null — module
+     * booting is then owned by TelegramModuleEngineServiceProvider, which
+     * consumes the engine registry plus these keys as deprecated aliases.
      */
     private function bootModules(): void
     {
+        if (config('tg_modules') !== null) {
+            $this->logDeprecatedModuleSources();
+
+            return;
+        }
+
         $providers = [];
 
         foreach ((array) config('telegram.modules', []) as $moduleConfig) {
@@ -466,6 +481,40 @@ class TelegramBotServiceProvider extends ServiceProvider
         /** @var ModuleBootloader $bootloader */
         $bootloader = $this->app->make(ModuleBootloader::class);
         $bootloader->bootAll(array_values(array_unique($providers)));
+    }
+
+    /**
+     * One warning per boot when the engine owns module booting but legacy
+     * telegram.modules* sources still contribute entries (migration aid).
+     *
+     * @param  array<int, string>  $legacyProviders  class-strings found in the deprecated keys
+     */
+    private function logDeprecatedModuleSources(): void
+    {
+        $legacy = [];
+
+        foreach ((array) config('telegram.modules', []) as $moduleConfig) {
+            if (is_array($moduleConfig)
+                && isset($moduleConfig['provider'])
+                && is_string($moduleConfig['provider'])
+            ) {
+                $legacy[] = $moduleConfig['provider'];
+            }
+        }
+
+        foreach ((array) config('telegram.modules_providers', []) as $providerClass) {
+            if (is_string($providerClass)) {
+                $legacy[] = $providerClass;
+            }
+        }
+
+        if ($legacy === []) {
+            return;
+        }
+
+        logger()->warning('tg-modules: legacy telegram.modules/modules_providers sources are deprecated, declare modules in config/tg_modules.php', [
+            'providers' => array_values(array_unique($legacy)),
+        ]);
     }
 
     /**

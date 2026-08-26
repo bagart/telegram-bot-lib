@@ -13,6 +13,14 @@ class DTOGenerator
 {
     public array $result = [];
 
+    /** contract entity => [variant entity, …] (expansible only) */
+    private array $oneOfContracts = [];
+
+    /** variant entity => ['field' => string, 'literals' => list<string>] */
+    private array $oneOfVariants = [];
+
+    private array $specTypes = [];
+
     public function __construct(
         public string $jsonPath = '/tmp/tg_dto_schema.json',
         public string $dtoDir = __DIR__.'/../TgApi',
@@ -24,6 +32,7 @@ class DTOGenerator
     public function generate(): array
     {
         $schema = $this->loadSchema();
+        $this->analyzeOneOf($schema);
         $this->prepareDirectories($this->full);
 
         $types = [];
@@ -389,6 +398,22 @@ PHP;
 
             $tgPropMetas = json_encode($fieldFormat);
 
+            $implements = "TgApi{$entityScope}DTOContract";
+            $discriminatorsBlock = '';
+            if (isset($this->oneOfVariants[$entityName])) {
+                $variant = $this->oneOfVariants[$entityName];
+                $implements .= ', \\'.$this->namespace.'\\Contracts\\TgApi\\TgApiOneOfVariantContract';
+                $literalList = implode(', ', array_map(
+                    static fn (string $literal): string => var_export($literal, true),
+                    $variant['literals'],
+                ));
+                $discriminatorsBlock = '    public static function tgDiscriminators(): array'."\n"
+                ."    {\n"
+                ."        return ['{$variant['field']}' => [{$literalList}]];\n"
+                ."    }\n";
+            }
+
+
             $todo = $todo ? "\n".implode("\n", $todo) : null;
 
             $code = <<<PHP
@@ -407,7 +432,7 @@ $todo
 #[Warning('File is auto-generated. Use DtoGenerator to change')]
 #[Description('$dtoDescription')]
 #[See('https://core.telegram.org/bots/api#$urlHashLink')]
-class $classname implements TgApi{$entityScope}DTOContract
+class $classname implements $implements
 {
     public readonly TgApiEntityEnumContract \$dto;
 
@@ -430,7 +455,7 @@ $returnTypeMethod
         return TgApiEntityScopeEnum::$entityScope;
     }
 
-    /** @return TgApiProperty[] */
+{$discriminatorsBlock}    /** @return TgApiProperty[] */
     public static function tgPropertyMetas(): array
     {
         \$metaByProp = json_decode(
@@ -523,7 +548,7 @@ PHP;
             $this->result['Created'][$path][] = $pathResult;
         }
 
-        file_put_contents($fileName, $code);
+        file_put_contents($fileName, preg_replace('/[ \t]+$/m', '', $code));
 
         return "\\$namespace\\$classname";
     }
@@ -534,6 +559,125 @@ PHP;
             ' ',
             '',
             ucwords(strtr($name, ['_' => ' ', '-' => ' ']))
+        );
+    }
+
+    /**
+     * Builds the oneOf knowledge base: contracts expansible via a shared
+     * literal discriminator field, and each variant's discriminator map.
+     */
+    private function analyzeOneOf(array $schema): void
+    {
+        foreach ($schema['types'] as $entity => $meta) {
+            $this->specTypes[$entity] = $meta;
+            if (!empty($meta['oneOf'])) {
+                $this->oneOfContracts[$entity] = array_map(
+                    static fn (array $node): string => $node['name'],
+                    $meta['oneOf'],
+                );
+            }
+        }
+
+        $claimed = [];
+        foreach ($this->oneOfContracts as $contract => $variants) {
+            $maps = [];
+            foreach ($variants as $variant) {
+                $maps[$variant] = $this->variantLiterals($variant);
+            }
+            if (in_array([], array_map('count', $maps), true)) {
+                continue;
+            }
+
+            $commonFields = array_intersect_key(
+                ...array_values(array_map(
+                    static fn (array $m): array => array_fill_keys(array_keys($m), true),
+                    $maps,
+                )),
+            );
+            $chosen = null;
+            foreach (array_keys($commonFields) as $field) {
+                $sets = array_map(static fn (array $m): array => $m[$field], $maps);
+                if (in_array([], $sets, true)) {
+                    continue;
+                }
+                $disjoint = true;
+                foreach ($sets as $i => $a) {
+                    foreach ($sets as $j => $b) {
+                        if ($i !== $j && array_intersect($a, $b) !== []) {
+                            $disjoint = false;
+                            break 2;
+                        }
+                    }
+                }
+                if ($disjoint) {
+                    $chosen = $field;
+                    break;
+                }
+            }
+            if ($chosen === null) {
+                continue;
+            }
+
+            // conflict guard: a variant claimed twice with different maps
+            // disqualifies the whole contract from expansion
+            $conflict = false;
+            foreach ($variants as $variant) {
+                if (isset($claimed[$variant]) && $claimed[$variant] !== $chosen) {
+                    $conflict = true;
+                }
+            }
+            if ($conflict) {
+                continue;
+            }
+
+            foreach ($variants as $variant) {
+                $claimed[$variant] = $chosen;
+                $this->oneOfVariants[$variant] = [
+                    'contract' => $contract,
+                    'field' => $chosen,
+                    'literals' => $maps[$variant][$chosen],
+                ];
+            }
+        }
+    }
+
+    /** @return array<string, list<string>> field → literal values */
+    private function variantLiterals(string $entity): array
+    {
+        $out = [];
+        foreach ($this->specTypes[$entity]['fields'] ?? [] as $field) {
+            $node = $field['type'];
+            $nodes = $node['types'] ?? [$node];
+            $literals = [];
+            foreach ($nodes as $n) {
+                if (isset($n['literal']) && is_string($n['literal'])) {
+                    $literals[] = $n['literal'];
+                }
+            }
+            if ($literals !== []) {
+                $out[$field['name']] = $literals;
+            }
+        }
+
+        return $out;
+    }
+
+    /** Variant class FQCNs when the referenced api-type is an expansible oneOf contract. */
+    private function expandOneOf(string $entityName): ?array
+    {
+        $variants = $this->oneOfContracts[$entityName] ?? null;
+        if ($variants === null) {
+            return null;
+        }
+        foreach ($variants as $variant) {
+            if (!isset($this->oneOfVariants[$variant])) {
+                return null;
+            }
+        }
+
+        return array_map(
+            fn (string $variant): string => "\\{$this->namespace}\\TgApi\\Types\\DTO\\{$this->pascal($variant)}TypeDTO",
+            $variants,
         );
     }
 
@@ -557,6 +701,32 @@ PHP;
                 $literals[] = $typeNode['literal'];
             }
             $origTypes[] = $typeNode;
+
+            // oneOf contract reference → expand into concrete variant classes
+            if ($typeNode['type'] === 'api-type') {
+                $expanded = $this->expandOneOf($typeNode['name']);
+                if ($expanded !== null) {
+                    foreach ($expanded as $class) {
+                        $phpTypes[$class] = $class;
+                    }
+
+                    continue;
+                }
+            }
+
+            if ($typeNode['type'] === 'array'
+                && ($typeNode['of']['type'] ?? null) === 'api-type'
+            ) {
+                $expanded = $this->expandOneOf($typeNode['of']['name']);
+                if ($expanded !== null) {
+                    foreach ($expanded as $class) {
+                        $phpTypes['array'][] = $class;
+                    }
+
+                    continue;
+                }
+            }
+
             $type = $this->resolveType($typeNode);
             if (is_array($type)) {
                 $phpTypes[$type['type']][] = $type['of'];

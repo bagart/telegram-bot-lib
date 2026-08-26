@@ -16,4 +16,5 @@ enum TgModuleCapability: string
     case Rule = 'rule';
     case Middleware = 'middleware';
     case Cron = 'cron';
+    case Ui = 'ui';
 }

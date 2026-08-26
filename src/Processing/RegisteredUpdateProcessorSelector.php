@@ -6,6 +6,7 @@ namespace BAGArt\TelegramBot\Processing;
 
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
+use BAGArt\TelegramBot\Contracts\Modules\CommandRouteContract;
 use BAGArt\TelegramBot\Contracts\Modules\ModuleEnablementContract;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgModuleProcessorContract;
 use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContract;
@@ -25,6 +26,7 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
         private readonly TgServiceConfig $serviceConfig,
         private readonly TgBotSetup $botSetup,
         private readonly ?ModuleEnablementContract $moduleEnablement = null,
+        private readonly ?CommandRouteContract $commandRoutes = null,
     ) {
     }
 
@@ -124,10 +126,13 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
         ?string $action,
         ?int $chatId,
     ): ?array {
-        $registry = $this->botSetup->commandRegistry;
-        $processorClass = $registry?->processorOf($commandName);
+        // Bot-scoped route overrides win over the flat registry; a route is
+        // only usable when it names an existing processor class. Otherwise —
+        // including "no route table at all" — the registry decides.
+        $processorClass = $this->routeProcessorOf($commandName, $botConfig->botId)
+            ?? $this->botSetup->commandRegistry?->processorOf($commandName);
 
-        if ($processorClass === null) {
+        if ($processorClass === null || !is_a($processorClass, TgTypeDTOProcessorContract::class, true)) {
             return null;
         }
 
@@ -145,6 +150,18 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
         }
 
         return [$processor];
+    }
+
+    /**
+     * Bot-scoped route override from the module engine's routing table.
+     * Returns the declared processor class only when it exists; anything
+     * else (no table, no entry) yields null and the flat registry decides.
+     */
+    private function routeProcessorOf(string $commandName, string $botId): ?string
+    {
+        $processorClass = $this->commandRoutes?->processorOf($commandName, $botId);
+
+        return $processorClass !== null && class_exists($processorClass) ? $processorClass : null;
     }
 
     /**
