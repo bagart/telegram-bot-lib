@@ -10,16 +10,16 @@ composer require bagart/telegram-bot-lib
 
 ## Commands
 
-### commands/poller.php
+### cmd/poller.php
 
 Long polling with DTO (typed objects).
 
 ```bash
 export TELEGRAM_BOT_TOKEN=xxx:xxx           # Default Telegram Token
 
-php commands/tg_daemons-daemon.php                     # receive updates
-php commands/tg_daemons-daemon.php --help              # show help
-php commands/tg_daemons-daemon.php                     # receive updates with DTOProcessor
+php cmd/poller-daemon.php                     # receive updates
+php cmd/poller-daemon.php --help              # show help
+php cmd/poller-daemon.php                     # receive updates with DTOProcessor
   --echo                                    # echo reply to messages
   --store                                   # store messages to database
   --log                                     # log messages to stderr
@@ -27,29 +27,29 @@ php commands/tg_daemons-daemon.php                     # receive updates with DT
   --token=xxx:xxx                           # use custom token
 ```
 
-### commands/poller-raw.php
+### cmd/poller-raw.php
 
 Long polling in raw mode: no DTOs, no Processors, no Registry
 
 ```bash
 export TELEGRAM_BOT_TOKEN=xxx:xxx           # Default Telegram Token
 
-php commands/pollers/tg_daemons-raw.php --help          # show help
-php commands/pollers/tg_daemons-raw.php                 # receive updates in raw mode
+php cmd/poller-raw.php --help          # show help
+php cmd/poller-raw.php                 # receive updates in raw mode
   --echo                                    # echo reply to messages
   --show                                    # dump update objects
   --token=xxx:xxx                           # use custom token
 ```
 
-### commands/mapper.php
+### cmd/mapper.php
 
 Simulate incoming webhook payloads. Offline DTO mapper example
 
 ```bash
-php commands/mapper.php
+php cmd/mapper.php
 ```
 
-### commands/webhook.php
+### cmd/webhook.php
 
 You can configure your bot webhook via web
 interface: [bagart.github.io/tg-webhook](https://bagart.github.io/tg-webhook). Is more powerful and useful.
@@ -59,22 +59,22 @@ Manage webhook — show current, set or delete. Secret is auto-generated in form
 ```bash
 export TELEGRAM_BOT_TOKEN=xxx:xxx
 
-php commands/tg_webhook-processing.php --help
-php commands/tg_webhook-processing.php                                     # show current tg_webhook + auto-secret
-php commands/tg_webhook-processing.php --token=xxx:xxx                     # use token. default: export TELEGRAM_BOT_TOKEN=xxx:xxx
-php commands/tg_webhook-processing.php --url=https://example.com/tg        # set tg_webhook (secret auto-generated)
-php commands/tg_webhook-processing.php --url=... --secret=custom-secret    # set url with custom secret
-php commands/tg_webhook-processing.php --url=... --secret                  # set url with empty secret
-php commands/tg_webhook-processing.php --delete                            # delete tg_webhook
+php cmd/webhook-manager.php --help
+php cmd/webhook-manager.php                                     # show current tg_webhook + auto-secret
+php cmd/webhook-manager.php --token=xxx:xxx                     # use token. default: export TELEGRAM_BOT_TOKEN=xxx:xxx
+php cmd/webhook-manager.php --url=https://example.com/tg        # set tg_webhook (secret auto-generated)
+php cmd/webhook-manager.php --url=... --secret=custom-secret    # set url with custom secret
+php cmd/webhook-manager.php --url=... --secret                  # set url with empty secret
+php cmd/webhook-manager.php --delete                            # delete tg_webhook
 
 ```
 
-### commands/actualize.sh
+### cmd/actualize.sh
 
 Generate Telegram Bot API DTOs. Actualize is mean: npm update schema + build json + generate DTOs
 
 ```bash
-./commands/tg_actualize.sh     # tg_actualize
+./cmd/tg_actualize.sh     # tg_actualize
   --full                    # delete DTO and tg_actualize
 ```
 
@@ -134,7 +134,7 @@ Ranked by time (fastest → slowest):
 ## Components
 
 ``````
-commands - framework-free command for polling and set webhook
+cmd - framework-free command for polling and set webhook
 public - Framework-free Example of Webhook entry point for web server with DTOProcessors
 src/ - framework-free Telegram Bot lib
 ├── ApiCommunication/  — Guzzler async client and TelegramBot specific options

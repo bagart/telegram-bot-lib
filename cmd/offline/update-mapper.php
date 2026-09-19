@@ -20,7 +20,7 @@ $options = CommandActions::parseOptions(getopt('', [
 
 if (isset($options['help'])) {
     echo "Usage:
-php commands/offline/update-mapper.php         # map tg_webhook payloads to DTOs
+php cmd/offline/update-mapper.php         # map tg_webhook payloads to DTOs
 
 Options:
   --help

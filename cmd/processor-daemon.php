@@ -37,7 +37,7 @@ CommandActions::initRuntime($options);
 
 if (isset($options['help'])) {
     echo 'Usage:
-php commands/processor-daemon.php   # Start Redis queue processor daemon
+php cmd/processor-daemon.php   # Start Redis queue processor daemon
 
 Options:
   --redis-host=127.0.0.1                      # Redis host (default: 127.0.0.1)

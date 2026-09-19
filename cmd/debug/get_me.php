@@ -21,7 +21,7 @@ $options = CommandActions::parseOptions(getopt('', [
 
 if (isset($options['help'])) {
     echo "Usage:
-php commands/debug/tg_get_me.php                   # show bot info
+php cmd/debug/get_me.php                   # show bot info
 
 Options:
   --help

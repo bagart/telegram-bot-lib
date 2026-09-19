@@ -15,7 +15,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    command: php /app/commands/all-in-one-daemon.php --token=${TELEGRAM_BOT_TOKEN} --log-level=info
+    command: php /app/cmd/all-in-one-daemon.php --token=${TELEGRAM_BOT_TOKEN} --log-level=info
     environment:
       TG_LIB_REDIS_HOST: redis
       TG_LIB_REDIS_PORT: "6379"

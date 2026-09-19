@@ -65,7 +65,7 @@
         "bot-api": {
             "version": "9.5",
             "spec": "@grom.js/bot-api-spec 0.8.0",
-            "note": "Bot API version the generated DTOs (src/TgApi) implement; refresh via commands/actualize.sh and keep tools/baseline/compat-matrix.json in sync"
+            "note": "Bot API version the generated DTOs (src/TgApi) implement; refresh via cmd/actualize.sh and keep tools/baseline/compat-matrix.json in sync"
         }
     },
     "scripts": {

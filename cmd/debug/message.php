@@ -32,7 +32,7 @@ if (isset($options['help'])) {
     echo "Usage:
 export TELEGRAM_BOT_TOKEN=xxx:xxx           # Default Telegram Bot Token
 
-php commands/debug/message.php --chat=123456 --text=\"Hello\"  # Direct send
+php cmd/debug/message.php --chat=123456 --text=\"Hello\"  # Direct send
 
 Options:
   --help

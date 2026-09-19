@@ -36,7 +36,7 @@ $options = CommandActions::parseOptions(getopt('', [
 
 if (isset($options['help'])) {
     echo "Usage:
-php commands/offline/long-polling-processing.php   # simulate processing with example payloads
+php cmd/offline/long-polling-processing.php   # simulate processing with example payloads
 
 Options:
   --echo                                           # echo reply to messages

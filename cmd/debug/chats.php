@@ -43,9 +43,9 @@ $options = CommandActions::parseOptions(getopt('', [
 
 if (isset($options['help'])) {
     echo "Usage:
-  php commands/debug/tg_chats.php                       # list active tg_chats, select one to chat
-  php commands/debug/tg_chats.php --chat=123456          # open chat directly
-  php commands/debug/tg_chats.php --chat=123456 --user-id=789  # filter by user
+  php cmd/debug/chats.php                       # list active tg_chats, select one to chat
+  php cmd/debug/chats.php --chat=123456          # open chat directly
+  php cmd/debug/chats.php --chat=123456 --user-id=789  # filter by user
 
 Options:
   --chat=ID              Target chat ID (if omitted, shows chat list with selector)

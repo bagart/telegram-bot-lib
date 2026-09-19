@@ -36,7 +36,7 @@ CommandActions::initRuntime($options);
 
 if (isset($options['help'])) {
     echo 'Usage:
-php commands/outbound-metrics-daemon.php      # Metrics viewer (refreshes every N seconds)
+php cmd/outbound-metrics-daemon.php      # Metrics viewer (refreshes every N seconds)
 
 Options:
   --redis-host=127.0.0.1                      # Redis host (default: 127.0.0.1)

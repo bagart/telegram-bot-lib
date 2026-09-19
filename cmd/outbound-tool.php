@@ -35,7 +35,7 @@ $options = CommandActions::parseOptions(
 
 if (isset($options['help'])) {
     echo 'Usage:
-php commands/outbound-tool.php [options]
+php cmd/outbound-tool.php [options]
 
 Options:
   --status                 Show queue sizes (ready/delayed/inflight/dlq)

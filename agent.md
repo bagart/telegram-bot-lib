@@ -237,7 +237,7 @@ src/Outbound/
 └── Adapters/
     └── LaravelQueueAdapter.php
 
-commands/
+cmd/
 └── outbound-metrics-daemon.php
 ```
 

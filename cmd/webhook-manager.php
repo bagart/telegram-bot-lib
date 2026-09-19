@@ -32,12 +32,12 @@ if (isset($options['help'])) {
 Usage:
 export TELEGRAM_BOT_TOKEN=xxx:xxx
 
-php commands/tg_webhook-manager.php                                     # show current tg_webhook + auto-secret
-php commands/tg_webhook-manager.php --help                              # showe help
-php commands/tg_webhook-manager.php --url=https://example.com/tg        # set tg_webhook with auto-generated secret
-php commands/tg_webhook-manager.php --url=... --secret=custom-secret    # set tg_webhook with custom secret
-php commands/tg_webhook-manager.php --url=... --secret                  # set tg_webhook with empty secret
-php commands/tg_webhook-manager.php --delete                            # delete tg_webhook
+php cmd/webhook-manager.php                                     # show current tg_webhook + auto-secret
+php cmd/webhook-manager.php --help                              # showe help
+php cmd/webhook-manager.php --url=https://example.com/tg        # set tg_webhook with auto-generated secret
+php cmd/webhook-manager.php --url=... --secret=custom-secret    # set tg_webhook with custom secret
+php cmd/webhook-manager.php --url=... --secret                  # set tg_webhook with empty secret
+php cmd/webhook-manager.php --delete                            # delete tg_webhook
 
 Options:
   --url=https://example.com/tg                                       # set tg_webhook (secret auto-generated)

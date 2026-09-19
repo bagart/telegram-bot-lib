@@ -428,9 +428,9 @@ foreach ([null, '', 'bad'] as $bad) {
 assert_test('2.5 no messages', $m25->count() === 0);
 assert_test('2.6 valid after invalid', $w25->parse(messagePayload(), $secret) === true);
 
-// --- Section 3: commands/tg_daemons-sync.php ---
+// --- Section 3: cmd/tg_daemons-sync.php ---
 
-echo "\nSection 3: commands/tg_daemons-sync.php\n";
+echo "\nSection 3: cmd/tg_daemons-sync.php\n";
 
 $botDTO = new BotSecretDTO(token: TOKEN);
 assert_test('3.1 botId', $botDTO->botId() === '123456789');

@@ -40,7 +40,7 @@ $options = CommandActions::parseOptions(getopt('', [
 if (isset($options['help'])) {
     echo "Usage:
 
-php commands/offline/tg_webhook-processing.php      # simulate tg_webhook processing with example payloads
+php cmd/offline/webhook-processing.php      # simulate tg_webhook processing with example payloads
   --help
   --echo                                         # echo reply to messages
   --show                                         # dump update objects

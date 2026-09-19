@@ -56,7 +56,7 @@ $definedOptions = [
 $options = getopt('', $definedOptions);
 
 if (isset($options['help'])) {
-    echo "Usage: php commands/outbound-benchmark.php [options]
+    echo "Usage: php cmd/outbound-benchmark.php [options]
 
 Compare HTTP transports through the outbound daemon pipeline
 with rate limiting. Each transport gets a warmup phase first,
@@ -75,10 +75,10 @@ Options:
   --help              This help
 
 Examples:
-  php commands/outbound-benchmark.php
-  php commands/outbound-benchmark.php --transport=guzzle --rate=50
-  php commands/outbound-benchmark.php --orig --token=123:abc --rate=20
-  php commands/outbound-benchmark.php --host=192.168.1.100:8080
+  php cmd/outbound-benchmark.php
+  php cmd/outbound-benchmark.php --transport=guzzle --rate=50
+  php cmd/outbound-benchmark.php --orig --token=123:abc --rate=20
+  php cmd/outbound-benchmark.php --host=192.168.1.100:8080
 ";
     exit(0);
 }

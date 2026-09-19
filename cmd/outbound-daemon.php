@@ -31,7 +31,7 @@ CommandActions::initRuntime($options);
 
 if (isset($options['help'])) {
     echo 'Usage:
-php commands/outbound-daemon.php              # Start outbound worker daemon
+php cmd/outbound-daemon.php              # Start outbound worker daemon
 
 Modes:
   --mode=single                               # Single instance (in-memory state, default)

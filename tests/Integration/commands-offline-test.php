@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Offline integration tests for commands/ and public/index-sync.php
+ * Offline integration tests for cmd/ and public/index-sync.php
  * Tests the core logic without making any real API calls.
  *
  * Run: php offline-test.php
@@ -150,9 +150,9 @@ $nullResult = $webhook2->parse(telegram_webhook_payload(), null);
 assert_test('null secret returns false', $nullResult === false);
 
 // =====================================================
-// SECTION 2: commands/tg_daemons-sync.php flow
+// SECTION 2: cmd/tg_daemons-sync.php flow
 // =====================================================
-echo "\n=== Section 2: commands/tg_daemons-sync.php flow ===\n\n";
+echo "\n=== Section 2: cmd/tg_daemons-sync.php flow ===\n\n";
 
 // Test 2.1: BotSecretDTO (used in tg_daemons-sync.php)
 echo "Test 2.1: BotSecretDTO\n";
@@ -250,9 +250,9 @@ $texts = array_map(fn ($item) => $item['dto']->text, $messageCollector4->collect
 assert_test('texts in order', $texts === ['First', 'Second', 'Third']);
 
 // =====================================================
-// SECTION 3: commands/tg_webhook-processing.php flow
+// SECTION 3: cmd/webhook-processing.php flow
 // =====================================================
-echo "\n=== Section 3: commands/tg_webhook-processing.php flow ===\n\n";
+echo "\n=== Section 3: cmd/webhook-processing.php flow ===\n\n";
 
 // Test 3.1: AutoSecretByTokenService (used in tg_webhook-processing.php)
 echo "Test 3.1: AutoSecretByTokenService secret generation\n";

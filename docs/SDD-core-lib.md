@@ -14,7 +14,7 @@ Outbound: domain code → TgSender → Outbound/ queue → middleware chain → 
 Modules:  Modules/TgModuleContract (descriptor()+register()) → registries (command, outbound middleware, web)
 ```
 
-- **TgApi/** — generated DTOs/enums only; never hand-edit (`DevTool/DTOGenerator.php`, regenerate via `commands/actualize.sh`).
+- **TgApi/** — generated DTOs/enums only; never hand-edit (`DevTool/DTOGenerator.php`, regenerate via `cmd/actualize.sh`).
 - **Outbound/** — `OutboundTask/State/Envelope`, `DeadLetterEntry` (readonly Redis state), pipeline middleware: Expiry → RetryBudget → RateLimit → Executor (order at queue level), `OutboundCircuitBreaker` per-bot, `LeaseRenewer`, control-flow exceptions (Retry/Skip/BusinessError). `SKInterruptException` never caught here.
 - **Processing/** — update processors, `ProcessorUpdateDaemon`, error handling; commands self-register into `TgCommandRegistry` (flat registry; a matching /command intercepts exclusively).
 - **Modules/** — plugin contract consumed by the engine: `descriptor()` pure metadata, `register(TgModuleRegistrar)` idempotent declarations.

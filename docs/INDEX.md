@@ -13,7 +13,7 @@
 
 | Dir | Owns |
 |---|---|
-| `TgApi/` | ~450 generated DTOs + enums (Methods/, Types/) — regenerate only via `commands/actualize.sh` |
+| `TgApi/` | ~450 generated DTOs + enums (Methods/, Types/) — regenerate only via `cmd/actualize.sh` |
 | `TgApiCaller.php`, `TgApiServices/` | API call execution, typed service access |
 | `Outbound/` | send pipeline: queue DTOs, middleware, circuit breaker, DLQ, lease |
 | `Processing/` | inbound updates: processors, dispatcher, selector |

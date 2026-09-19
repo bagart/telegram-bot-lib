@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Debug/dev long-polling entry with the FULL Laravel module pipeline.
  *
- * commands/poller-daemon.php builds a lib-only processor registry (echo/show/
+ * cmd/poller-daemon.php builds a lib-only processor registry (echo/show/
  * store demo processors), so module processors (/voice, /text, …) never run
  * in that context. This script boots through the host Laravel kernel instead:
  * the container's TgBotSetupFactory shares the TypeDTOProcessorRegistry that
@@ -14,7 +14,7 @@ declare(strict_types=1);
  * (TgWebhookRequestParser + RegisteredUpdateProcessorSelector).
  *
  * Usage (inside the php-fpm/workspace container, from /var/www):
- *   php misc/BAGArt/telegram-bot-lib/commands/debug/poller-modules.php \
+ *   php misc/BAGArt/telegram-bot-lib/cmd/debug/poller-modules.php \
  *       --token=123:abc [--timeout=30] [--limit=100]
  *
  * TELEGRAM_BOT_TOKEN env is honored when --token is omitted (same resolution

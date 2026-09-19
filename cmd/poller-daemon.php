@@ -52,7 +52,7 @@ if (isset($options['help'])) {
     echo 'Usage:
 export TELEGRAM_BOT_TOKEN=xxx:xxx                    # Default Telegram Token
 
-php commands/tg_daemons-daemon.php                       # Telegram tg_daemons daemon (queued mode)
+php cmd/poller-daemon.php                       # Telegram tg_daemons daemon (queued mode)
 
 Options:
   --token=xxx:xxx                                    # use custom token
