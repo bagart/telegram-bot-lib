@@ -39,8 +39,7 @@ function ruleTestMessage(string $text): MessageTypeDTO
 /** Sender spy that records classes of sent method DTOs. */
 function ruleTestSenderSpy(): TgSenderContract
 {
-    return new class implements TgSenderContract
-    {
+    return new class () implements TgSenderContract {
         /** @var list<class-string> */
         public array $sent = [];
 
@@ -57,7 +56,7 @@ function ruleTestProcessor(TgSenderContract $sender): MessageValidatorProcessor
         ruleRegistry: app(MessageValidationRuleRegistry::class),
         executor: new MessageVerdictExecutor(
             sender: $sender,
-            logger: new ASKLogWrapper(new Logger('test', [new NullHandler])),
+            logger: new ASKLogWrapper(new Logger('test', [new NullHandler()])),
         ),
     );
 }
@@ -86,7 +85,7 @@ it('module rule lands in the shared rule registry next to the core rule (AC-6)',
 
 it('the shared rule registry singleton is wired into created bot setups', function () {
     $factory = app(TgBotSetupFactory::class);
-    $setup = $factory->create(serviceConfig: new TgServiceConfig);
+    $setup = $factory->create(serviceConfig: new TgServiceConfig());
 
     expect($setup->messageRules)->toBe(app(MessageValidationRuleRegistry::class));
 });

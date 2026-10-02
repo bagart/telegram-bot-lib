@@ -55,6 +55,15 @@ class TgModuleRegistry
     }
 
     /**
+     * Descriptor-declared chat-scope default of a module; null when the module
+     * is not discovered.
+     */
+    public function defaultChatEnabledOf(string $moduleId): ?bool
+    {
+        return $this->descriptors[$moduleId]?->defaultChatEnabled;
+    }
+
+    /**
      * Fail policy on enablement-storage errors (Q-D2); null when the module
      * is not discovered.
      */

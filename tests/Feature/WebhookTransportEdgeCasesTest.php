@@ -16,8 +16,7 @@ it('rejects webhook calls from non-Telegram IPs', function () {
 });
 
 it('requires the secret header once the IP gate passes', function () {
-    $this->instance(TelegramIpValidator::class, new class extends TelegramIpValidator
-    {
+    $this->instance(TelegramIpValidator::class, new class () extends TelegramIpValidator {
         public function validate(string $ip): bool
         {
             return true; // simulate a call from a Telegram range
@@ -29,8 +28,7 @@ it('requires the secret header once the IP gate passes', function () {
 });
 
 it('rejects an invalid secret token', function () {
-    $this->instance(TelegramIpValidator::class, new class extends TelegramIpValidator
-    {
+    $this->instance(TelegramIpValidator::class, new class () extends TelegramIpValidator {
         public function validate(string $ip): bool
         {
             return true;

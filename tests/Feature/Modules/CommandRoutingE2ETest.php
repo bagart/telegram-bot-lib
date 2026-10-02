@@ -24,14 +24,14 @@ beforeEach(function () {
     ExamplePingCommandProcessor::$replied = [];
 });
 
-function commandTestUpdate(string $text): UpdateTypeDTO
+function commandTestUpdate(string $text, int $chatId = 100): UpdateTypeDTO
 {
     return new UpdateTypeDTO(
         updateId: 1,
         message: new MessageTypeDTO(
             messageId: 10,
             date: time(),
-            chat: new ChatTypeDTO(id: '100', type: ChatPropTypeEnum::GROUP),
+            chat: new ChatTypeDTO(id: (string) $chatId, type: ChatPropTypeEnum::GROUP),
             text: $text,
         ),
     );
@@ -40,12 +40,34 @@ function commandTestUpdate(string $text): UpdateTypeDTO
 function commandTestSelector(): RegisteredUpdateProcessorSelector
 {
     $factory = app(TgBotSetupFactory::class);
-    $botSetup = $factory->create(serviceConfig: new TgServiceConfig);
+    $botSetup = $factory->create(serviceConfig: new TgServiceConfig());
 
     return new RegisteredUpdateProcessorSelector(
-        serviceConfig: new TgServiceConfig,
+        serviceConfig: new TgServiceConfig(),
         botSetup: $botSetup,
     );
+}
+
+function commandEnablementSelector(): RegisteredUpdateProcessorSelector
+{
+    $factory = app(TgBotSetupFactory::class);
+
+    return new RegisteredUpdateProcessorSelector(
+        serviceConfig: new TgServiceConfig(),
+        botSetup: $factory->create(serviceConfig: new TgServiceConfig()),
+        moduleEnablement: app(ModuleEnablementContract::class),
+    );
+}
+
+function runCommandFlow(RegisteredUpdateProcessorSelector $selector, UpdateTypeDTO $update): void
+{
+    $botConfig = new TgBotConfig(token: 'test:token', botId: 'test_bot');
+
+    foreach ($selector->selectProcessors($update, $botConfig) as $processors) {
+        foreach ($processors as $processor) {
+            $processor->process($update->message, $botConfig, 'message');
+        }
+    }
 }
 
 it('Example module registers the /example_ping command', function () {
@@ -126,31 +148,48 @@ it('answers /example_ping with the module_settings-configured reply text', funct
     expect(ExamplePingCommandProcessor::$replied)->toBe(['pong-custom']);
 });
 
-it('does not execute the command when the module is disabled for the chat', function () {
+it('dispatches the command on bot scope: chat-disabled module keeps its command (Q11-D1)', function () {
     TgBot::create(['bot_id' => 'test_bot', 'token' => 'test:token']);
-    $botConfig = new TgBotConfig(token: 'test:token', botId: 'test_bot');
-
+    TgModuleEnablement::factory()
+        ->forBot('test_bot')
+        ->enabled(true)
+        ->create(['module_id' => 'example']);
     TgModuleEnablement::factory()
         ->forChat('test_bot', 100)
         ->enabled(false)
         ->create(['module_id' => 'example']);
 
-    $factory = app(TgBotSetupFactory::class);
-    $botSetup = $factory->create(serviceConfig: new TgServiceConfig);
-    $selector = new RegisteredUpdateProcessorSelector(
-        serviceConfig: new TgServiceConfig,
-        botSetup: $botSetup,
-        moduleEnablement: app(ModuleEnablementContract::class),
-    );
+    $selector = commandEnablementSelector();
 
-    $update = commandTestUpdate('/example_ping');
+    runCommandFlow($selector, commandTestUpdate('/example_ping'));
 
-    foreach ($selector->selectProcessors($update, $botConfig) as $processors) {
-        foreach ($processors as $processor) {
-            $processor->process($update->message, $botConfig, 'message');
-        }
-    }
+    // Q11-D1: commands dispatch on bot scope — the chat-level row does not gate them
+    expect(ExamplePingCommandProcessor::$invokedIn)->toBe(['100']);
 
+    // the regular processor stays chat-gated in the same chat...
+    runCommandFlow($selector, commandTestUpdate('hello module'));
+    expect(ExampleMessageProcessor::$receivedTexts)->toBe([]);
+
+    // ...while other chats keep the module
+    runCommandFlow($selector, commandTestUpdate('hello module', 200));
+    expect(ExampleMessageProcessor::$receivedTexts)->toBe(['hello module']);
+});
+
+it('still suppresses the command when the module is disabled at bot scope (Q11-D1)', function () {
+    TgBot::create(['bot_id' => 'test_bot', 'token' => 'test:token']);
+    TgModuleEnablement::factory()
+        ->forBot('test_bot')
+        ->enabled(false)
+        ->create(['module_id' => 'example']);
+
+    $selector = commandEnablementSelector();
+
+    runCommandFlow($selector, commandTestUpdate('/example_ping'));
+
+    // bot-scope disable suppresses the command (and the fall-through regular flow too)
     expect(ExamplePingCommandProcessor::$invokedIn)->toBe([]);
+    expect(ExampleMessageProcessor::$receivedTexts)->toBe([]);
+
+    runCommandFlow($selector, commandTestUpdate('hello module'));
     expect(ExampleMessageProcessor::$receivedTexts)->toBe([]);
 });

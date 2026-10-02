@@ -11,7 +11,13 @@ namespace BAGArt\TelegramBot\Contracts\Modules;
  */
 interface ModuleEnablementContract
 {
-    public function isEnabled(string $moduleId, string $botId, int $chatId): bool;
+    /**
+     * @param  int|null  $chatId  chat scope; null = bot-level decision only
+     *                       (bot/platform rows + descriptor defaults — used by
+     *                       selector dispatch for command and chat-member
+     *                       updates, Q11-D1).
+     */
+    public function isEnabled(string $moduleId, string $botId, ?int $chatId = null): bool;
 
     /**
      * Invalidate cached enablement after an admin toggle.

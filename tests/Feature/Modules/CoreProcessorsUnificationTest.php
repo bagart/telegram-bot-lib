@@ -13,7 +13,7 @@ use BAGArt\TelegramBot\TgBotSetupFactory;
 
 function coreRegistryClasses(TypeDTOProcessorRegistry $registry): array
 {
-    $setup = TgBotSetupFactory::build()->create(serviceConfig: new TgServiceConfig);
+    $setup = TgBotSetupFactory::build()->create(serviceConfig: new TgServiceConfig());
     $context = BotProcessorContext::fromBotSetup($setup);
 
     $classes = [];
@@ -39,7 +39,7 @@ it('CLI behaviors layer on top of core processors, not instead of them', functio
 });
 
 it('factory default registry equals the core registry', function () {
-    $setup = app(TgBotSetupFactory::class)->create(serviceConfig: new TgServiceConfig);
+    $setup = app(TgBotSetupFactory::class)->create(serviceConfig: new TgServiceConfig());
     $context = BotProcessorContext::fromBotSetup($setup);
 
     $classes = [];

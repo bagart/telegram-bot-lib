@@ -41,10 +41,10 @@ it('discovers the local Example module on boot', function () {
 
 it('delivers a webhook-shaped update to the module processor (AC-1)', function () {
     $factory = app(TgBotSetupFactory::class);
-    $botSetup = $factory->create(serviceConfig: new TgServiceConfig);
+    $botSetup = $factory->create(serviceConfig: new TgServiceConfig());
 
     $selector = new RegisteredUpdateProcessorSelector(
-        serviceConfig: new TgServiceConfig,
+        serviceConfig: new TgServiceConfig(),
         botSetup: $botSetup,
     );
 

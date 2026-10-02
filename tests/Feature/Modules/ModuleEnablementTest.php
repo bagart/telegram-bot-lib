@@ -31,8 +31,8 @@ function enablementSelector(): RegisteredUpdateProcessorSelector
     $factory = app(TgBotSetupFactory::class);
 
     return new RegisteredUpdateProcessorSelector(
-        serviceConfig: new TgServiceConfig,
-        botSetup: $factory->create(serviceConfig: new TgServiceConfig),
+        serviceConfig: new TgServiceConfig(),
+        botSetup: $factory->create(serviceConfig: new TgServiceConfig()),
         moduleEnablement: app(ModuleEnablementContract::class),
     );
 }

@@ -33,7 +33,7 @@ it('module middleware is wired into the outbound daemon pipeline before the exec
             dtoClass: 'SomeDto',
             dtoData: ['text' => "drop me {$marker}"],
         ),
-        state: new OutboundTaskState,
+        state: new OutboundTaskState(),
     );
 
     try {

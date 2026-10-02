@@ -13,6 +13,7 @@ use BAGArt\TelegramBot\Contracts\Processing\Processors\TgTypeDTOProcessorContrac
 use BAGArt\TelegramBot\Contracts\Processing\TgUpdateProcessorSelectorContract;
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\Modules\TgCommandRegistry;
+use BAGArt\TelegramBot\TgApi\Types\DTO\ChatMemberUpdatedTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\ChatTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\UpdateTypeDTO;
 use BAGArt\TelegramBot\TgBotSetup;
@@ -64,6 +65,13 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
     ): array {
         $chatId = $this->chatIdOf($dto);
         $commandName = $this->commandNameOf($dto);
+
+        // Q11-D1 dispatch scope: chat-member updates (my_chat_member/chat_member)
+        // carry a chat but dispatch on BOT scope, so chat-default-OFF modules
+        // keep their entry points. Every other chat-carrying DTO stays gated on
+        // chat scope; DTOs without a chat keep the null exemption below.
+        $gateChatId = $dto instanceof ChatMemberUpdatedTypeDTO ? null : $chatId;
+
         $cacheKey = $dto::class.'|'.$botConfig->botId.'|'.$chatId.'|'.$commandName;
 
         if (isset($this->cachedProcessors[$cacheKey])) {
@@ -80,7 +88,7 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
         // runs, regular processors for this DTO are bypassed. When no command
         // matches (or the command is not declared), the regular flow takes over.
         $resolved = $commandName !== null
-            ? $this->resolveCommandProcessors($commandName, $dto, $botConfig, $action, $chatId)
+            ? $this->resolveCommandProcessors($commandName, $dto, $botConfig, $action)
             : null;
 
         if ($resolved === null) {
@@ -92,7 +100,7 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
                 );
 
             foreach ($processors as $processor) {
-                if (!$this->isModuleEnabled($processor, $botConfig->botId, $chatId)) {
+                if ($chatId !== null && !$this->isModuleEnabled($processor, $botConfig->botId, $gateChatId)) {
                     continue;
                 }
 
@@ -115,7 +123,8 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
      * Resolve the exclusive processor for a slash command. Returns null when
      * the command is not declared in the registry (regular flow takes over)
      * or an empty array is never returned — an unknown/unfit command falls
-     * back to the regular flow.
+     * back to the regular flow. The enablement gate runs on BOT scope (Q11-D1)
+     * so chat-default-OFF modules keep their command entry points.
      *
      * @return list<TgTypeDTOProcessorContract>|null
      */
@@ -124,7 +133,6 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
         TgApiTypeDTOContract $dto,
         TgBotConfig $botConfig,
         ?string $action,
-        ?int $chatId,
     ): ?array {
         // Bot-scoped route overrides win over the flat registry; a route is
         // only usable when it names an existing processor class. Otherwise —
@@ -141,7 +149,7 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
             BotProcessorContext::fromBotSetup($this->botSetup),
         );
 
-        if (!$this->isModuleEnabled($processor, $botConfig->botId, $chatId)) {
+        if (!$this->isModuleEnabled($processor, $botConfig->botId, null)) {
             return null;
         }
 
@@ -181,7 +189,13 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
 
     /**
      * Module enablement filter: processors bound to a module are skipped when
-     * the module is disabled for this (bot, chat). Global processors always pass.
+     * the module is disabled at the evaluated scope. Global processors always
+     * pass; DTOs without a chat never reach this gate (caller exemption).
+     *
+     * Q11-D1 scope split: commands and chat-member updates (my_chat_member /
+     * chat_member) dispatch on bot scope (chatId = null) so chat-default-OFF
+     * modules keep their entry points; collection processors on other
+     * chat-carrying DTOs stay gated on chat scope.
      */
     private function isModuleEnabled(
         TgTypeDTOProcessorContract $processor,
@@ -190,7 +204,6 @@ class RegisteredUpdateProcessorSelector implements TgUpdateProcessorSelectorCont
     ): bool {
         if ($this->moduleEnablement === null
             || !$processor instanceof TgModuleProcessorContract
-            || $chatId === null
         ) {
             return true;
         }

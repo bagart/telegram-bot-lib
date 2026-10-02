@@ -14,7 +14,7 @@ beforeEach(function () {
 
 function failPolicyService(): TgModuleEnablementService
 {
-    $registry = new TgModuleRegistry;
+    $registry = new TgModuleRegistry();
     $registry->add(new TgModuleDescriptor(
         id: 'open-module',
         name: 'Open',
