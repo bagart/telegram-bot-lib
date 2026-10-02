@@ -6,7 +6,7 @@
 
 | Need | File |
 |---|---|
-| What the package is, layout, flows | `SDD-core-lib.md` |
+| What the package is, layout, flows | `sdd/core-lib.md` |
 | Active work | `tasks/` (create on demand) |
 
 ## Source map (src/)
