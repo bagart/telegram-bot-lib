@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Processing\Redis;
 
-use BAGArt\ASKClient\Contracts\Queue\ActivePartitionsContract;
-use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
-use BAGArt\ASKClient\Contracts\Queue\JobDeduplicatorContract;
-use BAGArt\ASKClient\Contracts\Queue\PartitionStreamContract;
+use BAGArt\AskQueue\Contracts\ActivePartitionsContract;
+use BAGArt\AskQueue\Contracts\ASKQueueAdapterContract;
+use BAGArt\AskQueue\Contracts\JobDeduplicatorContract;
+use BAGArt\AskQueue\Contracts\PartitionStreamContract;
 use BAGArt\AsyncKernel\Config\PartitionConfig;
 use BAGArt\AsyncKernel\Contracts\MetricsContract;
 use BAGArt\TelegramBot\Contracts\Processing\Redis\TgPartitionSchedulerContract;

@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Architecture tests — encode the load-bearing highload-stability rules so CI
  * rejects changes that violate them.
  *
- * Each test below mirrors a rule in .agents/skills/highload-stability/rules/checklist.md.
+ * Each test below mirrors a rule in docs/skills/highload-stability/rules/checklist.md.
  * When a rule is added/changed there, add/update the matching test here.
  *
  * Rules that need method-body inspection (no I/O in constructors, no swallowed

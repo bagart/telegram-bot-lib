@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\AskQueue\Contracts\ASKQueueAdapterContract;
 use BAGArt\AsyncKernel\ASKShutdownContext;
 use BAGArt\AsyncKernel\Enum\ShutdownPhase;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;

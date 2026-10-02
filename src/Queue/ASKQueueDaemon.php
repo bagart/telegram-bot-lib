@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Queue;
 
-use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\AskQueue\Contracts\ASKQueueAdapterContract;
 use BAGArt\AsyncKernel\ASKShutdownContext;
 use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\AsyncKernel\Contracts\Daemons\ASKDaemonContract;

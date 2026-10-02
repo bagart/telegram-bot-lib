@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Processing\ProcessingDispatchers;
 
-use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\AskQueue\Contracts\ASKQueueAdapterContract;
 use BAGArt\ASKClient\Queue\JsonCodec;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;

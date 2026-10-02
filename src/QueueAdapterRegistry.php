@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot;
 
-use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\AskQueue\Contracts\ASKQueueAdapterContract;
 use BAGArt\ASKClient\Queue\Adapters\InMemoryQueueAdapter;
 use BAGArt\ASKClientRedis\Queue\Adapters\QueueRedisAdapter;
 use BAGArt\ASKClientRedis\Redis\Contract\RedisClientContract;

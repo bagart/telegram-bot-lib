@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBot;
 
 use BAGArt\ASKClient\Contracts\Client\ApiClientContract;
-use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\AskQueue\Contracts\ASKQueueAdapterContract;
 use BAGArt\AsyncKernel\Contracts\ASKLockerContract;
 use BAGArt\AsyncKernel\Contracts\ASKSchedulerContract;
 use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;

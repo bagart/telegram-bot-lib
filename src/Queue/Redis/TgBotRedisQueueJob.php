@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Queue\Redis;
 
-use BAGArt\ASKClient\Contracts\Queue\ASKQueueAdapterContract;
+use BAGArt\AskQueue\Contracts\ASKQueueAdapterContract;
 use BAGArt\TelegramBot\Contracts\Queue\JobHandlerFactoryContract;
 use BAGArt\TelegramBot\Contracts\Queue\TgBotQueueJobContract;
 use BAGArt\TelegramBot\Processing\ProcessingDispatchers\RedisQueueDTOProcessJob;

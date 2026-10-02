@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Processing\Redis;
 
-use BAGArt\ASKClient\Contracts\Queue\JobSerializerContract;
+use BAGArt\AskQueue\Contracts\JobSerializerContract;
 use BAGArt\AsyncKernel\Job\AsyncJob;
 use BAGArt\TelegramBot\Processing\Update\UpdateContext;
 

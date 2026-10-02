@@ -798,11 +798,18 @@ LUA;
     {
         $matched = [];
         $iterator = null;
-        while ($keys = $this->redis->scan($iterator, $pattern)) {
-            foreach ($keys as $key) {
-                $matched[] = $key;
+
+        // SCAN returns an empty batch while the cursor is still open — the
+        // cursor (not the batch) signals completion, so a falsy array must
+        // not end the iteration (mirrors TtsMetricsExporter::scanCounters()).
+        do {
+            $keys = $this->redis->scan($iterator, $pattern);
+            if (is_array($keys)) {
+                foreach ($keys as $key) {
+                    $matched[] = $key;
+                }
             }
-        }
+        } while ($iterator > 0);
 
         return $matched;
     }

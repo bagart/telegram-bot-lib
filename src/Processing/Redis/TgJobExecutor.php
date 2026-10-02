@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBot\Processing\Redis;
 
-use BAGArt\ASKClient\Contracts\Queue\JobExecutorContract;
+use BAGArt\AskQueue\Contracts\JobExecutorContract;
 use BAGArt\AsyncKernel\Job\AsyncJob;
 use BAGArt\TelegramBot\Configs\TgServiceConfig;
 use BAGArt\TelegramBot\Contracts\Processing\Redis\TgPartitionSchedulerContract;
