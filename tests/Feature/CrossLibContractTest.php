@@ -13,7 +13,7 @@ declare(strict_types=1);
  */
 it('loads every BAGArt library contract interface', function () {
     $interfaces = bagart_contract_files();
-    expect($interfaces)->not->toBeEmpty('no Contract interfaces found under misc/BAGArt');
+    expect($interfaces)->not->toBeEmpty('no Contract interfaces found under misc/BAGArt or vendor/bagart');
 
     foreach ($interfaces as [$fqcn, $file]) {
         expect($fqcn)->not->toBeNull("interface not parseable in {$file}");
@@ -26,7 +26,7 @@ it('loads every BAGArt library contract interface', function () {
 it('satisfies every declared contract implementation', function () {
     $checked = 0;
 
-    foreach (glob_recursive_php(base_path('misc/BAGArt')) as $file) {
+    foreach (bagart_source_files() as $file) {
         $src = bagart_strip_comments((string) @file_get_contents($file));
         if (! preg_match('/\b(?:abstract\s+|final\s+|readonly\s+)*class\s+(\w+)\s*(extends\s+[\w\\\\]+)?\s*(implements\s+([^\{]+))?\{/', $src, $class)) {
             continue;
@@ -65,11 +65,34 @@ it('satisfies every declared contract implementation', function () {
     expect($checked)->toBeGreaterThan(0, 'no contract implementations discovered');
 });
 
-/** FQCNs of interfaces named *Contract under misc/BAGArt, with file paths. */
+/** Platform source trees: misc/ path checkouts (dev) and/or vendor/bagart
+ * composer packages (prod/CI — misc/ is absent on servers and runners). */
+function bagart_source_roots(): array
+{
+    return array_values(array_filter(
+        [base_path('misc/BAGArt'), base_path('vendor/bagart')],
+        is_dir(...),
+    ));
+}
+
+/** All platform .php sources across the trees, deduplicated by realpath. */
+function bagart_source_files(): array
+{
+    $files = [];
+    foreach (bagart_source_roots() as $root) {
+        foreach (glob_recursive_php($root) as $file) {
+            $files[realpath($file) ?: $file] = $file;
+        }
+    }
+
+    return array_values($files);
+}
+
+/** FQCNs of interfaces named *Contract under the platform trees, with file paths. */
 function bagart_contract_files(): array
 {
     $out = [];
-    foreach (glob_recursive_php(base_path('misc/BAGArt')) as $file) {
+    foreach (bagart_source_files() as $file) {
         $src = bagart_strip_comments((string) @file_get_contents($file));
         if (preg_match('/\binterface\s+(\w+Contract)\b/', $src, $m)
             && preg_match('/namespace\s+([\w\\\\]+);/', $src, $ns)) {

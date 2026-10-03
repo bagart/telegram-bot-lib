@@ -99,7 +99,11 @@ describe('TypeDTOProcessorRegistry', function () {
             expect($built)->toContain(MessageDTOShowToConsoleProcessor::class);
             expect($built)->toContain(MessageDTOToDbProcessor::class);
             expect($built)->toContain(MessageValidatorProcessor::class);
-            expect($built)->each->toImplement(TgTypeDTOProcessorContract::class);
+            // class_implements instead of arch toImplement: vendor-mode CI
+            // cannot evaluate toImplement on platform classes.
+            foreach ($built as $processorClass) {
+                expect(class_implements($processorClass))->toContain(TgTypeDTOProcessorContract::class);
+            }
         });
 
         it('registers core MessageValidatorProcessor without any config (webhook path)', function () use ($context) {

@@ -25,9 +25,12 @@ arch('Redis-serializable outbound DTOs must not depend on Closure — see highlo
     ->expect([OutboundTask::class, OutboundTaskState::class, DeadLetterEntry::class])
     ->not->toUse(Closure::class);
 
-arch('the flagship outbound daemon must implement ASKShutdownAware for graceful drain — see highload-stability/checklist.md #3')
-    ->expect(TgOutboundDaemon::class)
-    ->toImplement(ASKShutdownAware::class);
+// class_implements instead of arch toImplement: pest-arch's
+// VendorObjectDescription drops $path, so vendor-mode CI cannot evaluate
+// toImplement on platform classes (see docs/questions/pest-arch-toimplement-vendor.md).
+test('the flagship outbound daemon must implement ASKShutdownAware for graceful drain — see highload-stability/checklist.md #3', function () {
+    expect(class_implements(TgOutboundDaemon::class))->toContain(ASKShutdownAware::class);
+});
 
 test('TgOutboundDaemon::shutdownPriority is in canonical range [0, 100]', function () {
     // newInstanceWithoutConstructor bypasses the 8-arg ctor; we only call pure accessors.
