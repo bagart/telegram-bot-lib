@@ -145,6 +145,7 @@ function glob_recursive_php(string $dir): array
     if (! is_dir($dir)) {
         return [];
     }
+    $rootReal = str_replace('\\', '/', (string) (realpath($dir) ?: $dir));
     $iterator = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
         RecursiveIteratorIterator::LEAVES_ONLY,
@@ -152,11 +153,23 @@ function glob_recursive_php(string $dir): array
     $files = [];
     foreach ($iterator as $item) {
         /** @var SplFileInfo $item */
-        if ($item->isFile() && $item->getExtension() === 'php'
-            && ! str_contains($item->getPathname(), 'TgApi')
-            && ! bagart_is_excluded_tree($item->getPathname())) {
-            $files[] = str_replace('\\', '/', $item->getPathname());
+        if (! $item->isFile() || $item->getExtension() !== 'php') {
+            continue;
         }
+        $pathname = str_replace('\\', '/', $item->getPathname());
+        if (str_contains($pathname, 'TgApi')) {
+            continue;
+        }
+        // Exclusion is path-ROOT-RELATIVE: the top-level vendor/bagart tree
+        // is a platform source root in prod/CI, while nested */vendor/* copies
+        // inside a scanned tree are vendored snapshots and must be skipped.
+        $relative = str_starts_with($pathname, $rootReal)
+            ? ltrim(substr($pathname, strlen($rootReal)), '/')
+            : $pathname;
+        if (bagart_is_excluded_tree($relative)) {
+            continue;
+        }
+        $files[] = $pathname;
     }
 
     return $files;
@@ -168,10 +181,8 @@ function glob_recursive_php(string $dir): array
  * nested copy of the platform namespaces that is intentionally not
  * autoloadable.
  */
-function bagart_is_excluded_tree(string $path): bool
+function bagart_is_excluded_tree(string $relativePath): bool
 {
-    $normalized = str_replace('\\', '/', $path);
-
-    return str_contains($normalized, '/vendor/')
-        || str_contains($normalized, '/tg-bot-manager/');
+    return str_contains($relativePath, 'vendor/')
+        || str_contains($relativePath, 'tg-bot-manager/');
 }
