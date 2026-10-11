@@ -8,8 +8,8 @@ use LogicException;
 
 /**
  * Module-boot-scoped registrar decorator: stamps the booting module's
- * descriptor id onto every web* declaration (D38) and proxies all other
- * registrar methods to the inner registrar untouched.
+ * descriptor id onto every web* and auditEvent declaration (D38) and
+ * proxies all other registrar methods to the inner registrar untouched.
  */
 final class ModuleScopedRegistrar implements TgModuleRegistrar
 {
@@ -20,6 +20,7 @@ final class ModuleScopedRegistrar implements TgModuleRegistrar
         private readonly ?TgWebApiRegistry $webApiRegistry = null,
         private readonly ?TgWebResourceRegistry $webResourceRegistry = null,
         private readonly ?TgWebPermissionRegistry $webPermissionRegistry = null,
+        private readonly ?TgAuditEventRegistry $auditEventRegistry = null,
     ) {
     }
 
@@ -86,7 +87,14 @@ final class ModuleScopedRegistrar implements TgModuleRegistrar
         return $this;
     }
 
-    private function addScoped(TgWebUiRegistry|TgWebApiRegistry|TgWebResourceRegistry|TgWebPermissionRegistry|null $registry, string $class, string $requirement): void
+    public function auditEvent(string $eventClass): self
+    {
+        $this->addScoped($this->auditEventRegistry, $eventClass, 'auditEvent() requires a TgAuditEventRegistry');
+
+        return $this;
+    }
+
+    private function addScoped(TgWebUiRegistry|TgWebApiRegistry|TgWebResourceRegistry|TgWebPermissionRegistry|TgAuditEventRegistry|null $registry, string $class, string $requirement): void
     {
         if (! class_exists($class)) {
             throw new LogicException("$class does not exist");

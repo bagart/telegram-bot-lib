@@ -56,6 +56,7 @@ use BAGArt\TelegramBot\Framework\Laravel\LaravelAskDnsResolver;
 use BAGArt\TelegramBot\Http\Pure\TgWebhookRequestParser;
 use BAGArt\TelegramBot\Modules\AttributedComponentsScanner;
 use BAGArt\TelegramBot\Modules\ModuleBootloader;
+use BAGArt\TelegramBot\Modules\TgAuditEventRegistry;
 use BAGArt\TelegramBot\Modules\TgCommandRegistry;
 use BAGArt\TelegramBot\Modules\TgModuleRegistrar;
 use BAGArt\TelegramBot\Modules\TgModuleRegistry;
@@ -363,6 +364,7 @@ class TelegramBotServiceProvider extends ServiceProvider
         $this->app->singleton(TgWebApiRegistry::class);
         $this->app->singleton(TgWebResourceRegistry::class);
         $this->app->singleton(TgWebPermissionRegistry::class);
+        $this->app->singleton(TgAuditEventRegistry::class);
         $this->app->singleton(
             AttributedComponentsScanner::class,
             fn ($app): AttributedComponentsScanner => new AttributedComponentsScanner(
@@ -389,6 +391,7 @@ class TelegramBotServiceProvider extends ServiceProvider
                 webApiRegistry: $app->make(TgWebApiRegistry::class),
                 webResourceRegistry: $app->make(TgWebResourceRegistry::class),
                 webPermissionRegistry: $app->make(TgWebPermissionRegistry::class),
+                auditEventRegistry: $app->make(TgAuditEventRegistry::class),
             ),
         );
 

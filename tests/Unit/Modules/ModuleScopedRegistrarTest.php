@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use BAGArt\TelegramBot\Modules\ModuleScopedRegistrar;
+use BAGArt\TelegramBot\Modules\TgAuditEventRegistry;
 use BAGArt\TelegramBot\Modules\TgWebApiRegistry;
 use BAGArt\TelegramBot\Modules\TgWebPermissionRegistry;
 use BAGArt\TelegramBot\Modules\TgWebResourceRegistry;
@@ -64,6 +65,46 @@ describe('ModuleScopedRegistrar web* stamping', function () {
     it('refuses web declarations when the registry is missing', function () {
         (new ModuleScopedRegistrar(new TypedModuleRegistrarDouble(), 'x'))->webUi(ScopedFixtureUi::class);
     })->throws(LogicException::class);
+});
+
+describe('ModuleScopedRegistrar auditEvent stamping', function () {
+    it('stamps the module id into the audit-event registry', function () {
+        $audit = new TgAuditEventRegistry();
+
+        $scoped = new ModuleScopedRegistrar(
+            inner: new TypedModuleRegistrarDouble(),
+            moduleId: 'antispam',
+            auditEventRegistry: $audit,
+        );
+
+        $scoped->auditEvent(ScopedFixtureAuditEvent::class);
+
+        expect($audit->all())->toBe([['module' => 'antispam', 'class' => ScopedFixtureAuditEvent::class]]);
+    });
+
+    it('keeps audit entries append-only: two adds produce two entries', function () {
+        $audit = new TgAuditEventRegistry();
+
+        $scoped = new ModuleScopedRegistrar(new TypedModuleRegistrarDouble(), 'dup-module', auditEventRegistry: $audit);
+        $scoped->auditEvent(ScopedFixtureAuditEvent::class);
+        $scoped->auditEvent(ScopedFixtureAuditEvent::class);
+
+        expect($audit->all())->toHaveCount(2);
+    });
+
+    it('rejects unknown audit-event classes with LogicException', function () {
+        $scoped = new ModuleScopedRegistrar(
+            new TypedModuleRegistrarDouble(),
+            'x',
+            auditEventRegistry: new TgAuditEventRegistry(),
+        );
+
+        $scoped->auditEvent('App\\Does\\Not\\Exist');
+    })->throws(LogicException::class);
+
+    it('refuses auditEvent when the registry is missing', function () {
+        (new ModuleScopedRegistrar(new TypedModuleRegistrarDouble(), 'x'))->auditEvent(ScopedFixtureAuditEvent::class);
+    })->throws(LogicException::class, 'auditEvent() requires a TgAuditEventRegistry');
 });
 
 describe('ModuleScopedRegistrar delegation', function () {
@@ -154,6 +195,13 @@ class TypedModuleRegistrarDouble implements BAGArt\TelegramBot\Modules\TgModuleR
 
         return $this;
     }
+
+    public function auditEvent(string $eventClass): self
+    {
+        $this->calls[] = [__FUNCTION__, $eventClass];
+
+        return $this;
+    }
 }
 
 final class ScopedFixtureUi
@@ -166,5 +214,8 @@ final class ScopedFixtureResource
 {
 }
 final class ScopedFixturePermissions
+{
+}
+final class ScopedFixtureAuditEvent
 {
 }

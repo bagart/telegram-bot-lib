@@ -116,33 +116,40 @@ final class TypedModuleRegistrar implements TgModuleRegistrar
 
     public function webUi(string $uiClass): self
     {
-        $this->assertWebClassExists($uiClass);
+        $this->assertClassExists($uiClass);
 
         throw self::moduleScopeRequired(__FUNCTION__);
     }
 
     public function webApi(string $handlerClass): self
     {
-        $this->assertWebClassExists($handlerClass);
+        $this->assertClassExists($handlerClass);
 
         throw self::moduleScopeRequired(__FUNCTION__);
     }
 
     public function webResource(string $providerClass): self
     {
-        $this->assertWebClassExists($providerClass);
+        $this->assertClassExists($providerClass);
 
         throw self::moduleScopeRequired(__FUNCTION__);
     }
 
     public function webPermissions(string $resolverClass): self
     {
-        $this->assertWebClassExists($resolverClass);
+        $this->assertClassExists($resolverClass);
 
         throw self::moduleScopeRequired(__FUNCTION__);
     }
 
-    private function assertWebClassExists(string $class): void
+    public function auditEvent(string $eventClass): self
+    {
+        $this->assertClassExists($eventClass);
+
+        throw self::moduleScopeRequired(__FUNCTION__);
+    }
+
+    private function assertClassExists(string $class): void
     {
         if (! class_exists($class)) {
             throw new LogicException("$class does not exist");

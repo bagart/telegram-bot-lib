@@ -29,4 +29,16 @@ describe('TypedModuleRegistrar validation unification', function () {
 
         $registrar->webApi('App\\Does\\Not\\Exist');
     })->throws(LogicException::class, 'App\Does\Not\Exist does not exist');
+
+    it('refuses bare auditEvent declarations even for existing classes: ownership context is mandatory', function () {
+        $registrar = new TypedModuleRegistrar(TypeDTOProcessorRegistry::build());
+
+        $registrar->auditEvent(DateTime::class);
+    })->throws(LogicException::class, 'auditEvent() requires module ownership context');
+
+    it('rejects auditEvent for non-existent classes with the raw existence error', function () {
+        $registrar = new TypedModuleRegistrar(TypeDTOProcessorRegistry::build());
+
+        $registrar->auditEvent('App\\Does\\Not\\Exist');
+    })->throws(LogicException::class, 'App\Does\Not\Exist does not exist');
 });

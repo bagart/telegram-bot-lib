@@ -32,6 +32,7 @@ class ModuleBootloader
         private readonly ?TgWebApiRegistry $webApiRegistry = null,
         private readonly ?TgWebResourceRegistry $webResourceRegistry = null,
         private readonly ?TgWebPermissionRegistry $webPermissionRegistry = null,
+        private readonly ?TgAuditEventRegistry $auditEventRegistry = null,
     ) {
     }
 
@@ -111,6 +112,7 @@ class ModuleBootloader
                 webApiRegistry: $this->webApiRegistry,
                 webResourceRegistry: $this->webResourceRegistry,
                 webPermissionRegistry: $this->webPermissionRegistry,
+                auditEventRegistry: $this->auditEventRegistry,
             );
             $providerClass::register($scoped);
         } catch (Throwable $e) {

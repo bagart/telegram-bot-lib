@@ -75,4 +75,12 @@ interface TgModuleRegistrar
      * @param  class-string  $resolverClass
      */
     public function webPermissions(string $resolverClass): self;
+
+    /**
+     * Declare a module audit-event class (raw store; owner = current module id).
+     * Contract refinement happens in the audit provider's registry pass.
+     *
+     * @param  class-string  $eventClass
+     */
+    public function auditEvent(string $eventClass): self;
 }

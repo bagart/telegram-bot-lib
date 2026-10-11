@@ -9,6 +9,7 @@ use BAGArt\TelegramBot\Modules\TgModuleCapability;
 use BAGArt\TelegramBot\Modules\TgModuleContract;
 use BAGArt\TelegramBot\Modules\TgModuleDescriptor;
 use BAGArt\TelegramBot\Modules\TgModuleRegistrar;
+use BAGArt\TelegramBot\Modules\TgAuditEventRegistry;
 use BAGArt\TelegramBot\Modules\TgModuleRegistry;
 use BAGArt\TelegramBot\Modules\TgWebPermissionRegistry;
 use BAGArt\TelegramBot\Modules\TgWebUiRegistry;
@@ -35,6 +36,9 @@ final class ScopedUiManifestFixture
 {
 }
 final class ScopedPermissionsFixture
+{
+}
+final class ScopedAuditEventFixture
 {
 }
 
@@ -210,6 +214,35 @@ describe('ModuleBootloader', function () {
         expect($bootloader->bootAll([$provider]))->toBe(['scoped-ui']);
         expect($uiRegistry->all())->toBe([['module' => 'scoped-ui', 'class' => ScopedUiManifestFixture::class]]);
         expect($permissionRegistry->all())->toBe([['module' => 'scoped-ui', 'class' => ScopedPermissionsFixture::class]]);
+    });
+
+    it('forwards the audit-event registry so register() auditEvent() calls populate it', function () {
+        $auditRegistry = new TgAuditEventRegistry();
+        $bootloader = new ModuleBootloader(
+            registrar: modulesTestRegistrar(TypeDTOProcessorRegistry::build()),
+            registry: new TgModuleRegistry(),
+            logger: modulesTestLogger(),
+            auditEventRegistry: $auditRegistry,
+        );
+
+        $provider = get_class(new class () implements TgModuleContract {
+            public static function descriptor(): TgModuleDescriptor
+            {
+                return new TgModuleDescriptor(
+                    id: 'scoped-audit',
+                    name: 'Scoped Audit',
+                    version: '1.0.0',
+                );
+            }
+
+            public static function register(TgModuleRegistrar $registrar): void
+            {
+                $registrar->auditEvent(ScopedAuditEventFixture::class);
+            }
+        });
+
+        expect($bootloader->bootAll([$provider]))->toBe(['scoped-audit']);
+        expect($auditRegistry->all())->toBe([['module' => 'scoped-audit', 'class' => ScopedAuditEventFixture::class]]);
     });
 
     it('records failed modules in failed() but keeps their descriptors registered', function () {
